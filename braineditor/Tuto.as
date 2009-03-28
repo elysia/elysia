@@ -1,44 +1,51 @@
-
 import flash.geom.*;
 import flash.geom.Point;
-class Test {
-function Test(scope:MovieClip) {
-//local function: drawPoint
-  var drawPoint = function(p:flash.geom.Point, size:Number, tgt:MovieClip, color: Number){
-    if (!color) color = 0x000000; //black
-        tgt.lineStyle(size, color);
-        tgt.moveTo(p.x-1, p.y);
-        tgt.lineTo(p.x+1, p.y);
-        tgt.moveTo(p.x, p.y-1);
-        tgt.lineTo(p.x, p.y+1);
-    }
 
-//Draw a diagonal line of Points 10 pixels apart
-    for(var i = 10; i < 200; i += 10){
-         var myPoint = new flash.geom.Point(i,i);
-        drawPoint(myPoint, 5, scope);
-    }
-}
-//Main Entry Point
-static function main() { 
-  var test:Test = new Test(_root);
-}
-}
-/*
 class Tuto {
 
     static var app : Tuto;
-
-    function Tuto() {
+    var counter;
+    function Tuto(mc:MovieClip) {
+        this.counter=0;
         // creates a 'tf' TextField size 800x600 at pos 0,0
         _root.createTextField("tf",0,0,0,800,600);
         // write some text into it
-        _root.tf.text = "Hello world !";
+        _root.tf.text = counter;//"Hello world !";
+        var myPoint = new flash.geom.Point(5,5);
+        mc.lineStyle(16,0xff0000);
+        mc.moveTo(99,100);
+        mc.lineTo(100,100);
+        var local=this;
+        var newmov=mc.createEmptyMovieClip("Actor",mc.getNextHighestDepth());
+        mc.onMouseMove = function () { 
+         
+          _root.tf.text = local.counter;
+          local.counter+=1;
+          newmov.lineStyle(16,0xff0000);
+          newmov.moveTo(mc._xmouse-1,mc._ymouse);
+          newmov.lineTo(mc._xmouse,mc._ymouse);
+          if (newmov.enabled)
+           newmov.enabled=false;
+          else
+           newmov.enabled=false;
+        }
+        newmov.onMouseMove = function () { 
+          newmov._x+=1;
+          newmov._width=40;
+          newmov._height=40;
+          _root.tf.text = newmov.getDepth();
+          newmov.lineStyle(16,0x00ff00);
+          newmov.moveTo(mc._xmouse/2,mc._ymouse/2);
+          newmov.lineTo(mc._xmouse/2+1,mc._ymouse/2);
+          if (newmov.enabled)
+           newmov.enabled=false;
+          else
+           newmov.enabled=false;
+        }
     }
 
     // entry point
-    static function main(mc) {
-        app = new Tuto();
+    static function main(root_mc:MovieClip) {
+        app = new Tuto(root_mc);
     }
 }
-*/

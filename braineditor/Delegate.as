@@ -25,7 +25,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 */
 
-class com.dynamicflash.utils.Delegate {
+class Delegate {
     public static function create(target:Object, handler:Function):Function {
         // Get any extra arguments for handler
         var extraArgs:Array = arguments.slice(2);
