@@ -1,4 +1,6 @@
 import Point;
+//This file should contain all movie clip
+
 
 class Sprite {
   var mSurface:MovieClip;
