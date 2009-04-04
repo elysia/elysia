@@ -17,10 +17,10 @@ Core
 >Also contains the primary drawing area call (entry point)
 
 Lobe
->
+>Init a lobe
 
 Sprite
->
+>The actual drawing mechanism
 
 Drawable
 >Objects that can be drawn
