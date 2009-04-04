@@ -1,0 +1,38 @@
+=========================================================
+
+
+"What is the matrix?"
+
+
+
+This file contains:
+Short description of project architecture
+=========================================================
+
+=========================================================CURRENT
+
+Core
+>Should only contain main and import related functionality
+>Basic layout that brings the various pieces in
+>Also contains the primary drawing area call (entry point)
+
+Lobe
+>
+
+Sprite
+>
+
+Drawable
+>Objects that can be drawn
+>Boxes
+
+Point
+>x/y location math related functions
+
+=========================================================FUTURE
+
+Gene
+>Compress information into streams
+
+xCom
+>Save/Restore/Interact communications with Elysia project server
