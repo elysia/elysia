@@ -62,10 +62,24 @@ class Sprite {
   function remove():Void {
      mSurface.removeMovieClip();
   }
-  function drawBox(topLeft:Point,botRight:Point) {
+  function lineStyle(lineThickness,lineColor,lineAlpha) {
+    mSurface.lineStyle(lineThickness,lineColor,lineAlpha);
+  }
+  function drawBoxOutline(topLeft:Point,botRight:Point, lineThickness:Number, lineColor:Number, lineAlpha:Number, fillColor:Number, fillAlpha:Number) {
+      lineStyle(lineThickness,lineColor,lineAlpha);
+      drawBox(topLeft,botRight,fillColor,fillAlpha);
+  }
+  function setPosition(pos:Point):Void {
+    mSurface._x=pos.x;
+    mSurface._y=pos.y;
+  }
+  function getPosition():Point {
+    return new Point(mSurface._x,mSurface._y);
+  }
+  function drawBox(topLeft:Point,botRight:Point, color:Number, alpha:Number) {
      var localTopLeft=worldToLocal(topLeft);
      var localBotRight=worldToLocal(botRight);
-     mSurface.beginFill(0xff0000);
+     mSurface.beginFill(color,alpha);
      mSurface.moveTo(localTopLeft.x,localTopLeft.y);
      mSurface.lineTo(localTopLeft.x,localBotRight.y);
      mSurface.lineTo(localBotRight.x,localBotRight.y);
