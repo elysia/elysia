@@ -2,11 +2,11 @@ import flash.geom.*;
 import flash.geom.Point;
 import Sprite;
 import Lobe;
-class Tuto {
-    var lobe:Lobe;
-    static var app : Tuto;
+class Core {
+    var lobe : Lobe;
+    static var app : Core;
     var counter;
-    function Tuto(mc:MovieClip) {
+    function Core(mc:MovieClip) {
         this.lobe=new Lobe();
         this.counter=0;
         // creates a 'tf' TextField size 800x600 at pos 0,0
@@ -32,6 +32,6 @@ class Tuto {
 
     // entry point
     static function main(root_mc:MovieClip) {
-        app = new Tuto(root_mc);
+        app = new Core(root_mc);
     }
 }
