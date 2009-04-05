@@ -1,0 +1,26 @@
+I. Genetic Manipulator (editor)
+>genetic code definitions
+>genetic-to-geometric parameter interpreter
+>geometric plotting tools
+->shapes
+->text
+->relevant graphs
+->lines
+->directions
+->menu
+>object information modifier tools
+>object information storage layout... class object properties?
+>server communcation protocols
+
+>rectangle discretized
+>oblique shape approximation
+>lobe level abstraction
+
+
+II. SIM (compile and run)
+
+
+
+
+
+III. Active Brain Viewer (debug info)
