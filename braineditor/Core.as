@@ -18,6 +18,7 @@ class Core {
         _root.tf.text = "Check it out, this is how you should do a....\n newline";
         
         button=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
+        button=new ModeToggleButton(mc,new Point(130,90), new Point(200,150),"DRAWMODE");
 
         mc.lineStyle(16,0xff0000);
         mc.moveTo(99,100);
@@ -33,6 +34,9 @@ class Core {
         newmov.onMouseMove = function () { 
         //_root.tf.text = local.counter;
           local.counter+=1;
+          if(Key.DELETEKEY){
+            local.counter+=1;
+          }
         }
 
     }

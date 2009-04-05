@@ -7,9 +7,9 @@ class Drawable extends Sprite{
   var mMouseCount;
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
-     mMode=DRAWMODE;
-     //mMode=DRAGMODE;
-     //mMode=ERASEMODE;
+     mMode=DRAGMODE;
+     mMode=DRAGMODE;
+     mMode=ERASEMODE;
   }
   function _mouseFunction(boxColor:Number) {
          mSelectBox.clear();
@@ -23,7 +23,7 @@ class Drawable extends Sprite{
                                    25);
   }
   function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) {
-    if (doErase) {
+    if (mMode == ERASEMODE){
     ///FIXME we probably want to call refresh and redraw everything so that a doughnut with a hole in the middle isn't actually a round bread with a painted white in the middle
       drawBoxOutline(topLeft,botRight,
                                      1,
@@ -59,10 +59,10 @@ class Drawable extends Sprite{
          var doErase=(mMode==ERASEMODE);
          var tempBoxColor=0x0000ff;
          if (doErase) {
-            mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
+            //mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
             tempBoxColor=0xff0000;
          }else { 
-            mMode=ERASEMODE;
+            //mMode=ERASEMODE;
          }
          mSurface.onMouseMove=function(){lobe._mouseFunction(tempBoxColor);};
          mSurface.onMouseUp=function()

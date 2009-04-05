@@ -34,16 +34,6 @@ class ButtonControl extends Sprite {
      mText._width=dimensions.x;
      mText._height=dimensions.y;
   }
-
-  function onPress():Void {
-     mText.text="Pressed";
-  }
-  function onRelease():Void {
-     mText.text="Release";
-  }
-  function onReleaseOutside():Void {
-     mText.text="ReleaseOut";
-  }
   function setText(text):Void {
      mText.text=text;
   }  
