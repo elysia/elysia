@@ -19,6 +19,7 @@ class Core {
         
         button=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
         button=new ModeToggleButton(mc,new Point(130,90), new Point(200,150),"DRAWMODE");
+        button=new MakeLobeButton(mc,new Point(200,100), new Point(250,150),"Make a Lobe");
 
         mc.lineStyle(16,0xff0000);
         mc.moveTo(99,100);
@@ -34,9 +35,6 @@ class Core {
         newmov.onMouseMove = function () { 
         //_root.tf.text = local.counter;
           local.counter+=1;
-          if(Key.DELETEKEY){
-            local.counter+=1;
-          }
         }
 
     }
