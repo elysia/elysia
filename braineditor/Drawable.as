@@ -8,8 +8,8 @@ class Drawable extends Sprite{
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
      mMode=DRAGMODE;
-     mMode=DRAGMODE;
-     mMode=ERASEMODE;
+     //mMode=DRAGMODE;
+     //mMode=ERASEMODE;
   }
   function _mouseFunction(boxColor:Number) {
          mSelectBox.clear();
