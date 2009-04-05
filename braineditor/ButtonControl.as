@@ -44,5 +44,10 @@ class ButtonControl extends Sprite {
   function onReleaseOutside():Void {
      mText.text="ReleaseOut";
   }
-  
+  function setText(text):Void {
+     mText.text=text;
+  }  
+  function getText():String {
+     return mText.text;
+  }  
 }
