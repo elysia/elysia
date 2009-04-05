@@ -2,14 +2,14 @@ class Drawable extends Sprite{
   static var DRAGMODE=0;
   static var DRAWMODE=1;
   static var ERASEMODE=2;
-  var mMode:Number;
+  static var mMode:Number;
   var mSelectBox:Sprite;
   var mMouseCount;
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
-     this.mMode=DRAWMODE;
-     //this.mMode=DRAGMODE;
-     //this.mMode=ERASEMODE;
+     mMode=DRAWMODE;
+     //mMode=DRAGMODE;
+     //mMode=ERASEMODE;
   }
   function _mouseFunction(boxColor:Number) {
          mSelectBox.clear();
@@ -24,6 +24,7 @@ class Drawable extends Sprite{
   }
   function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) {
     if (doErase) {
+    ///FIXME we probably want to call refresh and redraw everything so that a doughnut with a hole in the middle isn't actually a round bread with a painted white in the middle
       drawBoxOutline(topLeft,botRight,
                                      1,
                                      0xffffff,
@@ -40,7 +41,7 @@ class Drawable extends Sprite{
     }
   }
   function onPress():Void {
-     if (this.mMode==DRAGMODE) {
+     if (mMode==DRAGMODE) {
          mSurface.startDrag(false,-16384,-16384,16384,16834);
          var lobe=this;
          mSurface.onMouseUp=function()
@@ -48,20 +49,20 @@ class Drawable extends Sprite{
             lobe.mSurface.onMouseUp=function(){};
             lobe.mSurface.stopDrag();
          }
-     }else if (this.mMode==DRAWMODE||this.mMode==ERASEMODE) {
+     }else if (mMode==DRAWMODE||mMode==ERASEMODE) {
          var mousePos=new Point(_root._xmouse,_root._ymouse)
          mSelectBox=new Sprite(mSurface,mSurface.getNextHighestDepth());
          var localMousePos=worldToLocal(mousePos);
          mSelectBox.setPosition(localMousePos);
          mSelectBox.penTo(mousePos);
          var lobe=this;
-         var doErase=(this.mMode==ERASEMODE);
+         var doErase=(mMode==ERASEMODE);
          var tempBoxColor=0x0000ff;
          if (doErase) {
-            this.mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
+            mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
             tempBoxColor=0xff0000;
          }else { 
-            this.mMode=ERASEMODE;
+            mMode=ERASEMODE;
          }
          mSurface.onMouseMove=function(){lobe._mouseFunction(tempBoxColor);};
          mSurface.onMouseUp=function()
