@@ -1,6 +1,7 @@
 class Drawable extends Sprite{
   static var DRAGMODE=0;
   static var DRAWMODE=1;
+  static var ERASEMODE=2;
   var mMode:Number;
   var mSelectBox:Sprite;
   var mMouseCount;
@@ -8,25 +9,35 @@ class Drawable extends Sprite{
      super(parent,layer);
      this.mMode=DRAWMODE;
      //this.mMode=DRAGMODE;
+     //this.mMode=ERASEMODE;
   }
-  function _mouseFunction() {
+  function _mouseFunction(boxColor:Number) {
          mSelectBox.clear();
          var worldPos=new Point(_root._xmouse,_root._ymouse);
          mSelectBox.drawBoxOutline(mSelectBox.localToWorld(new Point(0,0)),
                                    new Point(_root._xmouse,_root._ymouse),
                                    1,
-                                   0x0000ff,
+                                   boxColor,
                                    100,
-                                   0x0000ff,
+                                   boxColor,
                                    25);
   }
-  function commitBox(topLeft:Point, botRight:Point) {
-    drawBoxOutline(topLeft,botRight,
-                                   1,
-                                   0xffffff,
-                                   0,
-                                   0x00ffff,
-                                   25);
+  function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) {
+    if (doErase) {
+      drawBoxOutline(topLeft,botRight,
+                                     1,
+                                     0xffffff,
+                                     0,
+                                     0xffffff,
+                                     100);
+    }else {
+      drawBoxOutline(topLeft,botRight,
+                                     1,
+                                     0xffffff,
+                                     0,
+                                     0x00ffff,
+                                     25);
+    }
   }
   function onPress():Void {
      if (this.mMode==DRAGMODE) {
@@ -37,19 +48,27 @@ class Drawable extends Sprite{
             lobe.mSurface.onMouseUp=function(){};
             lobe.mSurface.stopDrag();
          }
-     }else if (this.mMode=DRAWMODE){
+     }else if (this.mMode==DRAWMODE||this.mMode==ERASEMODE) {
          var mousePos=new Point(_root._xmouse,_root._ymouse)
          mSelectBox=new Sprite(mSurface,mSurface.getNextHighestDepth());
          var localMousePos=worldToLocal(mousePos);
          mSelectBox.setPosition(localMousePos);
          mSelectBox.penTo(mousePos);
          var lobe=this;
-         mSurface.onMouseMove=function(){lobe._mouseFunction();};
+         var doErase=(this.mMode==ERASEMODE);
+         var tempBoxColor=0x0000ff;
+         if (doErase) {
+            this.mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
+            tempBoxColor=0xff0000;
+         }else { 
+            this.mMode=ERASEMODE;
+         }
+         mSurface.onMouseMove=function(){lobe._mouseFunction(tempBoxColor);};
          mSurface.onMouseUp=function()
          {
             lobe.mSurface.onMouseUp=function(){};
             lobe.mSurface.onMouseMove=function(){};
-            lobe.commitBox(lobe.localToWorld(lobe.mSelectBox.getPosition()),new Point(_root._xmouse,_root._ymouse));
+            lobe.commitBox(lobe.localToWorld(lobe.mSelectBox.getPosition()),new Point(_root._xmouse,_root._ymouse),doErase);
             lobe.mSelectBox.remove();
             lobe.mSelectBox=null;
          }
