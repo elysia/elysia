@@ -4,10 +4,12 @@ import Point;
 
 class Sprite {
   var mSurface:MovieClip;
+  static var sNumMovieClips:Number=0;
   function Sprite (parent:MovieClip,depthValue:Number) {
     if (depthValue==null) 
       depthValue=parent.getNextHighestDepth();
-    this.mSurface=parent.createEmptyMovieClip(String(this),depthValue);
+    this.mSurface=parent.createEmptyMovieClip(String(sNumMovieClips),depthValue);
+    sNumMovieClips++;
     var sprite=this;
     mSurface.onPress=function() { sprite.onPress(); };
     mSurface.onDragOver=function() { sprite.onDragOver(); };
@@ -104,5 +106,8 @@ class Sprite {
      mSurface._x=worldPos.x;
      mSurface._y=worldPos.y;
   }
-
+  function resize(dimensions:Point):Void {
+    mSurface._width=dimensions.x;
+    mSurface._height=dimensions.y;
+  }
 }

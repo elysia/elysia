@@ -1,10 +1,10 @@
-import flash.geom.*;
-import flash.geom.Point;
 import Sprite;
 import Lobe;
-
+import Point;
+import ButtonControl;
 class Core {
     var lobe : Lobe;
+    var button : ButtonControl;
     static var app : Core;
     var counter;
     //==========================================================================
@@ -13,16 +13,19 @@ class Core {
         //this.lobe=new Lobe();  //What does this line actually do?
         this.counter=0;
         // creates a 'tf' TextField size 800x600 at pos 0,0
-        _root.createTextField("tf",0,0,0,800,600);
+        //_root.createTextField("tf",0,0,0,800,600);
         // write some text into it
-        _root.tf.text = "Check it out, this is how you should do a....\n newline";
+        //_root.tf.text = "Check it out, this is how you should do a....\n newline";
         
+        button=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
+
         mc.lineStyle(16,0xff0000);
         mc.moveTo(99,100);
         mc.lineTo(100,100);
         var local=this;
         
         //Draws a circle area that activates lobe
+
         var newmov=(new Lobe(mc,mc.getNextHighestDepth())).mSurface;
         newmov.lineStyle(16,0xffff00);
         newmov.moveTo(110,100);
