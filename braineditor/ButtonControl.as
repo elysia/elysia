@@ -12,7 +12,7 @@ class ButtonControl extends Sprite {
      parent.globalToLocal(localLowerLeft);
      var dimensions=localUpperRight.subtractVector(localLowerLeft);
      translateTo(localLowerLeft);
-     drawBoxOutline(localLowerLeft,localUpperRight, 2, 0x7f7f7f, 100, 0x3f3f3f, 50);
+     drawBoxOutline(new Point(0,0),dimensions, 2, 0x7f7f7f, 100, 0x3f3f3f, 50);
      resize(dimensions);
      mSurface.createTextField("mText",mSurface.getNextHighestDepth(),3,3,dimensions.x-6,dimensions.y-6);
      mText=mSurface.mText;

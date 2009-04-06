@@ -34,7 +34,26 @@ class Point {
         function toString() : String {
            return String(x)+","+String(y);
         }
-
+        function minimum(other:Point) {
+           var retval=clone();
+           if (retval.x>other.x) {
+             retval.x=other.x;
+           }
+           if (retval.y>other.y) {
+             retval.y=other.y;
+           }
+           return retval;
+        }
+        function maximum(other:Point) {
+           var retval=clone();
+           if (retval.x<other.x) {
+             retval.x=other.x;
+           }
+           if (retval.y<other.y) {
+             retval.y=other.y;
+           }
+           return retval;
+        }
 
         static function distance( p1 : Point, p2 : Point ) : Number {
             var dx=(p1.x-p2.x);

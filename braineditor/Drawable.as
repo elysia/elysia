@@ -4,40 +4,66 @@ class Drawable extends Sprite{
   static var ERASEMODE=2;
   static var mMode:Number;
   var mSelectBox:Sprite;
-  var mMouseCount;
+  var mShapes:Array;
+  
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
      mMode=DRAGMODE;
      //mMode=DRAGMODE;
      //mMode=ERASEMODE;
+     mShapes=new Array();
   }
-  function _mouseFunction(boxColor:Number) {
-         mSelectBox.clear();
-         var worldPos=new Point(_root._xmouse,_root._ymouse);
-         mSelectBox.drawBoxOutline(mSelectBox.localToWorld(new Point(0,0)),
-                                   new Point(_root._xmouse,_root._ymouse),
-                                   1,
-                                   boxColor,
-                                   100,
-                                   boxColor,
-                                   25);
+  function _mouseFunction(boxColor:Number):Void {
+    mSelectBox.clear();
+    var worldPos=new Point(_root._xmouse,_root._ymouse);
+    mSelectBox.drawBoxOutline(new Point(0,0),
+                              mSelectBox.worldToLocal(new Point(_root._xmouse,_root._ymouse)),
+                              1,
+                              boxColor,
+                              100,
+                              boxColor,
+                              25);
   }
-  function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) {
+  function drawRect(rect:Rect) :Void{
+      rect.drawBox(this,0x00ffff,25);
+  }
+  function refresh() :Void{
+     clear();
+     var shapeLength=mShapes.length;
+     var i;
+     for (i=0;i<shapeLength;++i) {
+       drawRect(mShapes[i]);
+     }
+  }
+  function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) :Void{
+    var rect:Rect=new Rect(topLeft,botRight);
     if (mMode == ERASEMODE){
-    ///FIXME we probably want to call refresh and redraw everything so that a doughnut with a hole in the middle isn't actually a round bread with a painted white in the middle
-      drawBoxOutline(topLeft,botRight,
+       var newShapes=new Array();
+       var i;
+       var shapeLength=mShapes.length;
+       for (i=0;i<shapeLength;++i) {
+         var shape=mShapes.pop();
+         var a=shape.cutOutShape(rect);
+         var j;
+         var aLength=a.length;
+         for (j=0;j<aLength;++j) {
+            newShapes.push(a.pop());
+         }
+       }
+       mShapes=newShapes;
+       refresh();
+/*
+       ///FIXME we probably want to call refresh and redraw everything so that a doughnut with a hole in the middle isn't actually a round bread with a painted white in the middle
+       drawBoxOutline(topLeft,botRight,
                                      1,
                                      0xffffff,
                                      0,
                                      0xffffff,
                                      100);
+*/
     }else {
-      drawBoxOutline(topLeft,botRight,
-                                     1,
-                                     0xffffff,
-                                     0,
-                                     0x00ffff,
-                                     25);
+      mShapes.push(rect);
+      drawRect(rect);
     }
   }
   function onPress():Void {
@@ -69,7 +95,7 @@ class Drawable extends Sprite{
          {
             lobe.mSurface.onMouseUp=function(){};
             lobe.mSurface.onMouseMove=function(){};
-            lobe.commitBox(lobe.localToWorld(lobe.mSelectBox.getPosition()),new Point(_root._xmouse,_root._ymouse),doErase);
+            lobe.commitBox(lobe.mSelectBox.getPosition(),lobe.worldToLocal(new Point(_root._xmouse,_root._ymouse)),doErase);
             lobe.mSelectBox.remove();
             lobe.mSelectBox=null;
          }

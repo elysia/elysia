@@ -60,9 +60,6 @@ class Sprite {
      mSurface.localToGlobal(pt);
      return pt;
   }
-  function clear():Void {
-     mSurface.clear();
-  }
   function remove():Void {
      mSurface.removeMovieClip();
   }
@@ -80,9 +77,12 @@ class Sprite {
   function getPosition():Point {
     return new Point(mSurface._x,mSurface._y);
   }
-  function drawBox(topLeft:Point,botRight:Point, color:Number, alpha:Number) {
+  function drawBoxWorldCoords(topLeft:Point,botRight:Point, color:Number, alpha:Number) {
      var localTopLeft=worldToLocal(topLeft);
      var localBotRight=worldToLocal(botRight);
+     drawBox(localTopLeft,localBotRight,color,alpha);
+  }
+  function drawBox(localTopLeft:Point,localBotRight:Point, color:Number, alpha:Number) {
      mSurface.beginFill(color,alpha);
      mSurface.moveTo(localTopLeft.x,localTopLeft.y);
      mSurface.lineTo(localTopLeft.x,localBotRight.y);
@@ -109,5 +109,8 @@ class Sprite {
   function resize(dimensions:Point):Void {
     mSurface._width=dimensions.x;
     mSurface._height=dimensions.y;
+  }
+  function clear():Void {
+    mSurface.clear();
   }
 }
