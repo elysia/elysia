@@ -4,7 +4,6 @@ import Point;
 import ButtonControl;
 class Core {
     var lobe : Lobe;
-    var controlbutton : ButtonControl;
     var modetogglebutton : ModeToggleButton;
     var makelobebutton : MakeLobeButton;
     static var app : Core;
@@ -17,19 +16,15 @@ class Core {
         // creates a 'tf' TextField size 800x600 at pos 0,0
         _root.createTextField("tf",0,0,0,800,600);
         // write some text into it
-        _root.tf.text = "Check it out, this is how you should do a....\n newline";
+        _root.tf.text = "Elysia Brain Editor\nVersion 2.0\n";
         
-        controlbutton=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
-        modetogglebutton=new ModeToggleButton(mc,new Point(130,90), new Point(200,150),"DRAWMODE");
-        makelobebutton=new MakeLobeButton(mc,new Point(200,100), new Point(250,150),modetogglebutton);
+        modetogglebutton=new ModeToggleButton(mc,new Point(0,40), new Point(100,70),"DRAWMODE");
+        makelobebutton=new MakeLobeButton(mc,new Point(0,80), new Point(100,110),modetogglebutton);
 
-        mc.lineStyle(16,0xff0000);
-        mc.moveTo(99,100);
-        mc.lineTo(100,100);
         var local=this;
         
         //Draws a circle area that activates lobe
-
+/*
         var newmov=(new Lobe(mc,mc.getNextHighestDepth())).mSurface;
         newmov.lineStyle(16,0xffff00);
         newmov.moveTo(110,100);
@@ -38,7 +33,7 @@ class Core {
         //_root.tf.text = local.counter;
           local.counter+=1;
         }
-
+*/
     }
 
     // entry point==============================================================

@@ -11,8 +11,8 @@ class MakeLobeButton extends ButtonControl{
     function onPress():Void {
     mMode.setdrag();
     var newmov=(new Lobe(_root,_root.getNextHighestDepth()));
-    var topleft = new Point(10,10);
-    var botright = new Point(110,110);
+    var topleft = new Point(100,40);
+    var botright = new Point(200,140);
     newmov.commitBox(topleft, botright, 0);
     }
 }
