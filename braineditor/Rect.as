@@ -5,8 +5,8 @@ class Rect extends Shape {
    var mLowerRight:Point;
    //returns an array of shapes that is this shape intersected
    function Rect(upperLeft:Point,lowerRight:Point) {
-      mUpperLeft=upperLeft;
-      mLowerRight=lowerRight;
+      mUpperLeft=upperLeft.minimum(lowerRight);
+      mLowerRight=upperLeft.maximum(lowerRight);
    }
    function isValid() :Boolean{
       return mUpperLeft.x<mLowerRight.x&&mUpperLeft.y<mLowerRight.y;
