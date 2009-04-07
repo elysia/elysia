@@ -1,5 +1,6 @@
 import ButtonControl;
 import Drawable;
+import Brain
 
 class MakeLobeButton extends ButtonControl{
     
@@ -9,10 +10,7 @@ class MakeLobeButton extends ButtonControl{
     }
     var mMode;
     function onPress():Void {
+    Brain.makenewlobe();
     mMode.setdrag();
-    var newmov=(new Lobe(_root,_root.getNextHighestDepth()));
-    var topleft = new Point(100,40);
-    var botright = new Point(200,140);
-    newmov.commitBox(topleft, botright, 0);
     }
 }
