@@ -4,7 +4,9 @@ import Point;
 import ButtonControl;
 class Core {
     var lobe : Lobe;
-    var button : ButtonControl;
+    var controlbutton : ButtonControl;
+    var modetogglebutton : ModeToggleButton;
+    var makelobebutton : MakeLobeButton;
     static var app : Core;
     var counter;
     //==========================================================================
@@ -17,9 +19,9 @@ class Core {
         // write some text into it
         _root.tf.text = "Check it out, this is how you should do a....\n newline";
         
-        button=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
-        button=new ModeToggleButton(mc,new Point(130,90), new Point(200,150),"DRAWMODE");
-        button=new MakeLobeButton(mc,new Point(200,100), new Point(250,150),"Make a Lobe");
+        controlbutton=new ButtonControl(mc,new Point(40,60),new Point(120,80),"AWESOME");
+        modetogglebutton=new ModeToggleButton(mc,new Point(130,90), new Point(200,150),"DRAWMODE");
+        makelobebutton=new MakeLobeButton(mc,new Point(200,100), new Point(250,150),modetogglebutton);
 
         mc.lineStyle(16,0xff0000);
         mc.moveTo(99,100);
