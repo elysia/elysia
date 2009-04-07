@@ -2,15 +2,12 @@ class Drawable extends Sprite{
   static var DRAGMODE=0;
   static var DRAWMODE=1;
   static var ERASEMODE=2;
-  static var mMode:Number;
+  static var mMode:Number=DRAGMODE;
   var mSelectBox:Sprite;
   var mShapes:Array;
   
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
-     mMode=DRAGMODE;
-     //mMode=DRAGMODE;
-     //mMode=ERASEMODE;
      mShapes=new Array();
   }
   function _mouseFunction(boxColor:Number):Void {
