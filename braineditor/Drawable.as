@@ -4,10 +4,25 @@ class Drawable extends Sprite{
   static var ERASEMODE=2;
   static var mMode:Number=DRAGMODE;
   var mSelectBox:Sprite;
+  ///mIsSelected is -1 if this item is not selected and otherwise the # in the SelectionManagerArray
+  var mIsSelected:Number;
   var mShapes:Array;
-  
+  function isSelected():Boolean {
+    return mIsSelected!=-1;
+  }
+  function getSelectedIndex():Number {
+     return mIsSelected;
+  }
+  function setSelectedIndex(index:Number):Void {
+     var oldIndex=mIsSelected;
+     mIsSelected=index;
+     if (((oldIndex==-1)!=(mIsSelected==-1)) 
+        || ((oldIndex==0)!=(mIsSelected==0)))
+        refresh();
+  }
   function Drawable(parent:MovieClip,layer:Number) {
      super(parent,layer);
+     mIsSelected=-1;
      mShapes=new Array();
   }
   function _mouseFunction(boxColor:Number):Void {
@@ -22,7 +37,12 @@ class Drawable extends Sprite{
                               25);
   }
   function drawRect(rect:Rect) :Void{
-      rect.drawBox(this,0x00ffff,25);
+      var color:Number=0x00ffff;
+      var alpha:Number=25;
+      if (isSelected()) {
+         color=0x0025ff;         
+      }
+      rect.drawBox(this,color,alpha);
   }
   function refresh() :Void{
      clear();
