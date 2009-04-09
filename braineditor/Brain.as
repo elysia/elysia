@@ -10,7 +10,11 @@ class Brain{
       var topleft = new Point(100,40);
       var botright = new Point(200,140);
       newmov.commitBox(topleft, botright, 0);
-              var keyListener = {};
+    }
+
+    function Brain (root_mc:MovieClip) {
+       mSelectionManager = new SelectionManager(root_mc);
+               var keyListener = {};
         keyListener.onKeyDown = function()
         {
             var k = Key.getCode();
@@ -18,9 +22,7 @@ class Brain{
                 Brain.makenewlobe();
             }
         };
-    }
-    function Brain (root_mc:MovieClip) {
-       mSelectionManager = new SelectionManager(root_mc);
+        Key.addListener( keyListener );
     }
 }
 
