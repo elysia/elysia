@@ -49,4 +49,8 @@ class Rect extends Shape {
        }
    }
    function typeOf():String { return "Rect";}
+   function within(point:Point):Boolean {
+      return point.x>=mUpperLeft.x&&point.x<=mLowerRight.x&&
+             point.y>=mUpperLeft.y&&point.x<=mLowerRight.y;
+   }
 }
