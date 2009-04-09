@@ -44,9 +44,21 @@ class SelectionManager {
      }
   }
   static function selectItem(where:Point){
-
+    var i:Number;
+    for ( i=0;i<mSelectedDrawables.size();++i) {
+      if(mSelectedDrawables[i].within(where)) {
+        //mSelectedDrawable[i]
+      }
+    }
   }
   static function selectRegion(topLeft:Point,bottomRight:Point) {
+    var region:Rect=new Rect(topLeft,bottomRight);
+    var i:Number;
+    for ( i=0;i<mSelectedDrawables.size();++i) {
+      if(mSelectedDrawables[i].withinShape(region)) {
+        //mSelectedDrawables[i]
+      }
+    }
      
   }
   static function addToSelected(drawable:Drawable):Void {
