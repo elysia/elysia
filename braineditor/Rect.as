@@ -17,6 +17,7 @@ class Rect extends Shape {
    function toString():String {
       return "["+mUpperLeft.toString()+"-"+mLowerRight+"]";
    }
+   
    function cutOutShape(unboundDeleteShape):Array  {
        var a=new Array();
        a.push(unboundDeleteShape);
@@ -51,6 +52,11 @@ class Rect extends Shape {
    function typeOf():String { return "Rect";}
    function within(point:Point):Boolean {
       return point.x>=mUpperLeft.x&&point.x<=mLowerRight.x&&
-             point.y>=mUpperLeft.y&&point.x<=mLowerRight.y;
+             point.y>=mUpperLeft.y&&point.y<=mLowerRight.y;
+   }
+   function withinShape(rect):Boolean {
+      var MUL=rect.mUpperLeft.maximum(mUpperLeft);
+      var MLR=rect.mLowerRigtht.minimum(mLowerRight);
+      return MUL.x<=MLR.x&&MUL.y<=MLR.y;//&&within(MUL)&&within(MLR)&&rect.within(MLR)&&rect.within(MUL);
    }
 }

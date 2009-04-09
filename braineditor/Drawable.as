@@ -57,6 +57,30 @@ class Drawable extends Sprite{
        drawRect(mShapes[i]);
      }
   }
+  function within(p:Point) :Boolean{
+     var shapeLength=mShapes.length;
+     var i;
+     p=worldToLocal(p);
+     for (i=0;i<shapeLength;++i) {
+       if (mShapes[i].within(p)) {
+          return 1==1;
+       }
+     }
+     return 1!=1;
+  }
+  function withinShape(s:Shape) :Boolean{
+     var shapeLength=mShapes.length;
+     var i;
+     var r=s;
+     r.mUpperLeft=worldToLocal(r.mUpperLeft);
+     r.mLowerRight=worldToLocal(r.mLowerRight);
+     for (i=0;i<shapeLength;++i) {
+       if (mShapes[i].withinShape(r)) {
+          return 1==1;
+       }
+     }
+     return 1!=1;
+  }
   function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) :Void{
     var rect:Rect=new Rect(topLeft,botRight);
     if (mMode == ERASEMODE){
@@ -89,15 +113,7 @@ class Drawable extends Sprite{
     }
   }
   function onPress():Void {
-     if (mMode==DRAGMODE) {
-         mSurface.startDrag(false,-16384,-16384,16384,16834);
-         var lobe=this;
-         mSurface.onMouseUp=function()
-         {
-            lobe.mSurface.onMouseUp=function(){};
-            lobe.mSurface.stopDrag();
-         }
-     }else if (mMode==DRAWMODE||mMode==ERASEMODE) {
+      if (mMode==DRAWMODE||mMode==ERASEMODE) {
          var mousePos=new Point(_root._xmouse,_root._ymouse)
          mSelectBox=new Sprite(mSurface,mSurface.getNextHighestDepth());
          var localMousePos=worldToLocal(mousePos);

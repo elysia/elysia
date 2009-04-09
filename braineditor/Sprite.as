@@ -60,6 +60,16 @@ class Sprite {
      mSurface.localToGlobal(pt);
      return pt;
   }
+  function worldToParent(worldPos:Point):Point {
+     var pt=worldPos.clone();
+     mSurface._parent.globalToLocal(pt);
+     return pt;
+  }
+  function parentToWorld(localPos:Point):Point {
+     var pt=localPos.clone();
+     mSurface._parent.localToGlobal(pt);
+     return pt;
+  }
   function remove():Void {
      mSurface.removeMovieClip();
   }
