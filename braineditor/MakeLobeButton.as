@@ -9,18 +9,8 @@ class MakeLobeButton extends ButtonControl{
     mMode = Mode;
     }
     var mMode;
-    var keyListener = {};
-    keyListener.onKeyDown = function(){
-        var theKey = Key.getCode();
-        if(theKey == Key.DELETEKEY){
-        Brain.makenewlobe();
-        };
-    }
-    
-Key.addListener( keyListener );
     function onPress():Void {
     Brain.makenewlobe();
     mMode.setdrag();
     }
 }
-
