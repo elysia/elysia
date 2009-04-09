@@ -9,6 +9,20 @@ This file contains:
 Short description of project architecture
 =========================================================
 
+=========================================================Features
+
+Copy lobe info to copy box
+Hover over for "focus" + properties --> select for more properties + edit
+New piece box (need lobe + target)
+Edit lobe properties
+Delete (maybe delete key?) (maybe button?)
+Multiple selection function
+Save
+Undo
+Load
+Defined input and outputs
+
+
 =========================================================CURRENT
 
 Core
@@ -36,3 +50,7 @@ Gene
 
 xCom
 >Save/Restore/Interact communications with Elysia project server
+
+
+
+
