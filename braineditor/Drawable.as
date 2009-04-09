@@ -11,6 +11,7 @@ class Drawable extends Sprite{
   static function isDragMode():Boolean {
      return mMode==DRAGMODE;
   }
+
   function isSelected():Boolean {
     return mIsSelected!=-1;
   }
