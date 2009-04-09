@@ -21,16 +21,7 @@ class Core {
         brain = new Brain();
         modetogglebutton=new ModeToggleButton(mc,new Point(0,40), new Point(100,70),"DRAWMODE");
         makelobebutton=new MakeLobeButton(mc,new Point(0,80), new Point(100,110),modetogglebutton);
-        var keyListener = {};
-        keyListener.onKeyDown = function()
-        {
-            var k = Key.getCode();
-            if(k == Key.DELETEKEY){
-                Brain.makenewlobe();
-            }
-        };
 
-    Key.addListener( keyListener );
     }
 
     // entry point==============================================================
