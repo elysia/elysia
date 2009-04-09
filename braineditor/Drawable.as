@@ -3,10 +3,14 @@ class Drawable extends Sprite{
   static var DRAWMODE=1;
   static var ERASEMODE=2;
   static var mMode:Number=DRAGMODE;
+  static var sMinimumDrawDistance:Number=2;
   var mSelectBox:Sprite;
   ///mIsSelected is -1 if this item is not selected and otherwise the # in the SelectionManagerArray
   var mIsSelected:Number;
   var mShapes:Array;
+  static function isDragMode():Boolean {
+     return mMode==DRAGMODE;
+  }
   function isSelected():Boolean {
     return mIsSelected!=-1;
   }
@@ -112,7 +116,10 @@ class Drawable extends Sprite{
          {
             lobe.mSurface.onMouseUp=function(){};
             lobe.mSurface.onMouseMove=function(){};
-            lobe.commitBox(lobe.mSelectBox.getPosition(),lobe.worldToLocal(new Point(_root._xmouse,_root._ymouse)),doErase);
+            var endPoint:Point=lobe.worldToLocal(new Point(_root._xmouse,_root._ymouse));
+            if (Point.distance(endPoint,lobe.mSelectBox.getPosition())>=Drawable.sMinimumDrawDistance) {
+              lobe.commitBox(lobe.mSelectBox.getPosition(),endPoint,doErase);
+            }
             lobe.mSelectBox.remove();
             lobe.mSelectBox=null;
          }
