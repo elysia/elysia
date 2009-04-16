@@ -16,12 +16,17 @@ class ScrollControl extends Sprite {
         parent.globalToLocal(localLowerLeft);
         var dimensions=localUpperRight.subtractVector(localLowerLeft);
         translateTo(localLowerLeft);
-        drawBoxOutline(new Point(0,0),dimensions, 2, 0x7f7f7f, 100, 0x3f3f3f, 50);
+        drawBoxOutline(new Point(0,0),dimensions, 2, 0x7f0000, 100, 0x3f0000, 50);
         resize(dimensions);
         //Generate 3 boxes
             //top box
             //scroll grab box
             //bottom box
+    }
+    function resize(dimensions:Point):Void {
+        super.resize(dimensions);
+        mText._width=dimensions.x;
+        mText._height=dimensions.y;
     }
     //top box actions
     //middle box actions
