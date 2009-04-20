@@ -4,6 +4,9 @@ import Point;
 
 class Sprite {
   var mSurface:MovieClip;
+  var mDepth:Number;
+  var mParent:MovieClip;
+  var mName:String;
   var x:Number;
   var y:Number;
   var height:Number;
@@ -12,7 +15,15 @@ class Sprite {
   function Sprite (parent:MovieClip,depthValue:Number) {
     if (depthValue==null) 
       depthValue=parent.getNextHighestDepth();
-    this.mSurface=parent.createEmptyMovieClip(String(sNumMovieClips),depthValue);
+    this.mDepth=depthValue;
+    this.mParent=parent;
+    this.mName=String(sNumMovieClips);
+    var sprite=this;
+    addSprite();
+    updateData();
+  }
+  function addSprite():Void{
+    this.mSurface=mParent.createEmptyMovieClip(mName,mDepth);
     sNumMovieClips++;
     var sprite=this;
     mSurface.onPress=function() { sprite.onPress(); };
@@ -29,7 +40,6 @@ class Sprite {
     mSurface.onRollOver=function() {sprite.onRollOver();}  ;
     mSurface.onSetFocus=function(oldFocus:Object){sprite.onSetFocus(oldFocus);};
     mSurface.onDragOut=function() {sprite.onDragOut();} ;  
-    updateData();
   }
   function onPressKey():Void {
   }
@@ -75,7 +85,7 @@ class Sprite {
      mSurface._parent.localToGlobal(pt);
      return pt;
   }
-  function remove():Void {
+  function removeSprite():Void {
      mSurface.removeMovieClip();
   }
   function lineStyle(lineThickness,lineColor,lineAlpha) {
@@ -114,20 +124,29 @@ class Sprite {
      worldPos=worldToLocal(worldPos);
      mSurface.lineTo(worldPos.x,worldPos.y);
   }
-  function translate(worldVector:Point):Void {
+  function translateBase(worldVector:Point):Void {
      mSurface._x+=worldVector.x;
      mSurface._y+=worldVector.y;
      updateData();
   }
-  function translateTo(worldPos:Point):Void {
+  function translate(worldVector:Point):Void {
+    translateBase(worldVector);
+  }
+  function translateToBase(worldPos:Point):Void {
      mSurface._x=worldPos.x;
      mSurface._y=worldPos.y;
      updateData();
   }
-  function resize(dimensions:Point):Void {
+  function translateTo(worldPos:Point):Void {
+    translateToBase(worldPos);
+  }
+  function resizeBase(dimensions:Point):Void {
     mSurface._width=dimensions.x;
     mSurface._height=dimensions.y;
     updateData();
+  }
+  function resize(dimensions:Point):Void {
+    resizeBase(dimensions);
   }
   function clear():Void {
     mSurface.clear();

@@ -1,5 +1,5 @@
 
-include_files = Core.as Sprite.as Lobe.as Point.as Drawable.as ButtonControl.as MakeLobeButton.as ModeToggleButton.as Rect.as Shape.as SelectionManager.as Brain.as TextButton.as AbstractButton.as
+include_files = Core.as Sprite.as SpriteTransform.as Lobe.as Point.as Drawable.as ButtonControl.as MakeLobeButton.as ModeToggleButton.as Rect.as Shape.as SelectionManager.as Brain.as TextButton.as AbstractButton.as UndoManager.as SpriteTransform.as
 daniel_path = /mtasc/std
 andrew_path = /usr/share/mtasc/std
 nghia_path  = /cygworks/mtasc/std

@@ -10,6 +10,7 @@ class Brain{
       var topleft = new Point(100,40);
       var botright = new Point(200,140);
       newmov.commitBox(topleft, botright, 0);
+      UndoManager.coalesceUndos();
       mLobes.push(newmov);//need to add it to the array of lobes;
     }
 
@@ -22,6 +23,13 @@ class Brain{
             if(k == Key.DELETEKEY){
                 Brain.makenewlobe();
             }
+            if (k== 90) {
+                UndoManager.undo();
+            }
+            if (k== 89) {
+                UndoManager.redo();
+            }
+
        };
        Key.addListener( keyListener );
     }

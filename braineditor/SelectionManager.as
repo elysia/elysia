@@ -3,30 +3,29 @@ class SelectionManager {
   static var isDragging:Boolean=false;
   static var sMaxDepth:Number=16383;
   var mSelectBox:Sprite;
-  var mMousePressPos:Point;
+  static var sMousePressPos:Point=null;
   static var mLastDragMouseSample:Point;
   static var mLastSelectionPoint=null;
   function SelectionManager(mc:MovieClip) {
      mSelectBox=null;
-     mMousePressPos=null;
      var sm:SelectionManager=this;
      mc.onMouseDown=function():Void {
-       sm.mMousePressPos=new Point(_root._xmouse,_root._ymouse)
+       SelectionManager.sMousePressPos=new Point(_root._xmouse,_root._ymouse)
        if (SelectionManager.mSelectedDrawables.length==0) {
-         SelectionManager.selectItem(sm.mMousePressPos);
+         SelectionManager.selectItem(SelectionManager.sMousePressPos);
        }
        if (SelectionManager.mSelectedDrawables.length!=0) {
          if (!Drawable.isDragMode()) {
            SelectionManager.mSelectedDrawables[0].onPress();
-         }else if (SelectionManager.anyWithin(sm.mMousePressPos)) {
+         }else if (SelectionManager.anyWithin(SelectionManager.sMousePressPos)) {
            SelectionManager.dragSelected();
          }else if (SelectionManager.mSelectedDrawables.length!=0) {
            sm.mSelectBox=new Sprite(mc,SelectionManager.sMaxDepth);
-           sm.mSelectBox.setPosition(sm.mMousePressPos);
+           sm.mSelectBox.setPosition(SelectionManager.sMousePressPos);
          }
        }else {
          sm.mSelectBox=new Sprite(mc,SelectionManager.sMaxDepth);
-         sm.mSelectBox.setPosition(sm.mMousePressPos);
+         sm.mSelectBox.setPosition(SelectionManager.sMousePressPos);
        }
      };
      mc.onMouseUp=function():Void {
@@ -34,13 +33,13 @@ class SelectionManager {
            SelectionManager.undragSelected();
         }
         var endPoint:Point=new Point(_root._xmouse,_root._ymouse);
-        if (Point.distance(sm.mMousePressPos,endPoint)<Drawable.sMinimumDrawDistance) {
+        if (Point.distance(SelectionManager.sMousePressPos,endPoint)<Drawable.sMinimumDrawDistance) {
             SelectionManager.selectItem(endPoint);
         }else if (sm.mSelectBox) {
-            SelectionManager.selectRegion(sm.mMousePressPos,endPoint);
-            sm.mSelectBox.remove();
+            SelectionManager.selectRegion(SelectionManager.sMousePressPos,endPoint);
+            sm.mSelectBox.removeSprite();
         }
-        sm.mMousePressPos=null;
+        SelectionManager.sMousePressPos=null;
         sm.mSelectBox=null;
      }
      mc.onMouseMove=function() {
@@ -148,11 +147,14 @@ class SelectionManager {
   static function undragSelected():Void {
     isDragging=false;
     var len=mSelectedDrawables.length;
-/* deosn't seem to work for more than 1 item
     var i;
-    for (i=0;i<len;++i) {
-        mSelectedDrawables[i].mSurface.stopDrag();
+    if (sMousePressPos!=null) {
+      var invdelta=sMousePressPos.subtractVector(new Point(_root._xmouse,_root._ymouse));
+      var delta=(new Point(_root._xmouse,_root._ymouse)).subtractVector(sMousePressPos);
+      for (i=0;i<len;++i) {
+          mSelectedDrawables[i].translate(invdelta);
+          mSelectedDrawables[i].translateUndoable(delta);
+      }
     }
-*/
   }
 };

@@ -9,7 +9,7 @@ class AbstractButton extends Sprite {
      parent.globalToLocal(localLowerLeft);
      var dimensions=localUpperRight.subtractVector(localLowerLeft);
      translateTo(localLowerLeft);
-     drawBoxOutline(new Point(0,0),dimensions, 2, 0x7f7f7f, 100, 0x3f3f3f, 50);
+     drawBoxOutline(new Point(0,0),dimensions, borderThickness, fillColor, 100, lineColor, 50);
      resize(dimensions);
   }
   function select(is_selected:Boolean){

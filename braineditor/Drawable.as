@@ -29,7 +29,12 @@ class Drawable extends Sprite{
      super(parent,layer);
      mIsSelected=-1;
      mShapes=new Array();
+     var sprite:Drawable=this;
+     var spriteTransform:SpriteTransform=new SpriteTransform();
+     spriteTransform.save(this);
+     UndoManager.performedAction(function() {spriteTransform.save(sprite);sprite.removeSprite();}, function(){sprite.addSprite();sprite.refresh();spriteTransform.restore(sprite);/*_root.tf.text="added "+spriteTransform.toString();*/});
   }
+  
   function _mouseFunction(boxColor:Number):Void {
     mSelectBox.clear();
     var worldPos=new Point(_root._xmouse,_root._ymouse);
@@ -57,6 +62,19 @@ class Drawable extends Sprite{
        drawRect(mShapes[i]);
      }
   }
+  function translateToUndoable(p:Point):Void {
+    var sprite:Sprite=this;
+    var oldPos=new Point(x,y);
+    UndoManager.performedAction(function(){sprite.translateToBase(oldPos);},function(){sprite.translateToBase(p);});
+    translateToBase(p);
+  }
+  function translateUndoable(v:Point):Void {
+    var sprite:Sprite=this;
+    var oldPos=new Point(-v.x,-v.y);
+    UndoManager.performedAction(function(){sprite.translateBase(oldPos);},function(){sprite.translateBase(v);});
+    translateBase(v);
+  }
+  
   function within(p:Point) :Boolean{
      var shapeLength=mShapes.length;
      var i;
@@ -84,11 +102,11 @@ class Drawable extends Sprite{
   function commitBox(topLeft:Point, botRight:Point, doErase:Boolean) :Void{
     var rect:Rect=new Rect(topLeft,botRight);
     if (mMode == ERASEMODE){
-       var newShapes=new Array();
        var i;
        var shapeLength=mShapes.length;
+       var newShapes=new Array();
        for (i=0;i<shapeLength;++i) {
-         var shape=mShapes.pop();
+         var shape=mShapes[i];
          var a=shape.cutOutShape(rect);
          var j;
          var aLength=a.length;
@@ -96,20 +114,19 @@ class Drawable extends Sprite{
             newShapes.push(a.pop());
          }
        }
+       var drawable:Drawable=this;
+       var oldShapes=mShapes;
+       UndoManager.performedAction(function(){drawable.mShapes=oldShapes;drawable.refresh();},
+                                   function(){drawable.mShapes=newShapes;drawable.refresh();});
        mShapes=newShapes;
        refresh();
-/*
-       ///FIXME we probably want to call refresh and redraw everything so that a doughnut with a hole in the middle isn't actually a round bread with a painted white in the middle
-       drawBoxOutline(topLeft,botRight,
-                                     1,
-                                     0xffffff,
-                                     0,
-                                     0xffffff,
-                                     100);
-*/
     }else {
       mShapes.push(rect);
       drawRect(rect);
+      var drawable:Drawable=this;
+      UndoManager.performedAction(function(){drawable.mShapes.pop();drawable.refresh();},
+                                  function(){drawable.mShapes.push(rect);drawable.drawRect(rect);});
+
     }
   }
   function onPress():Void {
@@ -119,7 +136,7 @@ class Drawable extends Sprite{
          var localMousePos=worldToLocal(mousePos);
          mSelectBox.setPosition(localMousePos);
          mSelectBox.penTo(mousePos);
-         var lobe=this;
+         var drawable=this;
          var doErase=(mMode==ERASEMODE);
          var tempBoxColor=0x0000ff;
          if (doErase) {
@@ -128,17 +145,17 @@ class Drawable extends Sprite{
          }else { 
             //mMode=ERASEMODE;
          }
-         mSurface.onMouseMove=function(){lobe._mouseFunction(tempBoxColor);};
+         mSurface.onMouseMove=function(){drawable._mouseFunction(tempBoxColor);};
          mSurface.onMouseUp=function()
          {
-            lobe.mSurface.onMouseUp=function(){};
-            lobe.mSurface.onMouseMove=function(){};
-            var endPoint:Point=lobe.worldToLocal(new Point(_root._xmouse,_root._ymouse));
-            if (Point.distance(endPoint,lobe.mSelectBox.getPosition())>=Drawable.sMinimumDrawDistance) {
-              lobe.commitBox(lobe.mSelectBox.getPosition(),endPoint,doErase);
+            drawable.mSurface.onMouseUp=function(){};
+            drawable.mSurface.onMouseMove=function(){};
+            var endPoint:Point=drawable.worldToLocal(new Point(_root._xmouse,_root._ymouse));
+            if (Point.distance(endPoint,drawable.mSelectBox.getPosition())>=Drawable.sMinimumDrawDistance) {
+              drawable.commitBox(drawable.mSelectBox.getPosition(),endPoint,doErase);
             }
-            lobe.mSelectBox.remove();
-            lobe.mSelectBox=null;
+            drawable.mSelectBox.removeSprite();
+            drawable.mSelectBox=null;
          }
      }
   }
