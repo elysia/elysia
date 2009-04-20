@@ -3,13 +3,9 @@ import flash.events.*;
 import Sprite;
 import Point;
 
-class ScrollControl extends Sprite {
-    var mPressed:Boolean;
-    var mValue:Number;
-    var myMax:Number;
-    var myMin:Number;
-    function VerticalScroll(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-        super(parent,parent.getNextHighestDepth());
+class ScrollControl extends AbstractButton {
+    function ScrollControl(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
+        super(parent,lowerLeft,upperRight,2,0x7f7f7f,0x3f3f3f,"");
         var localLowerLeft=lowerLeft.clone();
         var localUpperRight=upperRight.clone();
         parent.globalToLocal(localUpperRight);
@@ -23,11 +19,13 @@ class ScrollControl extends Sprite {
             //scroll grab box
             //bottom box
     }
-    function resize(dimensions:Point):Void {
-        super.resize(dimensions);
-        mText._width=dimensions.x;
-        mText._height=dimensions.y;
+    function onPress(){
+    	select(true);
     }
+	var mPressed:Boolean;
+    var mValue:Number;
+    var myMax:Number;
+    var myMin:Number;
     //top box actions
     //middle box actions
     //bottom box actions

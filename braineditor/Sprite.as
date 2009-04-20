@@ -4,6 +4,10 @@ import Point;
 
 class Sprite {
   var mSurface:MovieClip;
+  var x:Number;
+  var y:Number;
+  var height:Number;
+  var width:Number;
   static var sNumMovieClips:Number=0;
   function Sprite (parent:MovieClip,depthValue:Number) {
     if (depthValue==null) 
@@ -25,6 +29,7 @@ class Sprite {
     mSurface.onRollOver=function() {sprite.onRollOver();}  ;
     mSurface.onSetFocus=function(oldFocus:Object){sprite.onSetFocus(oldFocus);};
     mSurface.onDragOut=function() {sprite.onDragOut();} ;  
+    updateData();
   }
   function onPressKey():Void {
   }
@@ -83,6 +88,7 @@ class Sprite {
   function setPosition(pos:Point):Void {
     mSurface._x=pos.x;
     mSurface._y=pos.y;
+    updateData();
   }
   function getPosition():Point {
     return new Point(mSurface._x,mSurface._y);
@@ -111,16 +117,25 @@ class Sprite {
   function translate(worldVector:Point):Void {
      mSurface._x+=worldVector.x;
      mSurface._y+=worldVector.y;
+     updateData();
   }
   function translateTo(worldPos:Point):Void {
      mSurface._x=worldPos.x;
      mSurface._y=worldPos.y;
+     updateData();
   }
   function resize(dimensions:Point):Void {
     mSurface._width=dimensions.x;
     mSurface._height=dimensions.y;
+    updateData();
   }
   function clear():Void {
     mSurface.clear();
+  }
+  function updateData():Void {
+   this.x=mSurface._x;
+   this.y=mSurface._y;
+   this.height=mSurface._height;
+   this.width=mSurface._width;	
   }
 }
