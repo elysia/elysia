@@ -16,14 +16,21 @@ class ModeToggleButton extends ButtonControl{
             seterase();
         }
         else if(status == Drawable.ERASEMODE){
+            setresize();
+        }
+        else if(status == Drawable.RESIZEMODE){
             setdrag();
-
         }
       }
       function setdrag(){
             setText("Drag Mode");
             Drawable.mMode=Drawable.DRAGMODE;
             status = Drawable.DRAGMODE;
+      }
+      function setresize(){
+            setText("Resize Mode");
+            Drawable.mMode=Drawable.RESIZEMODE;
+            status = Drawable.RESIZEMODE;
       }
       function setdraw(){
         Drawable.mMode= Drawable.DRAWMODE;

@@ -1,7 +1,8 @@
 class Drawable extends Sprite{
   static var DRAGMODE=0;
   static var DRAWMODE=1;
-  static var ERASEMODE=2;
+  static var RESIZEMODE=2;
+  static var ERASEMODE=3;
   static var mMode:Number=DRAGMODE;
   static var sMinimumDrawDistance:Number=2;
   var mSelectBox:Sprite;
@@ -129,8 +130,35 @@ class Drawable extends Sprite{
 
     }
   }
+  function noundoResize(point){}
+  function undoableResize(point){}
   function onPress():Void {
-      if (mMode==DRAWMODE||mMode==ERASEMODE) {
+      if (mMode==RESIZEMODE) {
+         var drawable=this;
+         var mousePos=new Point(_root._xmouse,_root._ymouse)
+         var localMousePos=worldToLocal(mousePos);
+         var lastMousePos=worldToLocal(mousePos);
+         mSurface.onMouseMove=function() {
+           var worldCurMousePos=new Point(_root._xmouse,_root._ymouse)
+           var curMousePos=drawable.worldToLocal(worldCurMousePos);
+           
+           drawable.nonundoResize(localMousePos.subtractVector(lastMousePos));
+           drawable.nonundoResize(curMousePos.subtractVector(localMousePos));
+           _root.tf.text="resize "+curMousePos.subtractVector(localMousePos).toString();
+           lastMousePos.x=curMousePos.x;
+           lastMousePos.y=curMousePos.y;
+         }
+         mSurface.onMouseUp=function() {
+           drawable.mSurface.onMouseUp=function(){};
+           drawable.mSurface.onMouseMove=function(){};
+           var worldCurMousePos=new Point(_root._xmouse,_root._ymouse)
+           var curMousePos=drawable.worldToLocal(worldCurMousePos);
+           
+           drawable.nonundoResize(localMousePos.subtractVector(lastMousePos));
+           drawable.undoableResize(curMousePos.subtractVector(localMousePos));
+           _root.tf.text="resizeDONE "+curMousePos.subtractVector(localMousePos).toString();
+         }
+      }else if (mMode==DRAWMODE||mMode==ERASEMODE) {
          var mousePos=new Point(_root._xmouse,_root._ymouse)
          mSelectBox=new Sprite(mSurface,mSurface.getNextHighestDepth());
          var localMousePos=worldToLocal(mousePos);
