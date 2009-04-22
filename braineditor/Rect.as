@@ -8,6 +8,8 @@ class Rect extends Shape {
       mUpperLeft=upperLeft.minimum(lowerRight);
       mLowerRight=upperLeft.maximum(lowerRight);
    }
+   function topLeftCorner():Point {return mUpperLeft;}
+   function bottomRightCorner():Point {return mLowerRight;}
    function isValid() :Boolean{
       return mUpperLeft.x<mLowerRight.x&&mUpperLeft.y<mLowerRight.y;
    }
@@ -58,5 +60,9 @@ class Rect extends Shape {
       var MUL=rect.mUpperLeft.maximum(mUpperLeft);
       var MLR=rect.mLowerRigtht.minimum(mLowerRight);
       return MUL.x<=MLR.x&&MUL.y<=MLR.y;//&&within(MUL)&&within(MLR)&&rect.within(MLR)&&rect.within(MUL);
+   }
+   function scale(zeroPoint:Point,scaleSize:Point):Shape {
+      return new Rect(((mUpperLeft.subtractVector(zeroPoint)).scale(scaleSize)).addVector(zeroPoint),
+                      ((mLowerRight.subtractVector(zeroPoint)).scale(scaleSize)).addVector(zeroPoint));
    }
 }

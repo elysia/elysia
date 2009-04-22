@@ -21,6 +21,9 @@ class Point {
         function subtractVector( p : Point ) : Point {
            return new Point(this.x-p.x,this.y-p.y);
         }
+        function scale (p : Point) : Point {
+           return new Point(this.x*p.x,this.y*p.y);
+        }
         function equals( p : Object ) : Boolean {
            return p.x==this.x&&p.y==this.y;
         }

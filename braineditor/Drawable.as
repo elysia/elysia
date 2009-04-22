@@ -130,8 +130,55 @@ class Drawable extends Sprite{
 
     }
   }
-  function noundoResize(point){}
-  function undoableResize(point){}
+  function nonundoResize(delta:Point):Boolean{
+     var len:Number=mShapes.length;
+     var i:Number;
+     var topLeft:Point;
+     var bottomRight:Point;
+     for (i=0;i<len;++i) {
+        var br:Point=mShapes[i].bottomRightCorner();
+        var tl:Point=mShapes[i].topLeftCorner();
+        if (topLeft) {
+           topLeft=topLeft.minimum(tl);
+           bottomRight=bottomRight.maximum(br);
+        }else{
+           bottomRight=br.clone();
+           topLeft=tl;
+        }
+     }
+     //_root.tf.text="Scaling by "+bottomRight.toString()+" "+topLeft.toString();
+     if (bottomRight) {
+        if (topLeft) {
+           var newBottomRight:Point=new Point(bottomRight.x+delta.x,bottomRight.y+delta.y); 
+           if (bottomRight.x-topLeft.x>.01 || topLeft.x-bottomRight.x>.01) {}else {
+              bottomRight.x=topLeft.x+.1;
+           }
+           if (bottomRight.y-topLeft.y>.01 || topLeft.y-bottomRight.y>.01) {}else {
+              bottomRight.y=topLeft.y+.1;
+           }
+           var scale=new Point(newBottomRight.subtractVector(topLeft).x/bottomRight.subtractVector(topLeft).x,
+                               newBottomRight.subtractVector(topLeft).y/bottomRight.subtractVector(topLeft).y);
+           if (scale.x>.01&&scale.x<10&&scale.y>.01&&scale.y<10) {
+              var shapes=mShapes;
+              mShapes=new Array();
+              for (i=0;i<len;++i) {                 
+                  mShapes.push(shapes[i].scale(topLeft,scale));
+              }
+              return true;
+           }
+        }
+     }
+     return false;
+  }
+  function undoableResize(point:Point):Boolean{
+     var shapes:Array=new Array();
+     var drawable:Drawable=this;
+     var oldShapes=mShapes;
+     var retval:Boolean=nonundoResize(point);
+     var newShapes=mShapes;
+     UndoManager.performedAction(function(){drawable.mShapes=oldShapes;drawable.refresh();},function(){drawable.mShapes=newShapes;drawable.refresh();});
+     return retval;
+  }
   function onPress():Void {
       if (mMode==RESIZEMODE) {
          var drawable=this;
@@ -142,9 +189,10 @@ class Drawable extends Sprite{
            var worldCurMousePos=new Point(_root._xmouse,_root._ymouse)
            var curMousePos=drawable.worldToLocal(worldCurMousePos);
            
-           drawable.nonundoResize(localMousePos.subtractVector(lastMousePos));
-           drawable.nonundoResize(curMousePos.subtractVector(localMousePos));
-           _root.tf.text="resize "+curMousePos.subtractVector(localMousePos).toString();
+           if (drawable.nonundoResize(localMousePos.subtractVector(lastMousePos))) {
+             drawable.nonundoResize(curMousePos.subtractVector(localMousePos));
+           }
+           drawable.refresh();
            lastMousePos.x=curMousePos.x;
            lastMousePos.y=curMousePos.y;
          }
@@ -153,10 +201,11 @@ class Drawable extends Sprite{
            drawable.mSurface.onMouseMove=function(){};
            var worldCurMousePos=new Point(_root._xmouse,_root._ymouse)
            var curMousePos=drawable.worldToLocal(worldCurMousePos);
-           
-           drawable.nonundoResize(localMousePos.subtractVector(lastMousePos));
-           drawable.undoableResize(curMousePos.subtractVector(localMousePos));
-           _root.tf.text="resizeDONE "+curMousePos.subtractVector(localMousePos).toString();
+           if (drawable.nonundoResize(localMousePos.subtractVector(lastMousePos))) {
+             drawable.undoableResize(curMousePos.subtractVector(localMousePos));
+           }
+           drawable.refresh();
+           //_root.tf.text="resizeDONE "+curMousePos.subtractVector(localMousePos).toString();
          }
       }else if (mMode==DRAWMODE||mMode==ERASEMODE) {
          var mousePos=new Point(_root._xmouse,_root._ymouse)
