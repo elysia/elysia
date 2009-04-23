@@ -12,7 +12,9 @@ class Drawable extends Sprite{
   static function isDragMode():Boolean {
      return mMode==DRAGMODE;
   }
-
+  function getSubDrawables():Array {
+    return new Array();
+  }
   function isSelected():Boolean {
     return mIsSelected!=-1;
   }
@@ -179,7 +181,7 @@ class Drawable extends Sprite{
      UndoManager.performedAction(function(){drawable.mShapes=oldShapes;drawable.refresh();},function(){drawable.mShapes=newShapes;drawable.refresh();});
      return retval;
   }
-  function onPress():Void {
+  function onSelectedPress():Void {
       if (mMode==RESIZEMODE) {
          var drawable=this;
          var mousePos=new Point(_root._xmouse,_root._ymouse)

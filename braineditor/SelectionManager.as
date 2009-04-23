@@ -15,8 +15,14 @@ class SelectionManager {
          SelectionManager.selectItem(SelectionManager.sMousePressPos);
        }
        if (SelectionManager.mSelectedDrawables.length!=0) {
-         if (!Drawable.isDragMode()) {
-           SelectionManager.mSelectedDrawables[0].onPress();
+         if (Drawable.mMode==Drawable.RESIZEMODE) {
+           var i;
+           var len=SelectionManager.mSelectedDrawables.length;
+           for (i=0;i<len;++i) {
+             SelectionManager.mSelectedDrawables[i].onSelectedPress();
+           }
+         } else if (SelectionManager.mSelectedDrawables.length==1&&!Drawable.isDragMode()) {
+           SelectionManager.mSelectedDrawables[0].onSelectedPress();
          }else if (SelectionManager.anyWithin(SelectionManager.sMousePressPos)) {
            SelectionManager.dragSelected();
          }else if (SelectionManager.mSelectedDrawables.length!=0) {
@@ -74,8 +80,22 @@ class SelectionManager {
       if(Brain.mLobes[i].within(where)) {  
          return true;
       }
+    } 
+    len=mSelectedDrawables.length;
+    for ( i=0;i<len;++i) {
+      if(mSelectedDrawables[i].within(where)) {
+         return true;
+      }
+      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var length=subdrawables.length;
+      var j;
+      for (j=0;j<length;++j) {
+        if (subdrawables[i].within(where)) {
+          return true;
+        }
+      }
     }
-    return false;
+   return false;
   }
   static function selectItem(where:Point):Boolean{
     var i:Number;
@@ -83,10 +103,26 @@ class SelectionManager {
     var newSelected:Array=new Array(); 
     var len=Brain.mLobes.length;
     for ( i=0;i<len;++i) {
-      if(Brain.mLobes[i].within(where)) {
+      if(Brain.mLobes[i].isSelected()==false&&Brain.mLobes[i].within(where)) {
         newSelected.push(Brain.mLobes[i]);
       }
     }
+
+    len=mSelectedDrawables.length;
+    for ( i=0;i<len;++i) {
+      if(mSelectedDrawables[i].within(where)) {
+         newSelected.push(mSelectedDrawables[i]);
+      }
+      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var length=subdrawables.length;
+      var j;
+      for (j=0;j<length;++j) {
+        if (subdrawables[i].within(where)) {
+          newSelected.push(subdrawables[i]);
+        }
+      }
+    }
+
     clearSelected();//FIXME need to check for double click to change set
     var newlen=newSelected.length;
     for (i=0;i<newlen;++i) {
@@ -102,10 +138,25 @@ class SelectionManager {
     var newSelected:Array=new Array(); 
     var len=Brain.mLobes.length;
     for ( i=0;i<len;++i) {
-      if(Brain.mLobes[i].withinShape(region)) {
+      if(Brain.mLobes[i].isSelected()==false&&Brain.mLobes[i].withinShape(region)) {
         newSelected.push(Brain.mLobes[i]);
       }
     }
+    len=mSelectedDrawables.length;
+    for ( i=0;i<len;++i) {
+      if(mSelectedDrawables[i].withinShape(region)) {
+         newSelected.push(mSelectedDrawables[i]);
+      }
+      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var length=subdrawables.length;
+      var j;
+      for (j=0;j<length;++j) {
+        if (subdrawables[i].withinShape(region)) {
+          newSelected.push(subdrawables[i]);
+        }
+      }
+    }
+
     clearSelected();//FIXME need to check for double click to change set
     var newlen=newSelected.length;
     for (i=0;i<newlen;++i) {
