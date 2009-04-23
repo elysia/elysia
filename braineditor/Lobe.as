@@ -19,4 +19,12 @@ class Lobe extends Drawable{
      
      //All spotches are stored in mshapes
   }
+  function setSelectedIndex(index:Number):Void {
+    setSelectedIndexImpl(index);
+    var i;
+    var len=mLobeTargets.length;
+    for(i=0;i<len;++i) {
+      mLobeTargets[i].setVisible(index!=-1);
+    }
+  }
 }

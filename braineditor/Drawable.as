@@ -28,6 +28,9 @@ class Drawable extends Sprite{
      return mIsSelected;
   }
   function setSelectedIndex(index:Number):Void {
+    setSelectedIndexImpl(index);
+  }
+  function setSelectedIndexImpl(index:Number):Void {
      var oldIndex=mIsSelected;
      mIsSelected=index;
      if (((oldIndex==-1)!=(mIsSelected==-1)) 
