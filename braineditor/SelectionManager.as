@@ -86,7 +86,7 @@ class SelectionManager {
       if(mSelectedDrawables[i].within(where)) {
          return true;
       }
-      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var subdrawables=mSelectedDrawables[i].getSubDrawables();
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
@@ -113,7 +113,7 @@ class SelectionManager {
       if(mSelectedDrawables[i].within(where)) {
          newSelected.push(mSelectedDrawables[i]);
       }
-      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var subdrawables=mSelectedDrawables[i].getSubDrawables();
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
@@ -147,7 +147,7 @@ class SelectionManager {
       if(mSelectedDrawables[i].withinShape(region)) {
          newSelected.push(mSelectedDrawables[i]);
       }
-      var subdrawables=mSelectedDrawables[i].getSubDrawables().length;
+      var subdrawables=mSelectedDrawables[i].getSubDrawables();
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
