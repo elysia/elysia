@@ -6,6 +6,7 @@ class Core {
     var lobe : Lobe;
     var modetogglebutton : ModeToggleButton;
     var makelobebutton : MakeLobeButton;
+    var makelobetargetbutton : MakeLobeTarget;
     var brain:Brain;
     static var app : Core;
     var counter;
@@ -21,6 +22,7 @@ class Core {
         brain = new Brain(mc);
         modetogglebutton=new ModeToggleButton(mc,new Point(0,40), new Point(100,70),"DRAWMODE");
         makelobebutton=new MakeLobeButton(mc,new Point(0,80), new Point(100,110),modetogglebutton);
+        makelobetargetbutton=new MakeLobeTarget(mc,new Point(0,120), new Point(100,150),modetogglebutton);
     }
 
     // entry point==============================================================

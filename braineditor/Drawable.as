@@ -15,6 +15,12 @@ class Drawable extends Sprite{
   function getSubDrawables():Array {
     return new Array();
   }
+  function canMakeLobeTarget():Boolean {
+    return false;
+  }
+  function makeLobeTarget():Drawable {
+    return null;
+  }
   function isSelected():Boolean {
     return mIsSelected!=-1;
   }

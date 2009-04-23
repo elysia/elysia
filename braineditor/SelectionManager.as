@@ -185,12 +185,6 @@ class SelectionManager {
     }
     mSelectedDrawables=new Array();
   }
-/* doesnt seem to work for   more than 1 item
-  static function dragDrawable(drawable:Drawable):Void {
-
-     drawable.mSurface.startDrag(false,-16384,-16384,16384,16384);
-  }
-*/
   static function dragSelected():Void {
     isDragging=true;
     mLastDragMouseSample=new Point(_root._xmouse,_root._ymouse);
@@ -207,5 +201,22 @@ class SelectionManager {
           mSelectedDrawables[i].translateUndoable(delta);
       }
     }
+  }
+  static function makeLobeTarget():Drawable {
+    var len=mSelectedDrawables.length;
+    var which=-1;
+    var i;
+    for (i=0;i<len;++i) {
+       if (mSelectedDrawables[i].canMakeLobeTarget()) {
+         if (which==-1) {
+           which=i;
+         }else {
+           which=-2;
+         }
+       }
+    }
+    if (which>=0) {
+       return mSelectedDrawables[which].makeLobeTarget();
+    }    
   }
 };
