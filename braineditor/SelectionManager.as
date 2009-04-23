@@ -90,7 +90,7 @@ class SelectionManager {
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
-        if (subdrawables[i].within(where)) {
+        if (subdrawables[j].within(where)) {
           return true;
         }
       }
@@ -117,8 +117,8 @@ class SelectionManager {
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
-        if (subdrawables[i].within(where)) {
-          newSelected.push(subdrawables[i]);
+        if (subdrawables[j].within(where)) {
+          newSelected.push(subdrawables[j]);
         }
       }
     }
@@ -151,8 +151,8 @@ class SelectionManager {
       var length=subdrawables.length;
       var j;
       for (j=0;j<length;++j) {
-        if (subdrawables[i].withinShape(region)) {
-          newSelected.push(subdrawables[i]);
+        if (subdrawables[j].withinShape(region)) {
+          newSelected.push(subdrawables[j]);
         }
       }
     }
