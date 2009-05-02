@@ -1,6 +1,8 @@
 import Point;
 //This file should contain all movie clip
 
+  	//Note to team
+  	//Make all color variables global and use global color scheme
 
 class Sprite {
   var mSurface:MovieClip;
