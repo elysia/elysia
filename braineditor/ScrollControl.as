@@ -23,7 +23,12 @@ class ScrollControl extends AbstractButton {
     	select(true);
     }
     function onRelease(){
+    	select(false);
     }
+    function onReleaseOutside(){
+    	select(false);
+    }
+    
 	var mPressed:Boolean;
     var mValue:Number;
     var myMax:Number;

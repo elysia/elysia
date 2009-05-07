@@ -15,7 +15,10 @@ class AbstractButton extends Sprite {
   function select(is_selected:Boolean){
   	clear();
      if(is_selected){
-     	drawBoxOutline(new Point(0,0),new Point(this.width,this.height), 2, 0x00007f, 100, 0x00003f, 50);
+     	//use selected colors
+     	drawBoxOutline(new Point(0,0),new Point(this.width,this.height), 2, 0xffcc00, 100, 0xffff00, 50);
+     }else{
+     	drawBoxOutline(new Point(0,0),new Point(this.width,this.height), 2, 0x7f0000, 100, 0x3f0000, 50);
      }
   }
 }
