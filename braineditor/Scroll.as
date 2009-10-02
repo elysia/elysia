@@ -11,8 +11,5 @@ class Scroll extends Sprite {
         super(parent,null,1==1)
         push_up = new ScrollControl(mSurface,lowerLeft,upperRight);
         push_down = new ScrollControl(mSurface,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)));
-        var tmp_up=push_up;
-        push_up.mSurface.onPress=function(){tmp_up.onPress();};
-
     }
 }
