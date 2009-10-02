@@ -2,13 +2,13 @@ import Sprite;
 import Lobe;
 import Point;
 import ButtonControl;
-import ScrollControl;
+import Scroll;
 class Core_N {
     var lobe : Lobe;
     var modetogglebutton : ModeToggleButton;
     var makelobebutton : MakeLobeButton;
     var brain:Brain;
-    var scroller : ScrollControl;
+    var scroller : Scroll;
     static var app : Core_N;
     var counter;
     //==========================================================================
@@ -23,7 +23,7 @@ class Core_N {
         brain = new Brain(mc);
         modetogglebutton=new ModeToggleButton(mc,new Point(0,40), new Point(100,70),"DRAWMODE");
         makelobebutton=new MakeLobeButton(mc,new Point(0,80), new Point(100,110),modetogglebutton);
-        scroller = new ScrollControl(mc,new Point(20,20),new Point(40,120));
+        scroller = new Scroll(mc,new Point(20,20),new Point(40,120));
         scroller.translate(new Point(100,200));
     }
 
