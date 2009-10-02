@@ -14,34 +14,40 @@ class Sprite {
   var height:Number;
   var width:Number;
   static var sNumMovieClips:Number=0;
-  function Sprite (parent:MovieClip,depthValue:Number) {
+  function Sprite (parent:MovieClip,depthValue:Number,doNotRegisterHandlers) {
     if (depthValue==null) 
       depthValue=parent.getNextHighestDepth();
     this.mDepth=depthValue;
     this.mParent=parent;
     this.mName=String(sNumMovieClips);
     var sprite=this;
-    addSprite();
+    if (doNotRegisterHandlers==null) {
+       addSprite(false);
+    } else {
+      addSprite(doNotRegisterHandlers);
+    }
     updateData();
   }
-  function addSprite():Void{
+  function addSprite(doNotRegisterHandlers):Void{
     this.mSurface=mParent.createEmptyMovieClip(mName,mDepth);
     sNumMovieClips++;
     var sprite=this;
-    mSurface.onPress=function() { sprite.onPress(); };
-    mSurface.onDragOver=function() { sprite.onDragOver(); };
-    mSurface.onEnterFrame=function() {sprite.onEnterFrame();};
+    if (!doNotRegisterHandlers) {
+      mSurface.onPress=function() { sprite.onPress(); };
+      mSurface.onDragOver=function() { sprite.onDragOver(); };
+      mSurface.onEnterFrame=function() {sprite.onEnterFrame();};
 
-    mSurface.onKeyDown=function() {sprite.onPressKey();}   ;
-    mSurface.onKeyUp=function() {sprite.onReleaseKey();}     ;
+      mSurface.onKeyDown=function() {sprite.onPressKey();}   ;
+      mSurface.onKeyUp=function() {sprite.onReleaseKey();}     ;
 
-    mSurface.onKillFocus=function(newFocus:Object){sprite.onKillFocus(newFocus);};
-    mSurface.onRelease=function() {sprite.onRelease();}   ;
-    mSurface.onReleaseOutside=function(){sprite.onReleaseOutside();};
-    mSurface.onRollOut=function() {sprite.onRollOut();}   ;
-    mSurface.onRollOver=function() {sprite.onRollOver();}  ;
-    mSurface.onSetFocus=function(oldFocus:Object){sprite.onSetFocus(oldFocus);};
-    mSurface.onDragOut=function() {sprite.onDragOut();} ;  
+      mSurface.onKillFocus=function(newFocus:Object){sprite.onKillFocus(newFocus);};
+      mSurface.onRelease=function() {sprite.onRelease();}   ;
+      mSurface.onReleaseOutside=function(){sprite.onReleaseOutside();};
+      mSurface.onRollOut=function() {sprite.onRollOut();}   ;
+      mSurface.onRollOver=function() {sprite.onRollOver();}  ;
+      mSurface.onSetFocus=function(oldFocus:Object){sprite.onSetFocus(oldFocus);};
+      mSurface.onDragOut=function() {sprite.onDragOut();} ;  
+   }
   }
   function onPressKey():Void {
   }

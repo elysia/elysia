@@ -5,13 +5,14 @@ import Point;
 import ScrollControl;
 
 class Scroll extends Sprite {
-    var push_up : AbstractButton;
-    var push_down : AbstractButton;
+    var push_up : ScrollControl;
+    var push_down : ScrollControl;
     function Scroll(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-        super(parent)
-    	push_up = new AbstractButton(mSurface,lowerLeft,upperRight,1,0x007f7f,0x7f7f00,"upArrow.png");
-    	push_down = new AbstractButton(mSurface,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)),1,0x007f7f,0x7f7f00,"downArrow.png");
+        super(parent,null,1==1)
+        push_up = new ScrollControl(mSurface,lowerLeft,upperRight);
+        push_down = new ScrollControl(mSurface,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)));
+        var tmp_up=push_up;
+        push_up.mSurface.onPress=function(){tmp_up.onPress();};
 
     }
-
 }
