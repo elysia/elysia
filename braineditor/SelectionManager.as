@@ -132,7 +132,7 @@ class SelectionManager {
     return retval;
   }
   static function selectRegion(topLeft:Point,bottomRight:Point):Boolean {
-    var region:Rect=new Rect(topLeft,bottomRight);
+    var region:Rect=(new Rect(topLeft,bottomRight)).makeValid();
     var retval:Boolean=false;
     var i:Number;
     var newSelected:Array=new Array(); 

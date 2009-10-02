@@ -13,11 +13,20 @@ class Rect extends Shape {
    function isValid() :Boolean{
       return mUpperLeft.x<mLowerRight.x&&mUpperLeft.y<mLowerRight.y;
    }
+   function makeValid():Rect  {
+     return new Rect(mUpperLeft.minimum(mLowerRight),mUpperLeft.maximum(mLowerRight));
+   }
+   function intersect(rect:Rect):Rect {
+     return new Rect(mUpperLeft.maximum(rect.mUpperLeft),mLowerRight.minimum(rect.mLowerRight));
+   }
+   function equals(rect:Rect):Boolean {
+      return mUpperLeft.x==rect.mUpperLeft.x&&mUpperLeft.y==rect.mUpperLeft.y&&mLowerRight.x==rect.mLowerRight.x&&mLowerRight.y==rect.mLowerRight.y;
+   }
    function drawBox(sprite:Sprite, fillColor:Number, fillAlpha:Number) {
        sprite.drawBoxOutline(mUpperLeft,mLowerRight,0,0xffffff,0,fillColor,fillAlpha);
    }
    function toString():String {
-      return "["+mUpperLeft.toString()+"-"+mLowerRight+"]";
+      return "["+mUpperLeft.toString()+"::"+mLowerRight+"]";
    }
    
    function cutOutShape(unboundDeleteShape):Array  {
@@ -57,11 +66,7 @@ class Rect extends Shape {
              point.y>=mUpperLeft.y&&point.y<=mLowerRight.y;
    }
    function withinShape(rect):Boolean {
-      var MUL=rect.mUpperLeft.maximum(mUpperLeft);
-      var MLR=rect.mLowerRigtht.minimum(mLowerRight);
-      _root.tf.text="Oop "+MUL.toString()+" "+MLR.toString();
-
-      return MUL.x<MLR.x&&MUL.y<MLR.y;//&&within(MUL)&&within(MLR)&&rect.within(MLR)&&rect.within(MUL);
+      return rect.intersect(this).equals(this);
    }
    function scale(zeroPoint:Point,scaleSize:Point):Shape {
       return new Rect(((mUpperLeft.subtractVector(zeroPoint)).scale(scaleSize)).addVector(zeroPoint),

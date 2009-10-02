@@ -98,12 +98,10 @@ class Drawable extends Sprite{
      }
      return 1!=1;
   }
-  function withinShape(s:Shape) :Boolean{
+  function withinShape(s:Rect) :Boolean{
      var shapeLength=mShapes.length;
      var i;
-     var r=s;
-     r.mUpperLeft=worldToLocal(r.mUpperLeft);
-     r.mLowerRight=worldToLocal(r.mLowerRight);
+     var r=new Rect(worldToLocal(s.mUpperLeft),worldToLocal(s.mLowerRight));
      for (i=0;i<shapeLength;++i) {
        if (mShapes[i].withinShape(r)) {
           return 1==1;
