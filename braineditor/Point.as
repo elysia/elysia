@@ -63,7 +63,9 @@ class Point {
             var dy=(p1.y-p2.y);
             return Math.sqrt(dx*dx+dy*dy);
         }
-
+        function nearby (point:Point): Boolean {
+           return distance(this,point)<3;
+        }
         static function interpolate( p1 : Point, p2 : Point, f : Number ) : Point {
             return new Point (p1.x*f+p2.x*(1.0-f),p1.y*f+p2.y*(1.0-f));
         }

@@ -122,12 +122,26 @@ class SelectionManager {
         }
       }
     }
-
+    var isNear:Boolean=mLastSelectionPoint.nearby(where);
+    var matchThis:Drawable;
+    if (isNear && mSelectedDrawables.length) {
+      matchThis=mSelectedDrawables[0];
+    }else {
+       isNear=false;
+    }
+    mLastSelectionPoint=where;
     clearSelected();//FIXME need to check for double click to change set
     var newlen=newSelected.length;
-    for (i=0;i<newlen;++i) {
-       addToSelected(newSelected[i]);
-       retval=true;
+    for (i=newlen-1;i>=0;--i) {
+       if (!isNear) {
+           retval=true;
+           addToSelected(newSelected[i]);
+           break;
+       }
+       if (newSelected[i]==matchThis) {
+          isNear=!isNear;
+          if (i==0) i=newlen;
+       }
     }
     return retval;
   }
