@@ -18,7 +18,7 @@ class Core {
         // creates a 'tf' TextField size 800x600 at pos 0,0
         _root.createTextField("tf",0,0,0,800,600);
         // write some text into it
-        _root.tf.text = "Elysia Brain Editor\nVersion 2.0\n";
+        _root.tf.text = "Elysia Brain Editor\nVersion 2.x\n";
         brain = new Brain(mc);
         modetogglebutton=new ModeToggleButton(mc,new Point(0,40), new Point(100,70),"DRAWMODE");
         makelobebutton=new MakeLobeButton(mc,new Point(0,80), new Point(100,110),modetogglebutton);

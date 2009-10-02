@@ -59,7 +59,9 @@ class Rect extends Shape {
    function withinShape(rect):Boolean {
       var MUL=rect.mUpperLeft.maximum(mUpperLeft);
       var MLR=rect.mLowerRigtht.minimum(mLowerRight);
-      return MUL.x<=MLR.x&&MUL.y<=MLR.y;//&&within(MUL)&&within(MLR)&&rect.within(MLR)&&rect.within(MUL);
+      _root.tf.text="Oop "+MUL.toString()+" "+MLR.toString();
+
+      return MUL.x<MLR.x&&MUL.y<MLR.y;//&&within(MUL)&&within(MLR)&&rect.within(MLR)&&rect.within(MUL);
    }
    function scale(zeroPoint:Point,scaleSize:Point):Shape {
       return new Rect(((mUpperLeft.subtractVector(zeroPoint)).scale(scaleSize)).addVector(zeroPoint),

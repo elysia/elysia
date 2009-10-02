@@ -8,8 +8,9 @@ class Scroll extends ScrollControl {
     var push_up : ScrollControl;
     var push_down : ScrollControl;
     function Scroll(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-    	push_up = new ScrollControl(parent,lowerLeft,upperRight);
-    	push_down = new ScrollControl(parent,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)));
+        super(parent,lowerLeft,upperRight)
+    	push_up = new ScrollControl(mSurface,lowerLeft,upperRight);
+    	push_down = new ScrollControl(mSurface,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)));
     }
 
 }
