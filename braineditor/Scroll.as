@@ -7,9 +7,9 @@ import ScrollControl;
 class Scroll extends Sprite {
     var push_up : ScrollControl;
     var push_down : ScrollControl;
-    function Scroll(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-        super(parent,null,1==1)
-        push_up = new ScrollControl(mSurface,lowerLeft,upperRight);
-        push_down = new ScrollControl(mSurface,lowerLeft.addVector(new Point(0,80)),upperRight.addVector(new Point(0,80)));
+    function Scroll(parent:MovieClip, upperArrowLowerLeft:Point, upperArrowUpperRight:Point, lowerArrowLowerLeft:Point, lowerArrowLowerRight:Point) {
+        super(parent,null,true)
+        push_up = new ScrollControl(mSurface,upperArrowLowerLeft, upperArrowUpperRight);
+        push_down = new ScrollControl(mSurface,lowerArrowLowerLeft, lowerArrowLowerRight);
     }
 }

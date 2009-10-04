@@ -60,7 +60,7 @@ class SelectionManager {
           SelectionManager.mLastDragMouseSample=worldPos;
        }
        if (sm.mSelectBox) {
-        var boxColor=0x3f3f3f;
+        var boxColor=Style.selectRectColor;
         sm.mSelectBox.clear();
         sm.mSelectBox.drawBoxOutline(new Point(0,0),
                               sm.mSelectBox.worldToLocal(new Point(_root._xmouse,_root._ymouse)),

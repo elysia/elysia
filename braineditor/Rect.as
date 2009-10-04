@@ -23,7 +23,7 @@ class Rect extends Shape {
       return mUpperLeft.x==rect.mUpperLeft.x&&mUpperLeft.y==rect.mUpperLeft.y&&mLowerRight.x==rect.mLowerRight.x&&mLowerRight.y==rect.mLowerRight.y;
    }
    function drawBox(sprite:Sprite, fillColor:Number, fillAlpha:Number) {
-       sprite.drawBoxOutline(mUpperLeft,mLowerRight,0,0xffffff,0,fillColor,fillAlpha);
+       sprite.drawBoxOutline(mUpperLeft,mLowerRight,Colors.invisible,Colors.white,Colors.invisible,fillColor,fillAlpha);
    }
    function toString():String {
       return "["+mUpperLeft.toString()+"::"+mLowerRight+"]";

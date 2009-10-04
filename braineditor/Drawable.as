@@ -59,10 +59,10 @@ class Drawable extends Sprite{
                               25);
   }
   function drawRect(rect:Rect) :Void{
-      var color:Number=0x00ffff;
-      var alpha:Number=25;
+      var color:Number=Style.objectFillColor;
+      var alpha:Number=Style.objectTransparency;
       if (isSelected()) {
-         color=0x0025ff;         
+         color=Style.objectSelectedColor;         
       }
       rect.drawBox(this,color,alpha);
   }
@@ -224,10 +224,10 @@ class Drawable extends Sprite{
          mSelectBox.penTo(mousePos);
          var drawable=this;
          var doErase=(mMode==ERASEMODE);
-         var tempBoxColor=0x0000ff;
+         var tempBoxColor=Style.drawRectColor;
          if (doErase) {
             //mMode=DRAWMODE;///<-- FIXME: this alternates between draw and erase modes until we have global selection process
-            tempBoxColor=0xff0000;
+            tempBoxColor=Style.eraseRectColor;
          }else { 
             //mMode=ERASEMODE;
          }

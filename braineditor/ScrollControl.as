@@ -11,7 +11,7 @@ class ScrollControl extends AbstractButton {
     var mText:TextField;
     
     function ScrollControl(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-        super(parent,lowerLeft,upperRight,2,0x7f7f7f,0x3f3f3f,"");
+        super(parent,lowerLeft,upperRight,2,Style.scrollArrowFillColor,Style.scrollArrowOutlineColor,"");
         var localLowerLeft=lowerLeft.clone();
         var localUpperRight=upperRight.clone();
         parent.globalToLocal(localUpperRight);
