@@ -11,7 +11,7 @@ class ScrollControl extends AbstractButton {
     var mText:TextField;
     
     function ScrollControl(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-      super(parent,lowerLeft,upperRight,2,Style.scrollArrowFillColor,Style.scrollArrowOutlineColor,"");
+      super(parent,lowerLeft,upperRight,Style.widgetBorderWidth,Style.scrollArrowFillColor,Style.scrollArrowOutlineColor,"");
       var dimensions=upperRight.subtractVector(lowerLeft);
       mSurface.createTextField("mText",mSurface.getNextHighestDepth(),3,3,dimensions.x-6,dimensions.y-6);
       mText=mSurface.mText;
