@@ -11,21 +11,11 @@ class ScrollControl extends AbstractButton {
     var mText:TextField;
     
     function ScrollControl(parent:MovieClip, lowerLeft:Point, upperRight:Point) {
-        super(parent,lowerLeft,upperRight,2,Style.scrollArrowFillColor,Style.scrollArrowOutlineColor,"");
-        var localLowerLeft=lowerLeft.clone();
-        var localUpperRight=upperRight.clone();
-        parent.globalToLocal(localUpperRight);
-        parent.globalToLocal(localLowerLeft);
-        var dimensions=localUpperRight.subtractVector(localLowerLeft);
-        translateTo(localLowerLeft);
-        drawBoxOutline(new Point(0,0),dimensions, 2, 0x7f0000, 100, 0x3f0000, 50);
-        resize(dimensions);
-        
-     mSurface.createTextField("mText",mSurface.getNextHighestDepth(),3,3,dimensions.x-6,dimensions.y-6);
-     mText=mSurface.mText;
-     mText.text=mValue.toString();
-        //Generate 3 boxes
-            //top box
+      super(parent,lowerLeft,upperRight,2,Style.scrollArrowFillColor,Style.scrollArrowOutlineColor,"");
+      var dimensions=upperRight.subtractVector(lowerLeft);
+      mSurface.createTextField("mText",mSurface.getNextHighestDepth(),3,3,dimensions.x-6,dimensions.y-6);
+      mText=mSurface.mText;
+      mText.text=mValue.toString();
             //scroll grab box
             //bottom box
     }
