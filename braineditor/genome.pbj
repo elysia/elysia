@@ -1,0 +1,57 @@
+"pbj-0.0.3"
+
+
+message Protein {
+  required uint64 id=1;
+  enum Function {
+     CUSTOM=0;
+     GROW_LEAF=1;
+     GROW_NEURON=2;
+  }
+  optional Function function=2;
+}
+
+message Proteins {
+  repeated Protein proteins=1;
+}
+
+message Bounds {
+   required float xmin=0;
+   required float ymin=1;
+   required float zmin=2;
+   required float xmax=3;
+   required float ymax=4;
+   required float zmax=5;
+}
+
+message Condition {
+   optional uint64 protein=1;
+   enum Test {
+      ANY_CONCENTRATION=0;
+      CONCENTRATION_GREATER=1;
+      CONCENTRATION_LESS=2;
+      NO_CONCENTRATION=3;
+   }
+   optional Test test=2;
+   optional float density=3;
+}
+
+message ConditionClause {
+  repeated Condition disjunction=1;
+}
+
+message Gene {
+  required float position=1;//in centimorgans with 0 at the start of the chromosome
+  optional uint64 protein=2;//the protein produced by this gene
+  optional Bounds bounds=3;
+  repeated ConditionClause conjunction=4;
+}
+
+message Chromosome {
+   repeated Gene genes=1;//sorted on position
+}
+
+message Genome {
+  optional Chromosome fathers=1;
+  optional Chromosome mothers=2;
+}
