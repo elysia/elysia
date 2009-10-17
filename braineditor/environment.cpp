@@ -1,54 +1,56 @@
 
-
-soil_heat_exchange = 0.001;
-air_heat_exchange = 0.05;
-airground_heat_exchange = 0.002;
-air_ground_thermal_ratio = 0.1;
-sunlight_to_heat = 1;
-irradiance_to_space = 0.001;
-soil_waterflow_rate = 0.1;
-organic_wateflow_effect = 1;
-O2_diffusion = 0.001;
-CO2_diffusion = 0.001;
-H2O_diffusion = 0.001;
-evapoation_rate = 0.0001;
-width = 100;
+int grid_h = 100;
+int grid_w = 100;
+float soil_heat_exchange = 0.001;
+float air_heat_exchange = 0.05;
+float airground_heat_exchange = 0.002;
+float air_ground_thermal_ratio = 0.1;
+float sunlight_to_heat = 1;
+float irradiance_to_space = 0.001;
+float soil_waterflow_rate = 0.1;
+float organic_wateflow_effect = 1;
+float O2_diffusion = 0.001;
+float CO2_diffusion = 0.001;
+float H2O_diffusion = 0.001;
+float evapoation_rate = 0.0001;
+float unit_width = 100;
 
 //SOIL
-float z[100][100];
-float organic[100][100];
-float N[100][100];
-float P[100][100];
-float soil_H20[100][100];
-float detritus[100][100];
-float soil_temp[100][100];
-float sunlight[100][100];
+float z[grid_w][grid_h];
+float organic[grid_w][grid_h];
+float N[grid_w][grid_h];
+float P[grid_w][grid_h];
+float soil_H20[grid_w][grid_h];
+float detritus[grid_w][grid_h];
+float soil_temp[grid_w][grid_h];
+float sunlight[grid_w][grid_h];
 
 //AIR
 
-float O2[100][100];
-float CO2[100][100];
-float N2[100][100];
-float air_H20[100][100];
-float air_temp[100][100];
+float O2[grid_w][grid_h];
+float CO2[grid_w][grid_h];
+float N2[grid_w][grid_h];
+float air_H20[grid_w][grid_h];
+float air_temp[grid_w][grid_h];
 
 
-for(i=0;i<100;i++){
-    for(j=0;j<100;j++){
+
+for(i=0;i<grid_w;i++){
+    for(j=0;j<grid_h;j++){
         //SOIL
-        z[100][100] = 1;           //in meters
-        organic[100][100] = 50;    //value
-        N[100][100] = 0.5;         //From 0 to 1   (or value)
-        P[100][100] = 0.5;         //From 0 to 1   (or value)
-        soil_H20[100][100] = 0.5;  //From 0 to 1
-        detritus[100][100] = 0;    //value
-        soil_temp[100][100] = 25;  //in C
-        sunlight[100][100] = 0.5;  //From 0 to 1
-        O2[100][100] = 20;         //out of 100
-        CO2[100][100] = 2;         //out of 100
-        N2[100][100] = 78;         //out of 100
-        air_H20[100][100] = 0.5;   //From 0 to 1, form clouds at 1
-        air_temp[100][100] = 25;   //in C
+        z[grid_w][grid_h] = 1;           //in meters
+        organic[grid_w][grid_h] = 50;    //value
+        N[grid_w][grid_h] = 0.5;         //From 0 to 1   (or value)
+        P[grid_w][grid_h] = 0.5;         //From 0 to 1   (or value)
+        soil_H20[grid_w][grid_h] = 0.5;  //From 0 to 1
+        detritus[grid_w][grid_h] = 0;    //value
+        soil_temp[grid_w][grid_h] = 25;  //in C
+        sunlight[grid_w][grid_h] = 0.5;  //From 0 to 1
+        O2[grid_w][grid_h] = 20;         //out of 100
+        CO2[grid_w][grid_h] = 2;         //out of 100
+        N2[grid_w][grid_h] = 78;         //out of 100
+        air_H20[grid_w][grid_h] = 0.5;   //From 0 to 1, form clouds at 1
+        air_temp[grid_w][grid_h] = 25;   //in C
     }
 }
 
