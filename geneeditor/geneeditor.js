@@ -565,7 +565,7 @@
 /*        elem.appendChild(E('span', '+', {style: {color: 'red'}}))
         elem.appendChild(T('FLEET'))*/
         var title = new ElementNode(elem, {
-          x: windowWidth/4, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
+          x: windowWidth*11/32, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
         })
         var th = this
         var controls = new CanvasNode()
