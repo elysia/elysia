@@ -19,6 +19,8 @@
 
       http://www.gnu.org/copyleft/gpl.html
     */
+    windowWidth=1024
+    windowHeight=768
 
     DEFAULT_CURSOR = 'default'
     MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
@@ -436,7 +438,7 @@
       query : function(header) {
         var div = E('div', {className : 'message'})
         var msg = new ElementNode(div,
-          { x : 320, y : 30, align : 'center' })
+          { x : windowWidth/4, y : windowHeight/8, align : 'center' })
         var msgDiv = E('div', header)
         div.appendChild(msgDiv)
         var options = E('div')
@@ -466,7 +468,7 @@
         if (!after) after = 0
         this.after(after, function(){
           var msg = new ElementNode(E('h3', message),
-            { x : 320, y : 30, align : 'center' })
+            { x : windowWidth/2, y : windowHeight/20, align : 'center' })
           if (!duration) duration = 3500 + msg.element.textContent.length * 10
           msg.opacity = 0
           msg.animateTo('opacity', 1, 500, 'sine')
@@ -521,8 +523,8 @@
 
 
     NewBrain = Klass(Editor, {
-      width : 640,
-      height : 480,
+      width : windowWidth,
+      height : windowHeight,
       scale : 1,
 
       name : "Start new brain",
@@ -539,16 +541,16 @@
 
 
     Menu = Klass(Editor, {
-      width : 1280,
-      height : 960,
-      scale : 0.5,
+      width : windowWidth,
+      height : windowHeight,
+      scale : 1,
       playerTeam : null,
       enemyTeam : null,
 
       initialize : function() {
         Editor.initialize.call(this)
         this.menu = new CanvasNode()
-        this.menu.scale = 2
+        this.menu.scale = 1
         this.menu.zIndex = 100
         this.append(this.menu)
         this.setupMenu()
@@ -563,14 +565,14 @@
 /*        elem.appendChild(E('span', '+', {style: {color: 'red'}}))
         elem.appendChild(T('FLEET'))*/
         var title = new ElementNode(elem, {
-          x: 320, y: 40, zIndex: 1002, align: 'center', cursor: 'default'
+          x: windowWidth/4, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
         })
         var th = this
         var controls = new CanvasNode()
         var bg = new ElementNode(E('div', {
           style: {
-            width : '640px',
-            height : '480px',
+            width : windowWidth+'px',
+            height : windowHeight+'px',
             backgroundColor: this.bgColor,
             opacity: 0.5
           }
@@ -595,16 +597,16 @@
         var levelHeader = E('h2', 'Actions')
         var jump = new ElementNode(levelHeader, {
           zIndex : 1002,
-          x : 320, y : 120,
+          x : windowWidth/4, y : windowHeight/8,
           align : 'center'
         })
         var levels = new ElementNode(levelList, {
           zIndex : 1002,
-          x : 320, y : 164,
+          x : windowWidth/4, y : windowHeight/4,
           align : 'center'
         })
-        var divider = new Rectangle(540, 1, {
-          centered: true, x: 320, y: 87.5, fill: 'red'
+        var divider = new Rectangle(windowWidth*7/8, 1, {
+          centered: true, x: windowWidth/2, y: 87.5, fill: 'red'
         })
         controls.append(jump, levels, divider)
         this.menu.title = title
@@ -766,7 +768,7 @@
 
 
     init = function() {
-      var c = E.canvas(640, 480)
+      var c = E.canvas(windowWidth, windowHeight)
       var d = E('div', { id: 'screen' })
       d.appendChild(c)
       document.body.appendChild(d)
