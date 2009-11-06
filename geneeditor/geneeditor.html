@@ -1,0 +1,103 @@
+<html>
+<head>
+  <title>MISSILE FLEET</title>
+  <script type="text/javascript" src="cake.js"></script>
+  <script type="text/javascript" src="support.js"></script>
+  <script type="text/javascript" src="geneeditor.js">
+  </script>
+  <style>
+    * { margin: 0px; padding: 0px; }
+    body {
+      font-size: 12px;
+      font-family: Arial, Helvetica;
+      background: #23262C;
+      color: #828292;
+    }
+    a {
+      color: #8282c2;
+    }
+    h1 {
+      color: #727282;
+      letter-spacing: 20px;
+      margin-left: 10px;
+      font-size: 16px;
+    }
+    h2 {
+      color: #727282;
+      letter-spacing: 18px;
+      margin-left: 9px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    h3 {
+      font-size: 12px;
+      font-family: Trebuchet MS, Arial, Helvetica;
+      color: #827262;
+      margin-bottom: 8px;
+      margin-top: 8px;
+    }
+    ol {
+      color: #827262;
+      text-align: center;
+      list-style: none;
+    }
+    li h3 {
+      margin: 0px;
+      margin-bottom: 4px;
+    }
+
+    .message h1, .message h2 {
+      margin-left: 0px;
+      letter-spacing: 0px;
+      margin-bottom: 20px;
+    }
+    .message div {
+      margin-bottom: 50px;
+    }
+    div.message {
+      width: 360px;
+    }
+    .message {
+      text-align: center;
+      color: #827262;
+      font-size: 12px;
+    }
+    input {
+      margin-right : 4px;
+    }
+    #debug p {
+      margin-bottom: 4px;
+    }
+    #debug div {
+      margin-bottom: 8px;
+    }
+    #screen {
+      width: 640px;
+      height: 480px;
+      position: absolute;
+      cursor: default;
+      overflow: hidden;
+      left: 40px;
+      top: 40px;
+    }
+    #debug {
+      color: #828292;
+      font-size: 12px;
+      position: absolute;
+      left: 690px;
+      max-width: 300px;
+      top: 32px;
+    }
+    #debug canvas {
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+<div id="debug">
+<h3>Gene Editor</h3>
+<p>Create lobes and connect the lobes to control your creature</p>
+</div>
+<script type="text/javascript">init()</script>
+</body>
+</html>
