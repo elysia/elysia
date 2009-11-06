@@ -53,8 +53,6 @@
       }
     }
 
-
-
     Player = function(t, td) {
       this.target = Player.targets[this.id]
       var th = this
@@ -176,47 +174,7 @@
         }
       }
     })
-
-
-    Explosion = Klass(CanvasNode, {
-      catchMouse : false,
-      cursor : 'default',
-
-      circleGradient : new Gradient({
-        type : 'radial',
-        endRadius : 15,
-        colorStops : [
-          [ 0.0, "rgba(190,105,90,1)" ],
-          [ 0.25, "rgba(5,30,80,0.4)" ],
-          [ 1, "rgba(10,0,40,0)" ]
-        ]
-      }),
-
-      initialize : function(size) {
-        CanvasNode.initialize.call(this)
-        var main = new Circle(15)
-        main.fill = this.circleGradient
-        main.compositeOperation = 'lighter'
-        this.zIndex = 10
-        this.main = main
-        this.append(main)
-        this.size = size
-        this.addFrameListener(this.blowup)
-        this.after(500, this.removeSelf)
-      },
-
-      blowup : function(t, dt) {
-        if (this.startTime == null)
-          this.startTime = t
-        var elapsed = Math.min(500, t - this.startTime)
-        var fac = 0.48 * 0.004 * Math.PI
-        this.main.scale = 1 + this.size *
-                          (Explosion.fastExplosions ? 1 :
-                                                      Math.tan(elapsed * fac))
-        if (isNaN(this.main.scale)) this.main.scale = 60000
-      }
-    })
-
+  
 
 
 
@@ -235,75 +193,9 @@
       initialize : function() {
         this.id = ControlledNode.id++
         CanvasNode.initialize.apply(this, arguments)
-        this.addFrameListener(this.callAI)
         this.addFrameListener(this.updatePosition)
-        this.addFrameListener(this.updateHealth)
       },
 
-      callAI : function(t,dt) {
-        if (this.root) {
-          if (dt && !isNaN(dt)) this.sinceLastTick += dt
-          this.tick = this.sinceLastTick >= this.root.frameDuration
-          if (this.tick) this.sinceLastTick = 0.0
-        }
-
-        if (this.tick) {
-          if (this.frame % 10 == 0) {
-            // stagger frames
-            if (this.frame == 0) this.frame += Math.floor(Math.random()*10)
-            this.moveSpeedFactor = 0
-            this.targetAngle = this.rotation
-            this.ai(t,dt)
-          }
-          this.hitDetect(t,dt)
-          this.frame++
-        }
-      },
-
-      ai : function(t, dt) {
-      },
-
-      hitDetect : function(t,dt) {
-      },
-
-      predictAngleToTarget : function(speed) {
-        var fx = Math.cos(this.target.rotation)
-        var fy = Math.sin(this.target.rotation)
-        var s = this.target.movementSpeed * this.target.moveSpeedFactor
-        var tv = [fx * s, fy * s]
-        var d_px = this.target.x - this.x
-        var d_py = this.target.y - this.y
-        var a = d_px*d_px + d_py*d_py
-        var b = 2*d_px*tv[0] + 2*d_py*tv[1]
-        var c = tv[0]*tv[0] + tv[1]*tv[1] - speed*speed
-        var d = b*b - 4*a*c
-        if (d < 0) {
-          return this.angleTo(this.target)
-        }
-        var t = 2 * a / (-b + Math.sqrt(d))
-        var est_p_t = [
-          this.target.x + tv[0]*t,
-          this.target.y + tv[1]*t
-        ]
-        return Math.atan2(est_p_t[1]-this.y, est_p_t[0]-this.x)
-      },
-
-      turnToward : function(a) {
-        this.targetAngle = a
-      },
-
-      moveAt : function(speedFactor) {
-        this.moveSpeedFactor = Math.min(1, Math.max(-1, speedFactor))
-      },
-
-      updateHealth : function(t,dt) {
-        if (this.healthBar) {
-          this.healthBar.width = Math.max(0, parseInt(this.health / 2.5))
-          this.healthBar.opacity = this.opacity
-          this.healthBar.x = this.x
-          this.healthBar.y = this.y
-        }
-      },
 
       updatePosition : function(t, dt) {
         var d = Curves.angularDistance(this.rotation, this.targetAngle)
@@ -406,756 +298,13 @@
         if (!noWarp) this.warpIn()
       },
 
-      warpIn : function() {
-        this.opacity = 0
-        this.aiDisabled = true
-        this.warpModel = new Spiral(0, {stroke: 'blue', zIndex : -1})
-        this.warpModel.animateTo('endAngle', 40, 500, 'square')
-        this.warpModel.after(500, function() {
-          this.animateTo('endAngle', 0, 500, 'square')
-          this.after(500, this.removeSelf)
-        })
-        this.animateTo('opacity', 1, 1000, 'sine')
-        this.model.animate('rotation', -10, 0, 1000, 'sqrt')
-        this.after(1000, function() {
-          this.aiDisabled = false
-        })
-//         this.append(this.warpModel)
-      },
-
-      /**
-        Tactical AI:
-          - takes care of point defense
-          - fires guns at the current target
-          - steers the vessel towards current waypoint
-      */
-      tacticalAI : function(t, dt) {
-        if (this.aiDisabled) return
-        var siblings = this.parentNode.childNodes
-        var th = this
-        var targets = []
-        if (this.pointDefense.readyToFire) {
-          var missiles = siblings.filter(function(s) {
-            return s.isMissile
-          })
-          var incoming = missiles.filter(function(s) {
-            return s.target.team == th.team
-          }).sort(function(a,b){
-            return th.pointDefense.optimalRange -
-                  Math.abs(th.distanceTo(a) - th.distanceTo(b))
-          })
-          var threats = incoming.filter(function(s) {
-            return s.target == th
-          }).sort(function(a,b){
-            return Math.abs(th.pointDefense.optimalRange - th.distanceTo(a)) -
-                  Math.abs(th.pointDefense.optimalRange - th.distanceTo(b))
-          })
-          var targets = threats.concat(incoming).concat(this.enemies).filter(function(s) {
-            return (!s.target || s.target.health > 0) &&
-                  (s.isMissile ? (th.distanceTo(s) < th.pointDefense.range) :
-                                  (th.distanceTo(s) < th.pointDefense.optimalRange))
-          })
-          this.intercept(targets)
-        }
-        var target = this.target || targets[0]
-        if (target && target.health > 0) {
-          var distance = this.distanceTo(target)
-          if (distance < this.weapon.range && this.weapon.readyToFire) {
-            if (Math.random() < 0.7) this.fireAt(target)
-          }
-        }
-        if (this.waypoint) {
-          if (this.distanceTo(this.waypoint) < 5) {
-            this.moveAt(0)
-            if (Math.abs(Curves.angularDistance(this.rotation, this.waypoint.rotation)) < 0.1)
-              delete this.waypoint
-            else
-              this.turnToward(this.waypoint.rotation)
-          } else {
-            this.turnToward(this.angleTo(this.waypoint))
-            this.moveAt(this.distanceTo(this.waypoint) / this.movementSpeed)
-          }
-        }
-      },
-
-      /**
-        Strategic AI:
-          - sets the main gun target
-          - sets waypoints
-      */
-      strategicAI : function(t, dt) {
-        if (this.aiDisabled) return
-        var th = this
-        if (!this.target || this.target.health <= 0 || (Math.random() < 0.3 && this.distanceTo(this.target) > this.weapon.range)) {
-          this.target = this.enemies.sort(function(a,b){
-            return Math.abs(th.weapon.optimalRange - th.distanceTo(a)) -
-                  Math.abs(th.weapon.optimalRange - th.distanceTo(b))
-          })[0]
-        }
-        if (this.target && this.target.health > 0) {
-          var angle = this.angleTo(this.target)
-          var distance = this.distanceTo(this.target)
-          if (distance < this.weapon.range) {
-            this.turnToward( angle + (Math.PI / 6) )
-          } else if (distance > (this.weapon.optimalRange)) {
-            this.turnToward( angle )
-          } else if (Math.random() < 0.8) {
-            this.turnToward( angle + (Math.PI / 2) )
-          }
-          if (distance < this.weapon.optimalRange) {
-            this.turnToward( angle + (Math.PI * 0.85) )
-          }
-          this.moveAt(1)
-        }
-      },
-
-      hitDetect : function(t, dt) {
-        ControlledNode.hitDetect.apply(this, arguments)
-        if (this.health <= 0) {
-          Player.deselect(this)
-          this.selected.opacity = 0
-          this.targetLine.removeSelf()
-          this.targetMarker.removeSelf()
-          this.waypointLine.removeSelf()
-          this.healthBar.removeSelf()
-        } else {
-          // FIXME Make the target marker fly to target with a spin
-          if (this.healthBar.parent != this.parent)
-            this.parent.append(this.healthBar)
-          if (this.strategicAI == Player)
-            this.cursor = SELECT_CURSOR
-          else if (Player.selection.length > 0)
-            this.cursor = TARGET_CURSOR
-          else
-            this.cursor = DEFAULT_CURSOR
-          this.healthBar.cursor = this.cursor
-          if (this.target && this.target.health > 0 && (this.strategicAI == Player || this.target.strategicAI == Player)) {
-            if (!this.targetMarker.parent)
-              this.parent.append(this.targetMarker, this.targetLine)
-            this.targetLine.x1 = this.x
-            this.targetLine.y1 = this.y
-            this.targetLine.x2 = this.targetMarker.x = this.target.x
-            this.targetLine.y2 = this.targetMarker.y = this.target.y
-            this.targetLine.visible = (Player.targets[this.id] == this.target && !this.waypoint)
-            this.targetMarker.visible = true
-          } else {
-            this.targetLine.visible = this.targetMarker.visible = false
-          }
-          if (this.waypoint && this.strategicAI == Player) {
-            if (!this.waypointLine.parent)
-              this.parent.append(this.waypointLine)
-            this.waypointLine.x1 = this.x
-            this.waypointLine.y1 = this.y
-            this.waypointLine.x2 = this.waypoint.x
-            this.waypointLine.y2 = this.waypoint.y
-            this.waypointLine.visible = true
-          } else {
-            this.waypointLine.visible = false
-          }
-        }
-      },
-
-      ai : function(t, dt) {
-        // don't leave the mission area lest you wish to die
-        if ((this.x < -50) || (this.y < -50) ||
-            (this.x > this.parent.width+50) || (this.y > this.parent.height+50))
-          this.health -= 3
-
-        if (this.health > 0) {
-          var siblings = this.parentNode.childNodes
-          var th = this
-          this.enemies = siblings.filter(function(s) {
-            return s.isShip && s.team != th.team
-          })
-          this.friends = siblings.filter(function(s) {
-            return s.isShip && s.team == th.team
-          })
-          this.strategicAI(t, dt)
-          this.tacticalAI(t, dt)
-        } else if (!this.blowup) {
-          var sz = (this.maxHealth / 20)*(1 + 0.1*this.weapon.techLevel)
-          var ex = new Explosion(0.25*sz + Math.random())
-          ex.x = this.x
-          ex.y = this.y
-          this.parent.append(ex)
-          var exps = sz * 0.2 + Math.random() * sz
-          var ssz = Math.sqrt(sz / 5)
-          for (var i=0; i<exps; i++) {
-            this.parent.after(200+i*60*Math.random(), (function(i){
-              return function() {
-                var e = new Explosion(Math.random()*sz/5)
-                var dx = Math.random()
-                dx *= dx
-                dx += i / exps
-                dx *= (Math.random() < 0.5 ? -1 : 1)
-                e.x = ex.x + dx * 5 * sz
-                var dx = Math.random()
-                dx *= dx
-                dx += i / exps
-                dx *= (Math.random() < 0.5 ? -1 : 1)
-                e.y = ex.y + dx * 5 * sz
-                this.append(e)
-              }
-            })(i))
-          }
-          this.root.dispatchEvent({type: 'destroyed', canvasTarget: this})
-          this.removeSelf()
-          this.blowup = true
-        }
-      },
-
-      intercept : function(targets) {
-        if (targets.length == 0) return
-        var i = 0
-        var j = 0
-        while (this.pointDefense.readyToFire) {
-          this.pointDefense.fireAt(targets[i])
-          i = (i+1) % targets.length
-          if (i == 0) j++
-          if (j == 1) return
-        }
-      },
 
       firedShots : 0,
-      fireAt : function(target) {
-        for (var i=0; i < this.weapon.salvos / 4; i++) {
-          if (this.weapon.readyToFire) {
-            this.weapon.rotation = (Math.PI) * ((this.firedShots % 2) - 0.5)
-            this.weapon.fireAt(target)
-            this.firedShots++
-          }
-        }
-      }
 
     })
 
 
-
-
-    Projectile = Klass(ControlledNode, {
-      zIndex : 2,
-      catchMouse : false,
-
-      initialize : function(target, weapon, x, y, rot) {
-        this.targetingFunction = this.angleTo
-        Object.extend(this, weapon)
-        ControlledNode.initialize.call(this)
-        this.elapsed = 0
-        this.owner = weapon
-        this.target = target
-        this.x = x
-        this.y = y
-        this.rotation = rot
-        this.model = new Rectangle(this.movementSpeed / 16, this.height, {centered : true})
-        this.append(this.model)
-        this.fill = this.color
-        if (this.projectileHealth)
-          this.health = this.projectileHealth
-        this.maxHealth = this.health
-        this.initAI()
-      },
-
-      selfDestruct : function() {
-        if (!this.parent) return
-        var ex = new Explosion(this.maxHealth * 0.01)
-        ex.x = this.x
-        ex.y = this.y
-        this.parent.append(ex)
-        this.removeSelf()
-        return false
-      },
-
-      ai : function(t,dt) {
-        if (!this.target) return
-        var angle = this.targetingFunction(this.target)
-        this.turnToward( angle )
-        this.moveAt(1)
-      },
-
-      hitDetect : function(t, dt) {
-        var targetAlive = this.target.health > 0
-        this.elapsed += dt
-        if (!this.target) return
-        var distance = this.distanceTo(this.target)
-        if (distance < this.hitRadius) this.hit()
-        if (targetAlive && this.target.health <= 0)
-          this.owner.gainExp(this.target)
-        if (this.health <= 0) return this.selfDestruct()
-        return true
-      },
-
-      hit : function() {
-        this.target.health -= this.damage
-        this.health -= this.hitDamageToSelf
-        var ex = new Explosion(this.damage * 0.01)
-        ex.x = this.x
-        ex.y = this.y
-        this.parent.append(ex)
-      }
-
-    })
-
-    Weapon = Klass(CanvasNode, {
-      catchMouse : false,
-      movementSpeed : 100,
-      turningSpeed : 1,
-      health : 20,
-      projectileHealth : 1,
-      hitDamageToSelf : 1,
-      range : 200,
-      optimalRange : 100,
-      reloadTime : 1000,
-      salvos : 5,
-      techLevel : 0,
-      rotation : 0,
-      height: 2,
-      color: 'white',
-      x : 0, y : 0, rotation : 0,
-      projectile : Projectile,
-      readyToFire : true,
-
-      initialize : function(techLevel) {
-        CanvasNode.initialize.call(this)
-        this.freeSalvos = this.salvos
-        if (techLevel)
-          this.techLevel = techLevel
-      },
-
-      gainExp : function(target) {
-        var targetTech = target.techLevel
-        if (target.weapon)
-          targetTech = target.weapon.techLevel
-        else if (target.damage)
-          targetTech *= 0.02 * Math.max(1, target.damage)
-//         this.techLevel += 0.5 * ((targetTech+1) / (this.techLevel+1))
-      },
-
-      fireAt : function(target) {
-        if (this.freeSalvos < 1) return false
-        this.freeSalvos--
-        this.rx = this.x + this.ship.x
-        this.ry = this.y + this.ship.y
-        this.rrot = this.rotation + this.ship.rotation
-        var proj = this.createProjectile(target)
-        this.ship.parent.append(proj)
-        this.after(this.reloadTime, this.reload)
-        this.readyToFire = (this.freeSalvos > 0)
-      },
-
-      reload : function() {
-        this.freeSalvos++
-        this.readyToFire = (this.freeSalvos > 0)
-      },
-
-      createProjectile : function(target) {
-        return new this.projectile(target, this, this.rx, this.ry, this.rrot)
-      }
-    })
-
-
-
-    RapidFireRailgun = Klass(Weapon, {
-      isMissile : true,
-      movementSpeed : 500,
-      turningSpeed : 0,
-      projectileHealth : 1,
-      hitRadius : 10,
-      damage : 100,
-      range : 500,
-      optimalRange : 250,
-      reloadTime : 200,
-      salvos: 1,
-      color: '#5533ff',
-      height: 2,
-      damageType : 'kinetic',
-
-      initAI : function() {
-        this.rotation = this.predictAngleToTarget(this.movementSpeed)
-        this.reloadTime *= Math.pow(0.8, this.techLevel)
-        this.movementSpeed *= Math.pow(1.1, this.techLevel)
-        this.hitRadius *= Math.pow(1.1, this.techLevel)
-        this.range *= Math.pow(1.1, this.techLevel)
-        this.after(1000, this.removeSelf)
-        var smoke = new CanvasNode({
-          stroke: '#ba88ba',
-          x: this.x,
-          y: this.y,
-          rotation: this.rotation
-        })
-        var x = 40+Math.random()*10
-        smoke.append(new Circle(5, {x:x, scale: [0.2, 1]}))
-        smoke.animate('opacity', 0.7, 0, 300, 'sqrt')
-        smoke.childNodes[0].animateTo('x', x-this.movementSpeed*0.01, 300, 'sqrt')
-        smoke.childNodes[0].animateToFactor('scale', 1+this.movementSpeed*(0.004+Math.random()*0.003), 300, 'sqrt')
-        smoke.after(300, smoke.removeSelf)
-        this.afterFrame(1, function() {
-          if (this.parentNode)
-            this.parentNode.append(smoke)
-        })
-      },
-
-      ai : function(t, dt) {
-        this.moveAt(1)
-      },
-      hit : function() {
-        Projectile.hit.apply(this, arguments)
-        var rs = Math.max(0, this.movementSpeed*this.moveSpeedFactor*(0.5+0.5*Math.random()))
-        var streak = new CanvasNode({
-          x:this.x, y:this.y, rotation: this.rotation
-        })
-        streak.after(300, streak.removeSelf)
-        this.parent.append(streak)
-        var c = new Circle(6, {x: 30, scale:[0.2,1], strokeWidth:5, fill:'none', stroke:'#ba88ba'})
-        if (rs <= 1) rs = 1
-        c.animateTo('x', 30+rs*0.04, rs*0.4, 'sqrt')
-        c.animateToFactor('radius', 2 + rs*0.005*Math.random()*2, rs*0.3, 'sqrt')
-        c.animate('opacity', 1, 0, rs*0.4, 'sqrt')
-        streak.append(c)
-      }
-    })
-
-    Missiles = Klass(Weapon, {
-      isMissile : true,
-      movementSpeed : 160,
-      turningSpeed : 3,
-      projectileHealth : 1,
-      hitRadius : 10,
-      damage : 20,
-      range : 500,
-      optimalRange : 250,
-      reloadTime : 3000,
-      salvos: 8,
-      color: '#22ccff',
-      height: 1.5,
-      damageType : 'explosive',
-
-      initAI : function() {
-        this.model.width *= 2
-        this.reloadTime *= Math.pow(0.8, this.techLevel)
-        this.turningSpeed *= Math.pow(1.1, this.techLevel)
-        this.movementSpeed *= Math.pow(1.1, this.techLevel)
-        this.damage *= Math.pow(1.25, this.techLevel)
-        if (this.techLevel >= 4) {
-          this.salvos += 2
-          this.targetingFunction = this.predictAngleTo
-        }
-        this.after(5000, this.removeSelf)
-      },
-
-      predictAngleTo : function(target) {
-        return this.predictAngleToTarget(this.movementSpeed)
-      },
-
-      hitDetect : function(t,dt) {
-        if (!this.target) return
-        if (!Projectile.hitDetect.apply(this, arguments))
-          return false
-        this.movementSpeed += dt * 0.06
-        var distance = this.distanceTo(this.target)
-        if (distance < 75) { // last sprint with low-latency tracking
-          if (this.techLevel >= 3) {
-            var angle = this.targetingFunction(this.target)
-            this.turnToward( angle )
-          }
-        } else if (distance < 150) { // try to dodge point defense
-          if (this.techLevel >= 3) {
-            this.targetAngle += (Math.random() - 0.5) * 0.4 * Math.max(1, distance)*0.01
-          }
-        }
-      },
-
-      hit : function() {
-        Projectile.hit.apply(this, arguments)
-        if (!Explosion.fastExplosions) {
-          var streak = new Circle(Math.random()*4+this.damage*0.18,{
-            rotation:this.rotation,
-            x:this.x, y:this.y,
-            strokeWidth: 1.5,
-            scale: [0.5+Math.random()*0.5, 1],
-            stroke: '#da88fa'
-          })
-          streak.animate('opacity', 0.8, 0, 400, 'sqrt')
-          streak.animateToFactor('scale', 5, 400, 'sqrt')
-          streak.after(400, streak.removeSelf)
-          this.parent.append(streak)
-        }
-      }
-    })
-
-    Beam = Klass(Weapon, {
-      movementSpeed : 200,
-      turningSpeed : 6,
-      health : 1,
-      range : 200,
-      optimalRange : 50,
-      reloadTime : 500,
-      hitRadius : 6,
-      damage : 15,
-      salvos: 5,
-      color: '#cc44ff',
-      sdTime : 1250,
-      height : 1,
-      isMissile : true,
-      damageType : 'electric',
-
-      initAI : function() {
-        this.after(this.sdTime, this.removeSelf)
-        this.range *= Math.pow(1.1, this.techLevel)
-        this.movementSpeed *= Math.pow(1.1, this.techLevel)
-        this.reloadTime *= Math.pow(0.9, this.techLevel)
-        this.damage *= Math.pow(1.1, this.techLevel)
-        if (this.techLevel >= 1) {
-          this.turningSpeed *= 1.5
-        }
-        if (this.techLevel >= 2) {
-          this.hitRadius *= 1.5
-        }
-        if (this.techLevel >= 3) {
-          this.range *= 1.25
-          this.rotation = this.predictAngleToTarget(this.movementSpeed)
-        } else {
-          this.rotation = this.angleTo(this.target)
-        }
-        if (this.techLevel >= 4) {
-          this.damage *= 1.5
-          this.turningSpeed *= 1.5
-        }
-        this.rotation += 0.5*(Math.random() - 0.5)
-      },
-
-      ai : function(t, dt) {
-        var angle = this.angleTo(this.target)
-        var distance = this.distanceTo(this.target)
-        this.turnToward( angle )
-        this.moveAt(1)
-        if (distance < 100 && this.target.health > 0 && Math.random() < 0.5) {
-          var nst = this.sdTime - this.elapsed - 250
-          if (nst > 0) {
-            var subBeam = new Projectile(this.target, this, this.x, this.y, this.rotation)
-            subBeam.sdTime = nst
-            subBeam.after(subBeam.sdTime, subBeam.removeSelf)
-            subBeam.rotation += Math.random()*2 - 1
-            this.parentNode.append(subBeam)
-          }
-        }
-      },
-
-      hitDetect : function(t,dt) {
-        if (Beam.fastBeams && this.target.health <= 0) return this.removeSelf()
-        Projectile.hitDetect.apply(this, arguments)
-      },
-
-      hit : function() {
-        var bonus = 10 * (1-(this.elapsed / (this.sdTime+1)))
-        this.target.health -= this.damage + bonus
-        this.health = 0
-        if (!Beam.fastBeams) {
-          var dp = Math.max(0, this.damage+bonus)
-          if (dp > this.target.maxHealth) dp = this.target.maxHealth
-          var streak = new Circle(Math.random()*5+(dp)*0.1,{
-            rotation:this.rotation,
-            x:this.x, y:this.y,
-            strokeWidth: 1,
-            scale: 1,
-            compositeOperation: 'lighter',
-            stroke: '#a500a5'
-          })
-          streak.animate('opacity', 0.8, 0, 300, 'sqrt')
-          streak.animateToFactor('scale', 5, 300, 'sqrt')
-          streak.after(300, streak.removeSelf)
-          this.parent.append(streak)
-        }
-      }
-
-    })
-
-    Railgun = Klass(Weapon, {
-      isMissile : true,
-      movementSpeed : 550,
-      turningSpeed : 0.2,
-      projectileHealth : 5,
-      range : 600,
-      optimalRange : 400,
-      reloadTime : 4000,
-      salvos: 1,
-      color: 'orange',
-      hitRadius : 10,
-      damageType : 'kinetic',
-
-      initAI : function() {
-        var dx = Math.cos(this.ship.rotation)
-        var dy = Math.sin(this.ship.rotation)
-        this.x += dx * 4
-        this.y += dy * 4
-        this.rotation = this.predictAngleToTarget(this.movementSpeed) +
-                        (Math.random() - 0.5) * 0.2 * (1/(1+this.techLevel))
-        if (this.techLevel >= 1) {
-          this.movementSpeed += 50
-          this.reloadTime *= 0.75
-        }
-        if (this.techLevel >= 2) {
-          this.turningSpeed *= 1.5
-        }
-        if (this.techLevel >= 3) {
-          this.movementSpeed *= 1.2
-          this.hitRadius *= 1.2
-          this.range *= 1.2
-        }
-        if (this.techLevel >= 4) {
-          this.movementSpeed *= 1.3
-          this.hitRadius *= 1.3
-          this.range *= 1.4
-          this.reloadTime *= 0.66
-        }
-        var compressionWave = new CanvasNode({
-          scale: [0.2, 0.8],
-          stroke: '#ba88ba',
-          strokeWidth: 2,
-          x: this.x,
-          y: this.y,
-          rotation: this.rotation
-        })
-        compressionWave.append(new Circle(30, {x: 60}))
-        var dur = 400
-        compressionWave.animateToFactor('scale', 1.4 + this.movementSpeed*0.001, dur, 'sqrt')
-        compressionWave.animate('opacity', 1, 0, dur, 'sqrt')
-        compressionWave.after(dur, compressionWave.removeSelf)
-        var smoke = new CanvasNode({
-          fill: '#ba88ba',
-          x: this.x,
-          y: this.y,
-          rotation: this.rotation
-        })
-        smoke.append(new Rectangle(this.movementSpeed / 40, 2, {centered:true}))
-        smoke.animate('opacity', 1, 0, 600, 'sqrt')
-        smoke.childNodes[0].animateTo('x', -this.movementSpeed*0.1, 600, 'sqrt')
-        smoke.after(600, smoke.removeSelf)
-        this.afterFrame(1, function() {
-          this.parentNode.append(compressionWave)
-          this.parentNode.append(smoke)
-        })
-        this.after(3000, this.removeSelf)
-      },
-
-      ai : function(t, dt) {
-        this.moveAt(1-Math.sqrt(this.elapsed/6000))
-        var angle = this.predictAngleToTarget(this.movementSpeed * this.moveSpeedFactor)
-        this.turnToward( angle )
-      },
-
-      hit : function() {
-        var rs = Math.max(0, this.movementSpeed*this.moveSpeedFactor)
-        var streak = new CanvasNode({
-          x:this.x, y:this.y, rotation: this.rotation
-        })
-        streak.after(300, streak.removeSelf)
-        this.parent.append(streak)
-        this.rotation += (Math.random() - 0.5)*(1-(rs * 0.0015))
-        this.elapsed += 500
-        var dmg = Math.abs(rs * 0.5)
-        this.target.health -= dmg
-        var ex = new Explosion(0.25) //dmg / 100)
-        ex.x = this.x
-        ex.y = this.y
-        this.parent.append(ex)
-        this.fill = 'darkred'
-        this.health -= 2
-        this.model.height = 1
-        if (!this.hasHit) {
-          var c = new Circle(10, {x: 30, scale:[0.2,1], strokeWidth:5, fill:'none', stroke:'#ba88ba'})
-          if (rs <= 1) rs = 1
-          c.animateTo('x', 30+rs*0.03, 300, 'sqrt')
-          c.animateToFactor('radius', 2 + rs*0.005, 300, 'sqrt')
-          c.animate('opacity', 1, 0, 300, 'sqrt')
-          streak.append(c)
-        }
-        this.hasHit = true
-      }
-
-    })
-
-
-
-    PointDefenseMissiles = Klass(Weapon, {
-      movementSpeed : 250,
-      turningSpeed : 3,
-      health : 1,
-      range : 250,
-      optimalRange : 30,
-      reloadTime : 500,
-      damage : 4,
-      hitRadius : 9,
-      height: 1,
-      salvos: 2,
-      color: '#dd2222',
-      damageType : 'explosive',
-
-      initAI : function() {
-        this.rotation = this.predictAngleToTarget(this.movementSpeed) + (Math.random() - 0.5)
-        this.reloadTime *= Math.pow(0.9, this.techLevel)
-        this.turningSpeed *= Math.pow(1.2, this.techLevel)
-        this.movementSpeed *= Math.pow(1.1, this.techLevel)
-        this.after(1400, this.removeSelf)
-      },
-
-      ai : function(t, dt) {
-        var angle = this.angleTo(this.target)
-        this.turnToward( angle )
-        this.moveAt(1-Math.sqrt(this.elapsed/6000))
-      },
-
-      hit : function() {
-        this.target.rotation += Math.random()*0.5 - 0.25
-        this.target.movementSpeed *= 1 - (2 / this.target.health)
-        this.target.health -= this.damage
-        this.health = 0
-      }
-
-    })
-
-    PointDefenseGun = Klass(Weapon, {
-      movementSpeed : 450,
-      turningSpeed : 0,
-      health : 1,
-      range : 150,
-      height : 1,
-      optimalRange : 30,
-      reloadTime : 20,
-      hitRadius : 5,
-      damage : 2,
-      salvos: 2,
-      color: '#dd2222',
-      damageType : 'kinetic',
-
-      initAI : function() {
-        this.x += Math.cos(this.ship.rotation)*20
-        this.y += Math.sin(this.ship.rotation)*20
-        this.model.width = 4
-        this.hitRadius += this.techLevel
-        if (this.techLevel >= 2) {
-          this.rotation = this.predictAngleToTarget(this.movementSpeed)
-        } else {
-          this.rotation = this.angleTo(this.target)
-        }
-        this.after(600, this.removeSelf)
-      },
-
-      ai : function(t, dt) {
-        this.moveAt(1-Math.sqrt(this.elapsed/1200))
-      },
-
-      hit : function() {
-        this.target.rotation += Math.random()*0.5 - 0.25
-        this.target.movementSpeed *= 1 - (1 / this.target.health)
-        this.target.health -= this.damage
-        this.health = 0
-      }
-
-    })
-
-
-
-    Level = Klass(CanvasNode, {
+    Editor = Klass(CanvasNode, {
       bgColor : 'rgb(0,0,0)',
       bgOpacity : 0.15,
 
@@ -1255,7 +404,7 @@
         })
         this.append(this.bg, this.messageLayer)
         this.addFrameListener(function() {
-          if (Player.selection.length > 0)
+          if (false)
             this.cursor = MOVE_TO_CURSOR
           else
             this.cursor = DEFAULT_CURSOR
@@ -1277,7 +426,7 @@
         desc.appendChild(E('h1', this.name))
         desc.appendChild(E('div', this.description))
         this.query(desc,
-          'Start level', function(){
+          'Begin editing', function(){
             this.root.dispatchEvent({type: 'started', canvasTarget : this })
           },
           'Back to main menu', function() { this.parentNode.gameOver() }
@@ -1346,81 +495,14 @@
         this.after(1000, function() {
           if (this.failed) return
           this.completed = true
-          this.query(E('h1', "Level complete"),
-            "Next level", function() { this.parentNode.nextLevel() },
+          this.query(E('h1', "Editor complete"),
+            "Next level", function() { this.parentNode.nextEditor() },
             "Play again", function() { this.parentNode.tryAgain() },
             "Back to main menu", function() { this.parentNode.gameOver() }
           )
         })
       },
 
-      createShip : function(team, techLevel, wpn, x, y, noWarp, health) {
-        if (!this.ships[team]) this.ships[team] = 0
-        var pd
-        if (wpn.length) {
-          if (wpn[1]) pd = wpn[1]
-          wpn = wpn[0]
-        }
-        if (!pd) {
-          switch(wpn) {
-            case Missiles: pd = PointDefenseMissiles; break
-            case Beam: pd = Beam; break
-            case RapidFireRailgun: pd = RapidFireRailgun; break
-            default: pd = PointDefenseGun
-          }
-        }
-        var s = new Ship(team,
-          new wpn(techLevel), new pd(techLevel),
-          x, y, noWarp, health)
-        if (team == this.playerTeam) s.strategicAI = Player
-        s.when('destroyed', this.destroyedHandler)
-        this.ships[team]++
-        return s
-      },
-
-      createGroup : function(team, techLevel, x, y, weapons, noWarp, health) {
-        var i = 0
-        var th = this
-        var seg = Math.PI*2/(weapons.length-1)
-        return weapons.map(function(wpn) {
-          if (i == 0) {
-            var dx = 0, dy = 0
-          } else {
-            var angle = i * seg
-            var r = Math.max(80, 100 / seg)
-            var dx = Math.cos(angle) * r
-            var dy = Math.sin(angle) * r
-          }
-          i++
-          return th.createShip(team, techLevel, wpn, x+dx, y+dy, noWarp, health)
-        })
-      },
-
-      ship : function() {
-        this.append(this.createShip.apply(this, arguments))
-      },
-
-      shipAfter : function(time, team, techLevel, weapon, x, y, noWarp, health) {
-        if (!this.ships[team]) this.ships[team] = 0
-        this.ships[team]++
-        this.after(time, function() {
-          this.ships[team]--
-          this.ship(team, techLevel, weapon, x, y, noWarp, health)
-        })
-      },
-
-      group : function(team, techLevel, x, y, weapons, noWarp, health) {
-        this.append.apply(this, this.createGroup.apply(this, arguments))
-      },
-
-      groupAfter : function(time, team, techLevel, x, y, weapons, noWarp, health) {
-        if (!this.ships[team]) this.ships[team] = 0
-        this.ships[team] += weapons.length
-        this.after(time, function() {
-          this.ships[team] -= weapons.length
-          this.group(team, techLevel, x, y, weapons, noWarp, health)
-        })
-      },
 
       destroyed : function(ev) {
         this.ships[ev.canvasTarget.team]--
@@ -1438,373 +520,25 @@
 
 
 
-    Level1 = Klass(Level, {
+    NewBrain = Klass(Editor, {
       width : 640,
       height : 480,
       scale : 1,
 
-      name : "Run like the wind",
-      description : "Try not to get blown up.",
+      name : "Start new brain",
+      description : "Make basic lobes that control reactions to food when hungry.",
 
       initialize : function() {
-        Level.initialize.call(this)
+        Editor.initialize.call(this)
         this.when('started', function() {
-          this.shipAfter(0, this.playerTeam, 0, Missiles, 100, 100)
-          this.shipAfter(5000, this.enemyTeam, 0, PointDefenseGun, 680, 300, true)
-          this.shipAfter(10000, this.enemyTeam, 0, PointDefenseMissiles, -40, 220, true)
-          this.shipAfter(15000, this.enemyTeam, 0, [Beam, PointDefenseGun], 400, 520, true)
-        })
-      }
 
-    })
-
-    Level2 = Klass(Level, {
-      width : 1280,
-      height : 960,
-      scale : 0.5,
-
-      name : "What doesn't hit you, can't hurt you",
-      description : "Take care not to get overwhelmed.",
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.shipAfter(500, this.playerTeam, 1, Beam, 700, 500)
-          this.shipAfter(1000, this.playerTeam, 1, Beam, 600, 300)
-          this.notify('Reinforcements are on the way', 20000)
-          this.shipAfter(23000, this.playerTeam, 1, Beam, 640, 480)
-
-          this.shipAfter(3000, this.enemyTeam, 0, Missiles, 1320, 800)
-          this.shipAfter(17000, this.enemyTeam, 0, Missiles, 1100, -40)
-          this.shipAfter(32000, this.enemyTeam, 0, Missiles, 810, 1000)
-
-          this.shipAfter(6000, this.enemyTeam, 0, Missiles, -40, 300)
-          this.shipAfter(22000, this.enemyTeam, 0, Missiles, 200, 1000)
-          this.shipAfter(24000, this.enemyTeam, 0, PointDefenseGun, 100, 1000)
-        })
-      }
-
-    })
-
-    Level3 = Klass(Level, {
-      width : 1280,
-      height : 960,
-      scale : 0.5,
-
-      name : "Formation",
-      description : "It may be a bit tricky, luck helps.",
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.ship(this.playerTeam, 2, Railgun, 600, 400)
-          this.ship(this.playerTeam, 0, Missiles, 650, 460)
-          this.groupAfter(5000, this.enemyTeam, 1, 400, -40, [Beam, Beam])
-          this.groupAfter(25000, this.enemyTeam, 0, -40, 520, [Beam, Beam])
-          this.shipAfter(15000, this.enemyTeam, 3, Missiles, 1310, 1000)
         })
       }
 
     })
 
 
-    Level4 = Klass(Level, {
-      name : "Against smaller numbers",
-      description : "This should be easy, right?",
-
-      reinforcementMessage : "Reinforcements are on the way.",
-
-      width : 1280,
-      height : 960,
-      scale : 0.5,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.enemyTeam, 1, 1000, 180,
-            [ Beam, Missiles, Railgun ],
-            true
-          )
-          this.groupAfter(2500, this.playerTeam, 1, 200, 800, [
-            Missiles,
-            PointDefenseMissiles, PointDefenseMissiles,
-            PointDefenseGun, PointDefenseGun, PointDefenseGun
-          ])
-          this.notify(this.reinforcementMessage, 17000)
-          this.groupAfter(20000, this.playerTeam, 1, 200, 800,
-            [Beam, PointDefenseGun])
-        })
-      }
-
-    })
-
-
-    Level5 = Klass(Level, {
-      name : "Not fair",
-      description : "Well, that's life.",
-
-      width : 1280,
-      height : 960,
-      scale : 0.5,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.groupAfter(3000, this.enemyTeam, 1, this.width * 0.9, this.height * 0.85,
-            [ RapidFireRailgun, RapidFireRailgun, RapidFireRailgun ]
-          )
-          this.group(this.playerTeam, 4, 200, 200, [
-            PointDefenseMissiles,
-            PointDefenseGun, PointDefenseGun, PointDefenseGun,
-            Missiles, Missiles, Missiles
-          ])
-        })
-      }
-
-    })
-
-
-    Level6 = Klass(Level, {
-      name : "Ye Good Ole Slug-Out",
-      description : "Tactics, schmactics.",
-
-      width : 1280,
-      height : 960,
-      scale : 0.5,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.enemyTeam, 0, this.width * 0.9, this.height * 0.85, [
-            Railgun, Railgun, Missiles, Beam, RapidFireRailgun
-          ])
-          this.group(this.playerTeam, 0, this.width * 0.1, this.height * 0.15, [
-            Railgun, Railgun, Missiles, Beam, RapidFireRailgun
-          ])
-        })
-      }
-
-    })
-
-
-    Level7 = Klass(Level, {
-      name : "Missiles are awesome",
-      description : "And make the computer slow doooown.",
-
-      width : 1600,
-      height : 1200,
-      scale : 640 / 1600,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.playerTeam, 2, this.width * 0.5, this.height * 0.15, [
-            Missiles, Missiles, Missiles, Missiles, Missiles
-          ])
-          for (var i=1; i<=10; i++) {
-            this.groupAfter(i * 3000, this.enemyTeam, 0,
-              Math.random() * this.width, this.height + 40,
-              [Beam, Beam], true)
-          }
-        })
-      }
-
-    })
-
-
-    Level8 = Klass(Level, {
-      name : "Railguns are awesome too",
-      description : "But take oh so long to reload.",
-
-      width : 1600,
-      height : 1200,
-      scale : 640 / 1600,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.playerTeam, 4, this.width * 0.20, this.height * 0.5, [
-            Railgun, Railgun, Railgun, Railgun, Railgun, Railgun
-          ])
-          for (var i=1; i<=8; i++) {
-            this.groupAfter(i * 3000, this.enemyTeam, 4,
-              -100, Math.random() * this.height,
-              [Missiles, Missiles], true)
-          }
-          this.groupAfter(9 * 3000, this.enemyTeam, 4,
-            this.width*0.5, this.height+50,
-            [Missiles, Missiles], true)
-          this.groupAfter(10 * 3000, this.enemyTeam, 4,
-            this.width*0.5, -50,
-            [Missiles, Missiles], true)
-        })
-      }
-
-    })
-
-
-    Level9 = Klass(Level, {
-      name : "Duels",
-      description : "Cheese is awesome as well.",
-
-      width : 1600, height : 1200, scale : 640 / 1600,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          for (var i=1; i<=10; i++) {
-            this.groupAfter(i * 3000 - 1500, this.playerTeam, 4,
-              this.width * 0.80, this.height * (0.1 + Math.random() * 0.8),
-              [ (i <= 6 ? RapidFireRailgun : PointDefenseGun) ])
-            this.groupAfter(i * 3000, this.enemyTeam, 4,
-              this.width * 0.20, this.height * Math.random(),
-              [ RapidFireRailgun ])
-          }
-        })
-      }
-
-    })
-
-
-    Level10 = Klass(Level, {
-      name : "Relaaax",
-      description : "An intermission.",
-
-      width : 1600, height : 1200, scale : 640 / 1600,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.playerTeam, 5,
-            this.width * 0.5, this.height * 0.5,
-            [ RapidFireRailgun, RapidFireRailgun, RapidFireRailgun ])
-          for (var i=1; i<=3; i++) {
-            this.groupAfter(i * 3000, this.enemyTeam, 2,
-              this.width * Math.random(), this.height * Math.random(),
-              [ Railgun, PointDefenseMissiles, PointDefenseMissiles ])
-          }
-          for (var i=5; i<=7; i++) {
-            this.groupAfter(i * 3000, this.enemyTeam, 2,
-              this.width * Math.random(), this.height * Math.random(),
-              [ Beam, PointDefenseMissiles, PointDefenseMissiles ])
-          }
-          for (var i=9; i<=12; i++) {
-            this.groupAfter(i * 3000, this.enemyTeam, 4,
-              this.width * Math.random(), this.height * Math.random(),
-              [ Missiles, PointDefenseMissiles, PointDefenseMissiles ])
-          }
-          this.groupAfter(15 * 3000, this.enemyTeam, 5,
-            this.width * Math.random(), this.height * Math.random(),
-            [ Missiles, Missiles, Missiles, Missiles,
-              Missiles, Missiles, Missiles ])
-        })
-      }
-
-    })
-
-
-    Level11 = Klass(Level, {
-      name : "Encounter",
-      description : "Even fight.",
-
-      width : 2000, height : 1500, scale : 640 / 2000,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.group(this.playerTeam, 5,
-            this.width * 0.2, this.height * 0.8, [
-            Railgun, Railgun, Railgun,
-            Missiles, Missiles, Missiles,
-            Beam, Beam, Beam
-          ])
-          this.group(this.enemyTeam, 5,
-            this.width * 0.8, this.height * 0.2, [
-            Railgun, Railgun, Railgun,
-            Missiles, Missiles, Missiles,
-            Beam, Beam, Beam
-          ])
-        })
-      }
-
-    })
-
-
-    Level12 = Klass(Level, {
-      name : "Skirmish",
-      description : "Take out the blue ships.",
-
-      width : 1600, height : 1200, scale : 640 / 1600,
-      wave : 20,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          this.ships[this.playerTeam] = 100
-          this.ships[this.enemyTeam] = 100
-          this.newShips()
-          this.every(4000, this.newShips)
-        })
-      },
-
-      newShips : function(after) {
-        if (!after) after = 0
-        this.wave--
-        if (this.wave == 1) {
-          this.ships[this.playerTeam] -= 100
-          this.ships[this.enemyTeam] -= 100
-        } else if (this.wave == 0) {
-          return false
-        }
-        var friends = this.ships[this.playerTeam] || 0
-        var enemies = this.ships[this.enemyTeam] || 0
-        var playerWeapons = new Array(Math.max(1, enemies - friends)).
-                            map(this.randomWeapon)
-        var enemyWeapons = new Array(Math.max(1, friends - enemies)).
-                            map(this.randomWeapon)
-        this.groupAfter(after, this.playerTeam, Math.random()*6,
-          this.width * (0.2 + Math.random() * 0.6),
-          this.height * (0.2 + Math.random() * 0.6),
-          playerWeapons)
-        this.groupAfter(after, this.enemyTeam, Math.random()*6,
-          this.width * (0.2 + Math.random() * 0.6),
-          this.height * (0.2 + Math.random() * 0.6),
-          enemyWeapons)
-      },
-
-      weapons : [Beam, Missiles, Railgun],
-
-      randomWeapon : function() {
-        if (Math.random() < 0.02) return RapidFireRailgun
-        return Level12.weapons.pick()
-      }
-    })
-
-
-    Level13 = Klass(Level, {
-      name : "Random encounter",
-      description : "How will you cope?",
-
-      width : 1600, height : 1200, scale : 640 / 1600,
-
-      initialize : function() {
-        Level.initialize.call(this)
-        this.when('started', function() {
-          var tl = Math.random()*6
-          var ships = 3 + Math.floor(Math.random()*7)
-          var pl = new Array(ships).map(Level12.randomWeapon)
-          var en = new Array(ships).map(Level12.randomWeapon)
-          this.group(this.playerTeam, tl,
-            this.width * 0.2, this.height * 0.8, pl)
-          this.group(this.enemyTeam, tl,
-            this.width * 0.8, this.height * 0.2, en)
-        })
-      }
-
-    })
-
-
-    MenuLevel = Klass(Level, {
+    Menu = Klass(Editor, {
       width : 1280,
       height : 960,
       scale : 0.5,
@@ -1812,46 +546,16 @@
       enemyTeam : null,
 
       initialize : function() {
-        Level.initialize.call(this)
+        Editor.initialize.call(this)
         this.menu = new CanvasNode()
         this.menu.scale = 2
         this.menu.zIndex = 100
         this.append(this.menu)
         this.setupMenu()
-        this.newShip()
-        this.every(4000, this.newShip)
         this.selectRect.opacity = 0
       },
 
       showDescription : function() {},
-
-      newShip : function() {
-        var blue = '#2266aa'
-        var red = '#aa2222'
-        var blues = this.childNodes.filter(function(n) { return n.team == blue }).length
-        var reds = this.childNodes.filter(function(n) { return n.team == red }).length
-        var d = 1 + Math.max(0, blues - reds)
-        this.taskforce(red, Math.random()*this.width, Math.random()*this.height, d)
-        var d = 1 + Math.max(0, reds - blues)
-        this.taskforce(blue, Math.random()*this.width, Math.random()*this.height, d)
-      },
-
-      taskforce : function(color, x, y, size) {
-        var wps = [Missiles, Beam, Railgun]
-        var tl = Math.random() * 6
-        for (var i=0; i<size; i++) {
-          var wp = wps[Math.floor(wps.length * Math.random())]
-          var pd = (wp == Missiles) ? PointDefenseMissiles : PointDefenseGun
-          if (wp == Beam) pd = Beam
-          if (Math.random() < 0.03) {
-            wp = pd = RapidFireRailgun
-          }
-          var ship = new Ship(color, new wp(tl), new pd(tl),
-            x + Math.random() * 100 - 50,
-            y + Math.random() * 100 - 50)
-          this.append(ship)
-        }
-      },
 
       setupMenu : function() {
         var elem = E('h1')
@@ -1875,20 +579,20 @@
         controls.display = 'none'
         controls.opacity = 0
         var levelList = E('ol')
-        MissileFleet.levels.slice(1).forEach(function(lvl, i) {
+        GenomeEditor.levels.slice(1).forEach(function(lvl, i) {
           var li = E('li', E('h3', (i+1) + '. ' + lvl.prototype.name))
           li.onclick = function(){
             if (th.clicked) return
             th.clicked = true
             th.menu.controls.animateTo('opacity', 0, 300, 'sine')
             th.after(300, function() {
-              this.parentNode.jumpToLevel(MissileFleet.levels.indexOf(lvl))
+              this.parentNode.jumpToLevel(GenomeEditor.levels.indexOf(lvl))
             })
           }
           li.style.cursor = 'pointer'
           levelList.appendChild(li)
         })
-        var levelHeader = E('h2', 'JUMP TO LEVEL')
+        var levelHeader = E('h2', 'Actions')
         var jump = new ElementNode(levelHeader, {
           zIndex : 1002,
           x : 320, y : 120,
@@ -1932,9 +636,9 @@
 
 
 
-    MissileFleet = Klass(CanvasNode, {
+    GenomeEditor = Klass(CanvasNode, {
       levelIndex : 0,
-      levels : [MenuLevel, Level1, Level2, Level3, Level4, Level5, Level6, Level7, Level8, Level9, Level10, Level11, Level13],
+      levels : [Menu, NewBrain],
 
       initialize : function(canvasElem) {
         CanvasNode.initialize.call(this)
@@ -1969,9 +673,6 @@
       },
 
       changeLevel : function(level) {
-        Player.waypoints = {}
-        Player.targets = {}
-        Player.selection = []
         if (this.level) this.level.removeSelf()
         if (level) {
           this.level = new level()
@@ -2069,5 +770,5 @@
       var d = E('div', { id: 'screen' })
       d.appendChild(c)
       document.body.appendChild(d)
-      MF = new MissileFleet(c)
+      GE = new GenomeEditor(c)
     }
