@@ -204,16 +204,7 @@
           else
             this.cursor = DEFAULT_CURSOR
         })
-        this.destroyedHandler = this.destroyed.bind(this)
-        this.when('teamDestroyed', function(ev) {
-          if (ev.detail == this.enemyTeam) this.enemyTeamDestroyed(ev.detail)
-          else if (ev.detail == this.playerTeam) this.gameOver()
-        })
         this.showDescription()
-      },
-
-      enemyTeamDestroyed : function(team) {
-        this.levelCompleted()
       },
 
       showDescription : function() {
@@ -224,7 +215,7 @@
           'Begin editing', function(){
             this.root.dispatchEvent({type: 'started', canvasTarget : this })
           },
-          'Back to main menu', function() { this.parentNode.gameOver() }
+          'Back to main menu', function() { this.parentNode.returnToMenu() }
         )
       },
 
@@ -274,26 +265,26 @@
       },
 
 
-      gameOver : function() {
+      returnToMenu : function() {
         if (this.completed) return
         this.failed = true
         this.after(1000, function() {
-          this.query(E('h1', "Your fleet was destroyed"),
-            "Try again", function() { this.parentNode.tryAgain() },
-            "Back to main menu", function() { this.parentNode.gameOver() }
+          this.query(E('h1', "Do you wish to return to menu?"),
+            "Return to editing", function() { this.parentNode.tryAgain() },
+            "Back to main menu", function() { this.parentNode.returnToMenu() }
           )
         })
       },
 
-      levelCompleted : function() {
+      editorCompleted : function() {
         if (this.failed) return
         this.after(1000, function() {
           if (this.failed) return
           this.completed = true
           this.query(E('h1', "Editor complete"),
-            "Next level", function() { this.parentNode.nextEditor() },
+            "Next editor", function() { this.parentNode.nextEditor() },
             "Play again", function() { this.parentNode.tryAgain() },
-            "Back to main menu", function() { this.parentNode.gameOver() }
+            "Back to main menu", function() { this.parentNode.returnToMenu() }
           )
         })
       },
@@ -355,8 +346,7 @@
       setupMenu : function() {
         var elem = E('h1')
         elem.appendChild(T('ELYSIA GENOME EDITOR'))
-/*        elem.appendChild(E('span', '+', {style: {color: 'red'}}))
-        elem.appendChild(T('FLEET'))*/
+
         var title = new ElementNode(elem, {
           x: windowWidth*11/32, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
         })
@@ -373,35 +363,35 @@
         controls.append(bg)
         controls.display = 'none'
         controls.opacity = 0
-        var levelList = E('ol')
-        GenomeEditor.levels.slice(1).forEach(function(lvl, i) {
+        var editorList = E('ol')
+        GenomeEditor.editors.slice(1).forEach(function(lvl, i) {
           var li = E('li', E('h3', (i+1) + '. ' + lvl.prototype.name))
           li.onclick = function(){
             if (th.clicked) return
             th.clicked = true
             th.menu.controls.animateTo('opacity', 0, 300, 'sine')
             th.after(300, function() {
-              this.parentNode.jumpToLevel(GenomeEditor.levels.indexOf(lvl))
+              this.parentNode.newEditorState(GenomeEditor.editors.indexOf(lvl))
             })
           }
           li.style.cursor = 'pointer'
-          levelList.appendChild(li)
+          editorList.appendChild(li)
         })
-        var levelHeader = E('h2', 'Actions')
-        var jump = new ElementNode(levelHeader, {
+        var editorHeader = E('h2', 'Actions')
+        var jump = new ElementNode(editorHeader, {
           zIndex : 1002,
           x : windowWidth/4, y : windowHeight/8,
           align : 'center'
         })
-        var levels = new ElementNode(levelList, {
+        var editors = new ElementNode(editorList, {
           zIndex : 1002,
           x : windowWidth/4, y : windowHeight/4,
           align : 'center'
         })
-        var divider = new Rectangle(windowWidth*7/8, 1, {
-          centered: true, x: windowWidth/2, y: 87.5, fill: 'red'
+        var divider = new Rectangle(windowWidth*.5, 1, {
+          centered: true, x: windowWidth/4+96, y: 87.5, fill: 'red'
         })
-        controls.append(jump, levels, divider)
+        controls.append(jump, editors, divider)
         this.menu.title = title
         this.menu.controls = controls
         this.menu.append(title)
@@ -432,8 +422,8 @@
 
 
     GenomeEditor = Klass(CanvasNode, {
-      levelIndex : 0,
-      levels : [Menu, NewBrain],
+      editorIndex : 0,
+      editors : [Menu, NewBrain],
 
       initialize : function(canvasElem) {
         CanvasNode.initialize.call(this)
@@ -442,49 +432,37 @@
         this.canvas.append(this)
         this.canvas.fixedTimestep = true
         this.canvas.clear = false
-        this.gameOver()
+        this.returnToMenu()
         this.setupEtc()
       },
 
-      gameOver : function() {
-        this.levelIndex = 0
-        this.changeLevel(this.levels[this.levelIndex])
+      returnToMenu : function() {
+        this.editorIndex = 0
+        this.changeEditor(this.editors[this.editorIndex])
       },
 
-      nextLevel : function() {
-        this.levelIndex++
-        var level = this.levels[this.levelIndex % this.levels.length]
-        this.changeLevel(level)
+      nextEditor : function() {
+        this.editorIndex++
+        var editor = this.editors[this.editorIndex % this.editors.length]
+        this.changeEditor(editor)
       },
 
-      jumpToLevel : function(idx) {
-        this.levelIndex = idx
-        var level = this.levels[this.levelIndex % this.levels.length]
-        this.changeLevel(level)
+      newEditorState : function(idx) {
+        this.editorIndex = idx
+        var editor = this.editors[this.editorIndex % this.editors.length]
+        this.changeEditor(editor)
       },
 
       tryAgain : function() {
-        this.changeLevel(this.levels[this.levelIndex])
+        this.changeEditor(this.editors[this.editorIndex])
       },
 
-      changeLevel : function(level) {
-        if (this.level) this.level.removeSelf()
-        if (level) {
-          this.level = new level()
-          this.append(this.level)
+      changeEditor : function(editor) {
+        if (this.editor) this.editor.removeSelf()
+        if (editor) {
+          this.editor = new editor()
+          this.append(this.editor)
         }
-      },
-
-      fastExplosions : false,
-      setFastExplosions : function(fe) {
-        this.fastExplosions = fe
-        Explosion.fastExplosions = fe
-      },
-
-      noExplosions : false,
-      setNoExplosions : function(fe) {
-        this.noExplosions = fe
-        Explosion.prototype.visible = !fe
       },
 
       Radiation : true,
