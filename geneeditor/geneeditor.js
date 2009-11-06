@@ -55,42 +55,7 @@
       }
     }
 
-    Player = function(t, td) {
-      this.target = Player.targets[this.id]
-      var th = this
-      if (Player.useTargettingAI && (!Player.targets[this.id] || this.target.health <= 0) && (!this.target || this.target.health <= 0 || (Math.random() < 0.3 && this.distanceTo(this.target) > this.weapon.range))) {
-        this.target = this.enemies.sort(function(a,b){
-          return Math.abs(th.weapon.optimalRange - th.distanceTo(a)) -
-                 Math.abs(th.weapon.optimalRange - th.distanceTo(b))
-        })[0]
-      }
-      if (!this.movementMode)
-        this.movementMode = 'normal' // (this.weapon instanceof Railgun ? 'defensive' : 'normal')
-      if (Player.useMovementAI && this.movementMode != 'manual') {
-        if (!this.waypoint && this.target && this.target.health > 0) {
-          var angle = this.angleTo(this.target)
-          var distance = this.distanceTo(this.target)
-          var inRange = (distance < this.weapon.range)
-          var optimumRange = (distance < this.weapon.optimalRange)
-          var targetInRange = (this.target.weapon && distance < this.target.weapon.range)
-          // don't run towards CPU targets
-          if (this.movementMode != 'defensive' && (this.movementMode == 'aggressive' || Player.targets[this.id] == this.target)) {
-            this.turnToward( angle )
-            if (inRange) this.turnToward( angle + (Math.PI / 6) )
-            if (optimumRange) this.turnToward( angle + Math.PI )
-            this.moveAt(1)
-          }
-          // run away from CPU targets that we can snipe
-          if (inRange && !targetInRange) {
-            this.turnToward( angle + Math.PI )
-            this.moveAt(1)
-          }
-        }
-      }
-    }
-    Player.useMovementAI = true
-    Player.useTargettingAI = true
-    Player.targets = {}
+    Player = {};
     Player.selection = []
     Player.toggleSelect = function(s) {
       if (this.selection.indexOf(s.id) == -1)
@@ -106,25 +71,17 @@
     }
     Player.select = function(s) {
       if (!this.selection.dict) this.selection.dict = {}
-      if (!this.selection.formation) this.selection.formation = new Formation()
       s.root.dispatchEvent({type : 'select', canvasTarget: s})
       this.selection.dict[s.id] = s
-      this.selection.formation.addShip(s)
+      //this.selection.formation.addShip(s)
       this.selection.push(s.id)
     }
     Player.deselect = function(s) {
       if (!this.selection.dict) this.selection.dict = {}
-      if (!this.selection.formation) this.selection.formation = new Formation()
       s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
       delete this.selection.dict[s.id]
-      this.selection.formation.removeShip(s)
+      //this.selection.formation.removeShip(s)
       this.selection.deleteFirst(s.id)
-    }
-    Player.setWaypoint = function(wp) {
-      if (!this.selection.formation) this.selection.formation = new Formation()
-      var sc = this.getSelectionCenter()
-      var rotation = Curves.lineAngle(sc, wp)
-      this.selection.formation.setWaypoint(wp, rotation)
     }
     Player.getSelectionCenter = function() {
       var x = 0
@@ -136,174 +93,10 @@
       }
       return [ x / this.selection.length, y / this.selection.length ]
     }
-    Player.setTarget = function(t) {
-      this.selection.forEach(function(s) {
-        if (Player.useMovementAI)
-          delete Player.selection.dict[s].waypoint
-        Player.targets[s] = t
-      })
-    }
 
-    Formation = Klass({
-      initialize : function() {
-        this.ships = []
-        for (var i=0; i<arguments.length; i++)
-          this.ships.push(arguments[i])
-      },
-
-      addShip : function(ship) {
-        if (this.ships.indexOf(ship) == -1)
-          this.ships.push(ship)
-      },
-
-      removeShip : function(ship) {
-        this.ships.deleteFirst(ship)
-      },
-
-      formationFunction : function(ships) {
-        return ships.map(function(s, i, th) {
-          return [-70 * (i / 3), 70 * (i % 3)]
-        })
-      },
-
-      setWaypoint : function(point, rotation) {
-        var waypoints = this.formationFunction(this.ships)
-        for (var i=0; i<waypoints.length; i++) {
-          var wp = waypoints[i]
-          var ship = this.ships[i]
-          var p = V.add(point, V.rotate(wp, rotation))
-          ship.waypoint = {x:p[0], y:p[1], rotation:rotation}
-        }
-      }
-    })
   
 
 
-
-    ControlledNode = Klass(CanvasNode, {
-      rotation : 0,
-      targetAngle : 0,
-      sinceLastTick : 0.0,
-
-      catchMouse : false,
-      turningSpeed : 1,
-      movementSpeed : 20,
-      moveSpeedFactor : 0,
-      frame : 0,
-      id : 0,
-
-      initialize : function() {
-        this.id = ControlledNode.id++
-        CanvasNode.initialize.apply(this, arguments)
-        this.addFrameListener(this.updatePosition)
-      },
-
-
-      updatePosition : function(t, dt) {
-        var d = Curves.angularDistance(this.rotation, this.targetAngle)
-        if (d > 0)
-          d = Math.min(d, this.turningSpeed * (dt/1000))
-        else
-          d = Math.max(d, -this.turningSpeed * (dt/1000))
-        this.rotation += d
-        var xf = Math.cos(this.rotation)
-        var yf = Math.sin(this.rotation)
-        this.x += xf * this.movementSpeed * this.moveSpeedFactor * (dt/1000)
-        this.y += yf * this.movementSpeed * this.moveSpeedFactor * (dt/1000)
-      }
-    })
-
-
-
-    Ship = Klass(ControlledNode, {
-      isShip : true,
-      target : null,
-      health : 100,
-      catchMouse : true,
-
-      turningSpeed : 1,
-      movementSpeed : 40,
-      z: 0,
-
-      initialize : function(color, weapon, pointDefense, x, y, noWarp, health) {
-        ControlledNode.initialize.call(this)
-        this.zIndex = 0 + 0.001 * (Ship.z++ % 1000)
-        this.stroke = color
-        this.team = color
-        this.weapon = weapon
-        this.weapon.ship = this
-        this.pointDefense = pointDefense
-        this.pointDefense.ship = this
-        this.x = x
-        this.y = y
-        if (health)
-          this.health = health
-        this.rotation = Math.random() * Math.PI*2
-        this.model = new Polygon([20,0, -10,15, -10,-15])
-        this.model.strokeWidth = 2
-        //this.core = new Circle(5)
-        this.hardpoint = this.model.clone()
-        Object.extend(this.hardpoint, {
-          scale: 0.2 + this.weapon.techLevel * 0.1,
-          centered:true,
-          stroke: false,
-          fill: this.weapon.color,
-          weapon: this.weapon
-        })
-        this.hardpoint.addFrameListener(function() {
-          this.fill = this.weapon.color
-          this.scale = 0.2 + this.weapon.techLevel * 0.1
-        }, false)
-        this.append(this.weapon)
-        this.append(this.pointDefense)
-        this.model.append(this.hardpoint)
-        this.append(this.model)
-        this.healthBar = new Rectangle(20, 2, {
-          fill: color, stroke: false,
-          centered: true, cy: 30
-        })
-        this.selected = new Circle(35, {opacity: 0})
-        this.targetMarker = new Rectangle(40, 40, {
-          rotation: Math.PI/4,
-          centered: true, stroke: this.stroke, visible: false, opacity: 0.5,
-          catchMouse : false
-        })
-        this.targetLine = new Line(0,0,0,0, {
-          stroke: this.stroke, visible: false, opacity : 0.5,
-          catchMouse : false
-        })
-        this.waypointLine = new Line(0,0,0,0, {
-          stroke: '#448866', visible: false, opacity : 0.5,
-          catchMouse : false
-        })
-        this.append(this.selected)
-        if (!this.maxHealth) this.maxHealth = this.health
-        this.addEventListener('mousedown', function(ev) {
-          if (this.strategicAI == Player) {
-            if (!ev.shiftKey)
-              Player.clearSelection()
-            Player.toggleSelect(this)
-          } else {
-            Player.setTarget(this)
-          }
-        }, false)
-        this.addEventListener('select', function(ev) {
-          this.selected.opacity = 0.5
-          this.waypointLine.opacity = 0.5
-          this.targetLine.opacity = 0.5
-        }, false)
-        this.addEventListener('deselect', function(ev) {
-          this.selected.opacity = 0
-          this.waypointLine.opacity = 0.15
-          this.targetLine.opacity = 0.1
-        }, false)
-        if (!noWarp) this.warpIn()
-      },
-
-
-      firedShots : 0,
-
-    })
 
 
     Editor = Klass(CanvasNode, {
@@ -321,7 +114,7 @@
         this.bg.fillOpacity = this.bgOpacity
         var selectionStart, startX, startY
         var th = this
-        var playerShipsInside = function(rect) {
+        var objectsInside = function(rect) {
           return th.childNodes.filter(function(s) {
             var x1 = Math.min(rect.cx, rect.x2)
             var x2 = Math.max(rect.cx, rect.x2)
@@ -377,7 +170,7 @@
           if (selectionStart && th.selectRect.visible) {
             th.selectRect.visible = false
             selectionStart = null
-            var selection = playerShipsInside(th.selectRect)
+            var selection = objectsInside(th.selectRect)
             if (ev.shiftKey) {
               selection.forEach(Player.select.bind(Player))
             } else if (ev.altKey) {
