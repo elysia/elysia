@@ -55,60 +55,74 @@
       }
     }
 
-    Player = {};
-    Player.selection = []
-    Player.toggleSelect = function(s) {
-      if (this.selection.indexOf(s.id) == -1)
-        this.select(s)
-      else
-        this.deselect(s)
+    Context = function() {
+        context={};
+        context.selection=[];
+        context.toggleSelect = function(s) {
+            if (this.selection.indexOf(s.id) == -1)
+                this.select(s);
+            else
+                this.deselect(s);
+        };
+        context.clearSelection = function() {
+            var dict = this.selection.dict
+            while (this.selection.length > 0) {
+                this.deselect(this.selection.dict[this.selection[0]])
+            }
+        };
+        context.select = function(s) {
+            if (!this.selection.dict) this.selection.dict = {}
+            s.root.dispatchEvent({type : 'select', canvasTarget: s})
+            this.selection.dict[s.id] = s
+            this.selection.push(s.id)
+        };
+        context.deselect = function(s) {
+            if (!this.selection.dict) this.selection.dict = {}
+            s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
+            delete this.selection.dict[s.id]
+            this.selection.deleteFirst(s.id)
+        };
+        context.getSelectionCenter = function() {
+            var x = 0
+            var y = 0
+            for(var i=0; i<this.selection.length; i++) {
+                var s = this.selection.dict[this.selection[i]]
+                x += s.x
+                y += s.y
+            }
+            return [ x / this.selection.length, y / this.selection.length ]
+        };
+        context.setLobeTarget= function(point)  {
+            
+        };
+        return context;
     }
-    Player.clearSelection = function() {
-      var dict = this.selection.dict
-      while (this.selection.length > 0) {
-        this.deselect(this.selection.dict[this.selection[0]])
-      }
-    }
-    Player.select = function(s) {
-      if (!this.selection.dict) this.selection.dict = {}
-      s.root.dispatchEvent({type : 'select', canvasTarget: s})
-      this.selection.dict[s.id] = s
-      //this.selection.formation.addShip(s)
-      this.selection.push(s.id)
-    }
-    Player.deselect = function(s) {
-      if (!this.selection.dict) this.selection.dict = {}
-      s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
-      delete this.selection.dict[s.id]
-      //this.selection.formation.removeShip(s)
-      this.selection.deleteFirst(s.id)
-    }
-    Player.getSelectionCenter = function() {
-      var x = 0
-      var y = 0
-      for(var i=0; i<this.selection.length; i++) {
-        var s = this.selection.dict[this.selection[i]]
-        x += s.x
-        y += s.y
-      }
-      return [ x / this.selection.length, y / this.selection.length ]
-    }
-
   
 
-
-
+    Lobe = Klass(CanvasNode, {
+            initialize: function() {
+                CanvasNode.initialize.call(this);
+                this.lobe=new Rectangle(64,64, {
+                        stroke : 1,
+                        strokeOpacity : 0.4,
+                        stroke : '#00ff00',
+                        fillOpacity : 0.1,
+                        fill : '#00ff00',
+                        visible : false,
+                        zIndex : 999
+                    });
+            }
+        });
+      
 
     Editor = Klass(CanvasNode, {
       bgColor : 'rgb(0,0,0)',
       bgOpacity : 0.15,
 
-      playerTeam : '#aa2222',
-      enemyTeam : '#2266aa',
 
       initialize : function() {
         CanvasNode.initialize.call(this)
-        this.ships = {}
+        this.context=Context();
         this.bg = new Rectangle(this.width, this.height)
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
@@ -120,8 +134,7 @@
             var x2 = Math.max(rect.cx, rect.x2)
             var y1 = Math.min(rect.cy, rect.y2)
             var y2 = Math.max(rect.cy, rect.y2)
-            return s.isShip && s.strategicAI == Player &&
-                   (s.x >= x1 && s.x <= x2 && s.y >= y1 && s.y <= y2)
+            return (s.x >= x1 && s.x <= x2 && s.y >= y1 && s.y <= y2)
           })
         }
         this.selectRect = new Rectangle(0,0, {
@@ -172,15 +185,15 @@
             selectionStart = null
             var selection = objectsInside(th.selectRect)
             if (ev.shiftKey) {
-              selection.forEach(Player.select.bind(Player))
+              selection.forEach(context.select.bind(this.context))
             } else if (ev.altKey) {
-              selection.forEach(Player.deselect.bind(Player))
+              selection.forEach(context.deselect.bind(this.context))
             } else {
-              Player.clearSelection()
-              selection.forEach(Player.select.bind(Player))
+              context.clearSelection()
+              selection.forEach(context.select.bind(this.context))
             }
           } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
-            Player.setWaypoint(point)
+              context.setLobeTarget(point)
             th.selectRect.visible = false
             selectionStart = null
           }
@@ -252,7 +265,7 @@
         if (!after) after = 0
         this.after(after, function(){
           var msg = new ElementNode(E('h3', message),
-            { x : windowWidth/2, y : windowHeight/20, align : 'center' })
+            { x : windowWidth/4, y : windowHeight/20, align : 'center' })
           if (!duration) duration = 3500 + msg.element.textContent.length * 10
           msg.opacity = 0
           msg.animateTo('opacity', 1, 500, 'sine')
@@ -276,30 +289,7 @@
         })
       },
 
-      editorCompleted : function() {
-        if (this.failed) return
-        this.after(1000, function() {
-          if (this.failed) return
-          this.completed = true
-          this.query(E('h1', "Editor complete"),
-            "Next editor", function() { this.parentNode.nextEditor() },
-            "Play again", function() { this.parentNode.tryAgain() },
-            "Back to main menu", function() { this.parentNode.returnToMenu() }
-          )
-        })
-      },
 
-
-      destroyed : function(ev) {
-        this.ships[ev.canvasTarget.team]--
-        if (this.ships[ev.canvasTarget.team] < 1) {
-          this.root.dispatchEvent({
-            type : 'teamDestroyed',
-            detail : ev.canvasTarget.team,
-            canvasTarget : this
-          })
-        }
-      }
 
     })
 
@@ -328,8 +318,6 @@
       width : windowWidth,
       height : windowHeight,
       scale : 1,
-      playerTeam : null,
-      enemyTeam : null,
 
       initialize : function() {
         Editor.initialize.call(this)
@@ -348,7 +336,7 @@
         elem.appendChild(T('ELYSIA GENOME EDITOR'))
 
         var title = new ElementNode(elem, {
-          x: windowWidth*11/32, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
+          x: windowWidth/4, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
         })
         var th = this
         var controls = new CanvasNode()
@@ -389,7 +377,7 @@
           align : 'center'
         })
         var divider = new Rectangle(windowWidth*.5, 1, {
-          centered: true, x: windowWidth/4+96, y: 87.5, fill: 'red'
+          centered: true, x: windowWidth/2, y: 128, fill: 'red'
         })
         controls.append(jump, editors, divider)
         this.menu.title = title
