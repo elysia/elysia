@@ -98,19 +98,21 @@
         return context;
     }
   
+    currentMaxZ = 2;
 
     Lobe = Klass(CanvasNode, {
             initialize: function() {
                 CanvasNode.initialize.call(this);
                 this.lobe=new Rectangle(64,64, {
-                        stroke : 1,
-                        strokeOpacity : 0.4,
-                        stroke : '#00ff00',
+                        stroke : false,
+                        strokeOpacity : 0.1,
+                        stroke : '#ffff00',
                         fillOpacity : 0.1,
-                        fill : '#00ff00',
-                        visible : false,
-                        zIndex : 999
+                        fill : '#ffff00',
+                        visible : true,
+                        zIndex : currentMaxZ+=2
                     });
+                this.append(this.lobe)
             }
         });
       
@@ -219,7 +221,9 @@
         })
         this.showDescription()
       },
-
+      makeNewLobe : function () {
+         this.messageLayer.append(new Lobe());
+      },
       showDescription : function() {
         var desc = E('div')
         desc.appendChild(E('h1', this.name))
@@ -330,7 +334,9 @@
       },
 
       showDescription : function() {},
-
+      makeNewLobe : function () {
+                //noop
+      },
       setupMenu : function() {
         var elem = E('h1')
         elem.appendChild(T('ELYSIA GENOME EDITOR'))
@@ -444,7 +450,9 @@
       tryAgain : function() {
         this.changeEditor(this.editors[this.editorIndex])
       },
-
+      currentEditor : function () {
+         return this.editor;
+      },
       changeEditor : function(editor) {
         if (this.editor) this.editor.removeSelf()
         if (editor) {
@@ -462,7 +470,9 @@
       setAge : function(s) {
         this.Age = s;
       },
-
+      makeNewLobe:function(s) {
+         this.currentEditor().makeNewLobe()
+      },
 
       setupEtc : function() {
         this.canvas.updateFps = true
@@ -516,7 +526,8 @@
           title : 'Lifespan',
           controls : [
             ['Age', '0.0..1.0'],
-            'Radiation'
+            'Radiation',
+            ['makeNewLobe','function'],
           ]
         })
         this.controlPanel.show()
