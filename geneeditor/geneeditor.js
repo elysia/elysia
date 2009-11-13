@@ -58,6 +58,10 @@
     Context = function() {
         context={};
         context.selection=[];
+        context.groupUndoIndexStack=[]
+        context.groupRedoIndexStack=[]
+        context.undoBuffer=[];
+        context.redoBuffer=[];
         context.toggleSelect = function(s) {
             if (this.selection.indexOf(s.id) == -1)
                 this.select(s);
@@ -95,6 +99,34 @@
         context.setLobeTarget= function(point)  {
             
         };
+        context.addAction= function(redoFunction,undoFunction) {
+            this.redoBuffer[this.redoBuffer.length]=redoFunction;
+            this.undoBuffer[this.undoBuffer.length]=undoFunction;
+            redoFunction()
+        }
+        context.beginGroup = function() {
+            this.groupUndoIndexStack[this.groupUndoIndexStack.length]=this.undoBuffer.length;
+            this.groupRedoIndexStack[this.groupRedoIndexStack.length]=this.redoBuffer.length;
+        }
+        context.endGroup = function() {
+            
+            var undoStartIndex=this.groupUndoIndexStack.pop()
+            var redoStartIndex=this.groupRedoIndexStack.pop();
+            var newRedoFunction = function() {
+                for (var redo in this.redoBuffer.slice(redoStartIndex,this.redoBuffer.length-redoStartIndex).reverse()) {
+                    redo();
+                }
+            }
+            var newUndoFunction = function() {
+                for (var undo in this.undoBuffer.slice(undoStartIndex,this.undoBuffer.length-undoStartIndex)) {
+                    undo();
+                }
+            }
+            this.undoBuffer.length=undoStartIndex;
+            this.redoBuffer.length=redoStartIndex;
+            this.redoBuffer[redoStartIndex]=newRedoFunction;
+            this.undoBuffer[undoStartIndex]=newUndoFunction;
+        }
         return context;
     }
   
@@ -222,7 +254,11 @@
         this.showDescription()
       },
       makeNewLobe : function () {
-         this.messageLayer.append(new Lobe());
+         var lobe = new Lobe();
+         var thus = this;
+         redoFunction=function(){thus.append(lobe);}
+         undoFunction=function(){thus.remove(lobe);}
+         this.context.addAction(redoFunction,undoFunction);
       },
       showDescription : function() {
         var desc = E('div')
