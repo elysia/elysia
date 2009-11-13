@@ -60,8 +60,9 @@
         context.selection=[];
         context.groupUndoIndexStack=[]
         context.groupRedoIndexStack=[]
-        context.undoBuffer=[];
-        context.redoBuffer=[];
+        context.mUndoList=[];
+        context.mRedoList=[];
+        context.mCurUndoCounter=0;
         context.toggleSelect = function(s) {
             if (this.selection.indexOf(s.id) == -1)
                 this.select(s);
@@ -99,33 +100,45 @@
         context.setLobeTarget= function(point)  {
             
         };
-        context.addAction= function(redoFunction,undoFunction) {
-            this.redoBuffer[this.redoBuffer.length]=redoFunction;
-            this.undoBuffer[this.undoBuffer.length]=undoFunction;
-            redoFunction()
+        context.coalesceUndos = function () {
+            if (this.mUndoList.length>1 && this.mRedoList.length>1) {
+                var lastUndo=this.mUndoList.pop();
+                var penultimateUndo=this.mUndoList.pop();
+                var lastRedo=this.mRedoList.pop();
+                var penultimateRedo=this.mRedoList.pop();
+                this.performedAction(function(){lastUndo();penultimateUndo();},function(){penultimateRedo();lastRedo();});
+            }
         }
-        context.beginGroup = function() {
-            this.groupUndoIndexStack[this.groupUndoIndexStack.length]=this.undoBuffer.length;
-            this.groupRedoIndexStack[this.groupRedoIndexStack.length]=this.redoBuffer.length;
-        }
-        context.endGroup = function() {
-            
-            var undoStartIndex=this.groupUndoIndexStack.pop()
-            var redoStartIndex=this.groupRedoIndexStack.pop();
-            var newRedoFunction = function() {
-                for (var redo in this.redoBuffer.slice(redoStartIndex,this.redoBuffer.length-redoStartIndex).reverse()) {
-                    redo();
+        
+        context.performedAction= function(redoFunction,undoFunction) {
+            if (this.mCurUndoCounter!=this.mUndoList.length) {
+                var leng=this.mUndoList.length;
+                var rleng=this.mRedoList.length;
+                var count=0;
+                for (var i=this.mCurUndoCounter;i<leng;i+=1) {
+                    console.log ("Pushing redo "+(leng-1-count)+ " to undo stack");
+                    this.mUndoList.push(this.mRedoList[leng-1-count]);
+                    this.mRedoList.push(this.mUndoList[leng-1-count]);
+                    count+=1;
                 }
             }
-            var newUndoFunction = function() {
-                for (var undo in this.undoBuffer.slice(undoStartIndex,this.undoBuffer.length-undoStartIndex)) {
-                    undo();
-                }
+            this.mUndoList.push(undoFunction);
+            this.mRedoList.push(redoFunction);
+            this.mCurUndoCounter=this.mUndoList.length;
+            console.log ("undo list len "+this.mCurUndoCounter+" redo "+this.mRedoList.length);
+        }
+        context.undo= function () {      
+            if (this.mCurUndoCounter>0) {
+                this.mCurUndoCounter--;
+                this.mUndoList[this.mCurUndoCounter]();
+                console.log(this.mCurUndoCounter);
             }
-            this.undoBuffer.length=undoStartIndex;
-            this.redoBuffer.length=redoStartIndex;
-            this.redoBuffer[redoStartIndex]=newRedoFunction;
-            this.undoBuffer[undoStartIndex]=newUndoFunction;
+        }
+        context.redo = function() {
+            if (this.mCurUndoCounter<this.mUndoList.length) {
+                this.mRedoList[this.mCurUndoCounter]();
+                this.mCurUndoCounter++;
+            }
         }
         return context;
     }
@@ -256,9 +269,16 @@
       makeNewLobe : function () {
          var lobe = new Lobe();
          var thus = this;
-         redoFunction=function(){thus.append(lobe);}
-         undoFunction=function(){thus.remove(lobe);}
-         this.context.addAction(redoFunction,undoFunction);
+         redoFunction=function(){thus.append(lobe);console.log("redo");}
+         undoFunction=function(){thus.remove(lobe);console.log("undo");}
+         redoFunction();
+         this.context.performedAction(redoFunction,undoFunction);
+      },
+      undo : function () {
+          this.context.undo();
+      },
+      redo : function () {
+          this.context.redo();
       },
       showDescription : function() {
         var desc = E('div')
@@ -509,7 +529,12 @@
       makeNewLobe:function(s) {
          this.currentEditor().makeNewLobe()
       },
-
+      undo:function(s) {
+         this.currentEditor().undo()
+      },
+      redo:function(s) {
+         this.currentEditor().redo()
+      },
       setupEtc : function() {
         this.canvas.updateFps = true
         var debug = E('div')
@@ -564,6 +589,8 @@
             ['Age', '0.0..1.0'],
             'Radiation',
             ['makeNewLobe','function'],
+            ['undo','function'],
+            ['redo','function'],
           ]
         })
         this.controlPanel.show()
