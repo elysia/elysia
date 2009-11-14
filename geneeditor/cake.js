@@ -2995,7 +2995,11 @@ CanvasNode = Klass(Animatable, Transformable, {
   contains : function(obj) {
     while (obj) {
       if (obj == this) return true
-      obj = obj.parentNode
+      try {
+         obj = obj.parentNode
+      }catch (e) {
+         break;
+      }
     }
     return false
   },
@@ -4418,10 +4422,12 @@ ElementNode = Klass(CanvasNode, {
       this.element.style.opacity = 1
     else
       this.element.style.opacity = ctx.globalAlpha
-    if (!this.element.parentNode && this.root.canvas.parentNode) {
-      this.element.style.visibility = 'hidden'
-      this.root.canvas.parentNode.appendChild(this.element)
-      var hidden = true
+    if(this.root.hasOwnProperty('canvas')) {
+      if (!this.element.parentNode && this && this.root && this.root.canvas && this.root.canvas.parentNode) {
+        this.element.style.visibility = 'hidden'
+        this.root.canvas.parentNode.appendChild(this.element)
+        var hidden = true
+      }
     }
     var fs = this.color || this.fill
     if (this.parent) {

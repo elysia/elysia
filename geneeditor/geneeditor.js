@@ -116,7 +116,7 @@
                 var rleng=this.mRedoList.length;
                 var count=0;
                 for (var i=this.mCurUndoCounter;i<leng;i+=1) {
-                    console.log ("Pushing redo "+(leng-1-count)+ " to undo stack");
+                    //console.log ("Pushing redo "+(leng-1-count)+ " to undo stack");
                     this.mUndoList.push(this.mRedoList[leng-1-count]);
                     this.mRedoList.push(this.mUndoList[leng-1-count]);
                     count+=1;
@@ -125,13 +125,13 @@
             this.mUndoList.push(undoFunction);
             this.mRedoList.push(redoFunction);
             this.mCurUndoCounter=this.mUndoList.length;
-            console.log ("undo list len "+this.mCurUndoCounter+" redo "+this.mRedoList.length);
+            //console.log ("undo list len "+this.mCurUndoCounter+" redo "+this.mRedoList.length);
         }
         context.undo= function () {      
             if (this.mCurUndoCounter>0) {
                 this.mCurUndoCounter--;
                 this.mUndoList[this.mCurUndoCounter]();
-                console.log(this.mCurUndoCounter);
+                // console.log(this.mCurUndoCounter);
             }
         }
         context.redo = function() {
@@ -269,8 +269,8 @@
       makeNewLobe : function () {
          var lobe = new Lobe();
          var thus = this;
-         redoFunction=function(){thus.append(lobe);console.log("redo");}
-         undoFunction=function(){thus.remove(lobe);console.log("undo");}
+         redoFunction=function(){thus.append(lobe);}
+         undoFunction=function(){thus.remove(lobe);}
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
       },
@@ -280,14 +280,15 @@
       redo : function () {
           this.context.redo();
       },
+      beginEditing : function() {
+          this.root.dispatchEvent({type: 'started', canvasTarget : this })
+      },
       showDescription : function() {
         var desc = E('div')
         desc.appendChild(E('h1', this.name))
         desc.appendChild(E('div', this.description))
         this.query(desc,
-          'Begin editing', function(){
-            this.root.dispatchEvent({type: 'started', canvasTarget : this })
-          },
+          'Begin editing', this.beginEditing,
           'Back to main menu', function() { this.parentNode.returnToMenu() }
         )
       },
@@ -475,7 +476,7 @@
       editorIndex : 0,
       editors : [Menu, NewBrain],
 
-      initialize : function(canvasElem) {
+      initialize : function(canvasElem, devMode) {
         CanvasNode.initialize.call(this)
         this.canvas = new Canvas(canvasElem)
         this.canvas.frameDuration = 30
@@ -484,6 +485,9 @@
         this.canvas.clear = false
         this.returnToMenu()
         this.setupEtc()
+        if (devMode) {
+            this.newEditorState(1);
+        }
       },
 
       returnToMenu : function() {
@@ -605,5 +609,8 @@
       var d = E('div', { id: 'screen' })
       d.appendChild(c)
       document.body.appendChild(d)
-      GE = new GenomeEditor(c)
+      var devmode=(window.location.search.split("devmode=true").length>1);
+      GE = new GenomeEditor(c,devmode)
+
+
     }
