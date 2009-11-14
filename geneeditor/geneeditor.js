@@ -57,7 +57,7 @@
 
     Context = function() {
         context={};
-        context.selection=[];
+        context.selection={};
         context.groupUndoIndexStack=[]
         context.groupRedoIndexStack=[]
         context.mUndoList=[];
@@ -70,30 +70,55 @@
                 this.deselect(s);
         };
         context.clearSelection = function() {
-            var dict = this.selection.dict
-            while (this.selection.length > 0) {
-                this.deselect(this.selection.dict[this.selection[0]])
+            for (var item in this.selection) {
+                console.log("clr");
+                alert(item.length);
+
+                for (var bleh in item) {
+                    alert(bleh.length)
+                    this.deselect(bleh);
+                }
             }
         };
         context.select = function(s) {
-            if (!this.selection.dict) this.selection.dict = {}
+            if (s.hasOwnProperty('root')){
+                console.log("{");
+                for (i in s) {
+                    console.log(i);
+                }
+                console.log ("}root in s");
+
+            }else {
+                console.log ("root notin s");
+            }
             s.root.dispatchEvent({type : 'select', canvasTarget: s})
-            this.selection.dict[s.id] = s
-            this.selection.push(s.id)
+            this.selection[s]=s
+            console.log("selct");
         };
         context.deselect = function(s) {
-            if (!this.selection.dict) this.selection.dict = {}
-            s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
-            delete this.selection.dict[s.id]
-            this.selection.deleteFirst(s.id)
+            if (s.hasOwnProperty('root')){
+
+            }else {
+                console.log("{");
+                for (i in s) {
+                    console.log(i);
+                }
+                console.log ("}root notin s");
+            }
+            if (s in this.selection) {
+                s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
+                delete this.selection[s]
+                console.log("deselct");
+            }else {
+                console.log("deselect erro");
+            }
         };
         context.getSelectionCenter = function() {
             var x = 0
             var y = 0
-            for(var i=0; i<this.selection.length; i++) {
-                var s = this.selection.dict[this.selection[i]]
-                x += s.x
-                y += s.y
+            for(var item in this.selection) {
+                x += s.x;
+                y += s.y;//better centroid detection
             }
             return [ x / this.selection.length, y / this.selection.length ]
         };
@@ -108,7 +133,7 @@
                 var penultimateRedo=this.mRedoList.pop();
                 this.performedAction(function(){lastUndo();penultimateUndo();},function(){penultimateRedo();lastRedo();});
             }
-        }
+        };
         
         context.performedAction= function(redoFunction,undoFunction) {
             if (this.mCurUndoCounter!=this.mUndoList.length) {
@@ -148,7 +173,7 @@
     Lobe = Klass(CanvasNode, {
             initialize: function() {
                 CanvasNode.initialize.call(this);
-                this.lobe=new Rectangle(64,64, {
+                this.lobe=new Rectangle(64,32, {
                         stroke : false,
                         strokeOpacity : 0.1,
                         stroke : '#ffff00',
@@ -157,7 +182,17 @@
                         visible : true,
                         zIndex : currentMaxZ+=2
                     });
+                this.lobe.x+=5;
+                this.lobe.y+=274;
                 this.append(this.lobe)
+            },
+            getBoundingBox: function() {
+                var bb=this.lobe.getBoundingBox();
+                bb[0]+=this.lobe.x;
+                bb[1]+=this.lobe.y;
+                bb[2]+=this.lobe.x;
+                bb[3]+=this.lobe.y;
+                return bb;
             }
         });
       
@@ -181,7 +216,29 @@
             var x2 = Math.max(rect.cx, rect.x2)
             var y1 = Math.min(rect.cy, rect.y2)
             var y2 = Math.max(rect.cy, rect.y2)
-            return (s.x >= x1 && s.x <= x2 && s.y >= y1 && s.y <= y2)
+            /*
+            console.log("{")
+            for (i in s) {
+                console.log("property "+i);
+            }
+            console.log("}")
+            */
+            try {
+                var bb=s.getBoundingBox();
+                if (bb[0]<bb[2]&&bb[1]<bb[3]) {
+                    var minbb=[Math.max(bb[0],x1),
+                               Math.max(bb[1],y1),
+                               Math.min(bb[2],x2),
+                               Math.min(bb[3],y2)];
+                    console.log("test"+minbb)
+                        if (minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
+                            console.log("hit"+bb);
+                            return true;
+                        }else {
+                            return false;
+                        }
+                }else return false;
+            }catch(e){return false;}
           })
         }
         this.selectRect = new Rectangle(0,0, {
@@ -232,12 +289,12 @@
             selectionStart = null
             var selection = objectsInside(th.selectRect)
             if (ev.shiftKey) {
-              selection.forEach(context.select.bind(this.context))
+              selection.forEach(context.select.bind(context))
             } else if (ev.altKey) {
-              selection.forEach(context.deselect.bind(this.context))
+              selection.forEach(context.deselect.bind(context))
             } else {
               context.clearSelection()
-              selection.forEach(context.select.bind(this.context))
+              selection.forEach(context.select.bind(context))
             }
           } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
               context.setLobeTarget(point)
@@ -604,13 +661,11 @@
 
 
 
-    init = function() {
+    function init() {
       var c = E.canvas(windowWidth, windowHeight)
       var d = E('div', { id: 'screen' })
       d.appendChild(c)
       document.body.appendChild(d)
       var devmode=(window.location.search.split("devmode=true").length>1);
       GE = new GenomeEditor(c,devmode)
-
-
     }
