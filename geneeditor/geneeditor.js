@@ -170,7 +170,7 @@
                 var penultimateUndo=this.mUndoList.pop();
                 var lastRedo=this.mRedoList.pop();
                 var penultimateRedo=this.mRedoList.pop();
-                this.performedAction(function(){lastUndo();penultimateUndo();},function(){penultimateRedo();lastRedo();});
+                this.performedAction(function(){penultimateRedo();lastRedo();},function(){lastUndo();penultimateUndo();});
             }
         };
         
@@ -216,11 +216,32 @@
                 return start;
             };
         })();
+
     Selectable = Klass (CanvasNode, {
-        initialize: function() {
+        initialize: function(editor) {
             CanvasNode.initialize.call(this);
             this.uid=getUID()
             this.mSelected=false;
+            this.mEditor=editor;
+            {
+                var th=this;
+                this.addEventListener('mousedown',function(ev) {
+                        if (editor.clickedSelected(ev)) {
+                            editor.enableMoveOnMouseUp=true;
+                            editor.mouseDragDownHandler.bind(editor)(ev);
+                        }else {
+                            editor.enableMoveOnMouseUp=false;
+                            editor.mouseDownHandler.bind(editor)(ev);
+                        }
+                    },false);
+                this.addEventListener('drag',function(ev) {
+                        if(editor.enableMoveOnMouseUp) {
+                            editor.mouseDragMoveHandler.bind(editor)(ev);
+                        }else {
+                            editor.mouseDragHandler.bind(editor)(ev);
+                        }
+                    },false);
+            }
         },
         getBoundingBox:function() {
             return CanvasNode.getBoundingBox.call(this);
@@ -236,12 +257,23 @@
         },
         getZIndex: function() {
             return zMin;
+        },
+        getOrigin:function() {
+            var retval=new Array(3);
+            retval[0]=this.x;
+            retval[1]=this.y;
+            retval[2]=this.getZIndex();
+            return retval;
+        },
+        setOrigin:function(origin) {
+            this.x=origin[0];
+            this.y=origin[1];
         }
     });
 
     Lobe = Klass(Selectable, {
-            initialize: function() {
-                Selectable.initialize.call(this);
+            initialize: function(editor) {
+                Selectable.initialize.bind(this)(editor);
                 this.lobe=new Rectangle(64,32, {
                         stroke : false,
                         stroke : [0,0,0,0],
@@ -271,7 +303,20 @@
             deselect:function() {
                 Selectable.deselect.call(this);
                 this.lobe.fill[3]=0.25;
+            },
+            getOrigin:function() {
+                var retval=new Array(3);
+                retval[0]=this.lobe.x;
+                retval[1]=this.lobe.y;
+                retval[2]=this.getZIndex();
+                return retval;
+            },
+            setOrigin:function(origin) {
+                this.lobe.x=origin[0];
+                this.lobe.y=origin[1];
+                this.lobe.zIndex=origin[2];
             }
+            
         });
       
 
@@ -287,7 +332,7 @@
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
         this.ignoreNextClick=false;
-        var selectionStart, startX, startY
+        var selectionStart, startX, startY, selectionDragPlace;
         var th = this
         var objectsInside = function(rect, mouseUpPoint, isSelectionBox) {
           var x1 = Math.min(rect.cx, rect.x2)
@@ -346,8 +391,37 @@
           zIndex : 999
         })
         this.append(this.selectRect)
-        this.bg.addEventListener('mousedown', function(ev) {
-          ev.preventDefault()
+        this.clickedSelected=function(ev) {
+          var point = CanvasSupport.tMatrixMultiplyPoint(
+            CanvasSupport.tInvertMatrix(this.currentMatrix),
+            this.root.mouseX, this.root.mouseY);
+          return context.frontSelected(objectsInside({cx:point[0],cy:point[1],x1:point[0],x2:point[1]},point,false)).length!=0;
+        };
+        this.mouseDragDownHandler=function(ev) {
+          var point = CanvasSupport.tMatrixMultiplyPoint(
+            CanvasSupport.tInvertMatrix(this.currentMatrix),
+            this.root.mouseX, this.root.mouseY
+          )
+          selectionStart = point;
+          selectionDragPlace = point
+          console.log("Drag Start");
+        }
+        this.mouseDragMoveHandler=function(ev) {
+          var point = CanvasSupport.tMatrixMultiplyPoint(
+            CanvasSupport.tInvertMatrix(this.currentMatrix),
+            this.root.mouseX, this.root.mouseY
+          )
+          var delta=[point[0]-selectionDragPlace[0],point[1]-selectionDragPlace[1]];
+          for (uid in context.selection) {
+              origin=context.selection[uid].getOrigin();
+              origin[0]+=delta[0];
+              origin[1]+=delta[1];
+              context.selection[uid].setOrigin(origin);
+          }
+          selectionDragPlace=point;
+        }
+        this.mouseDownHandler=function(ev) {
+          th.enableMoveOnMouseUp=false;
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
@@ -357,8 +431,8 @@
           selectionStart = point
           th.selectRect.x2 = th.selectRect.cx = point[0]
           th.selectRect.y2 = th.selectRect.cy = point[1]
-        }, false)
-        this.bg.addEventListener('drag', function(ev) {
+        };
+        this.mouseDragHandler=function(ev) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
@@ -373,43 +447,85 @@
             th.selectRect.x2 = point[0]
             th.selectRect.y2 = point[1]
           }
-        }, false)
+        };
+        this.bg.addEventListener('mousedown', this.mouseDownHandler, false)
+        this.bg.addEventListener('drag', this.mouseDragHandler, false)
+        this.makeSelectionMoveUndo=function(delta) {
+            console.log("Drag stop delta "+delta);
+
+            var firstItem=true;
+            for (uid in th.context.selection) {                
+                var item=th.context.selection[uid];
+                var newOrigin=item.getOrigin();
+                var oldOrigin=item.getOrigin();
+                for (var i=0;i<delta.length&&i<newOrigin.length;i+=1) {
+                    oldOrigin[i]=newOrigin[i]-delta[i];
+                }
+                console.log("new origin "+newOrigin+" old origin "+oldOrigin);
+                (function(nOrigin,oOrigin,cItem) {
+                    var heapNewOrigin=nOrigin.slice(0);
+                    var heapOldOrigin=oOrigin.slice(0);
+                    var heapItem=cItem;
+                    undoFunction=function() {
+                        console.log("new origin "+nOrigin+" old origin "+oOrigin);                    
+                        heapItem.setOrigin(heapOldOrigin);
+                    };
+                    redoFunction=function() {
+                        console.log("new origin "+nOrigin+" old origin "+oOrigin);                    
+                        heapItem.setOrigin(heapNewOrigin);
+                    };
+                    th.context.performedAction(redoFunction,undoFunction);                    
+                })(newOrigin,oldOrigin,item);
+                if (!firstItem) {
+                    th.context.coalesceUndos(); 
+                }
+                firstItem=false;
+            }
+        }
         this.mouseupHandler = function(ev) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
           )
-          var doIgnoreNext=false;
-          //console.log("click at "+JSON.stringify(point)+" selected started at "+JSON.stringify(selectionStart)+ " ignored? "+th.ignoreNextClick+" visible{"+th.selectRect.visible+"}");
-          if (selectionStart||!th.ignoreNextClick) {
-            var selectionBox=th.selectRect.visible;
-            doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
-            th.selectRect.visible = false
-            selectionStart = null
-            var selection = objectsInside(th.selectRect,point,selectionBox)
-            if (ev.shiftKey) {
-              if (!selectionBox) {
-                  selection=context.frontNonselected(selection);
+          if(th.enableMoveOnMouseUp) {
+              if (selectionStart) {
+                  th.mouseDragMoveHandler(ev);
+                  th.makeSelectionMoveUndo([point[0]-selectionStart[0],point[1]-selectionStart[1]]);
+                  selectionStart=null;
               }
-              selection.forEach(context.select.bind(context));
-            } else if (ev.altKey) {
-                if(!selectionBox) {
-                    selection=context.frontSelected(selection);
-                }
-                selection.forEach(context.deselect.bind(context));
-            } else {
+          }else {
+            var doIgnoreNext=false;
+          //console.log("click at "+JSON.stringify(point)+" selected started at "+JSON.stringify(selectionStart)+ " ignored? "+th.ignoreNextClick+" visible{"+th.selectRect.visible+"}");
+            if (selectionStart||!th.ignoreNextClick) {
+              var selectionBox=th.selectRect.visible;
+              doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
+              th.selectRect.visible = false
+              selectionStart = null
+              var selection = objectsInside(th.selectRect,point,selectionBox)
+              if (ev.shiftKey) {
                 if (!selectionBox) {
-                    selection=context.nextItemsInLine(selection);
+                    selection=context.frontNonselected(selection);
                 }
-                context.clearSelection();
                 selection.forEach(context.select.bind(context));
+              } else if (ev.altKey) {
+                  if(!selectionBox) {
+                      selection=context.frontSelected(selection);
+                  }
+                  selection.forEach(context.deselect.bind(context));
+              } else {
+                  if (!selectionBox) {
+                      selection=context.nextItemsInLine(selection);
+                  }
+                  context.clearSelection();
+                  selection.forEach(context.select.bind(context));
+              }
+            } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
+                context.setLobeTarget(point)
+              th.selectRect.visible = false
+              selectionStart = null
             }
-          } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
-              context.setLobeTarget(point)
-            th.selectRect.visible = false
-            selectionStart = null
+            th.ignoreNextClick=doIgnoreNext; 
           }
-          th.ignoreNextClick=doIgnoreNext;
         }
         this.addEventListener('rootChanged', function(ev) {
           if (ev.canvasTarget == this) {
@@ -433,7 +549,7 @@
         this.showDescription()
       },
       makeNewLobe : function () {
-         var lobe = new Lobe();
+         var lobe = new Lobe(this);
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
