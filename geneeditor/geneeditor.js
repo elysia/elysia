@@ -1,7 +1,7 @@
     /*
-      Missile Fleet - a real-time tactics game / browser benchmark
+      Elysia Genomics Editor - This editor allows users to select regions and paint them with gene properties
 
-      Copyright (C) 2007  Ilmari Heikkinen
+      Copyright (C) 2009  Daniel Reiter Horn, Ilmari Heikkinen
 
       This program is free software; you can redistribute it and/or modify
       it under the terms of the GNU General Public License as published by
@@ -71,47 +71,24 @@
         };
         context.clearSelection = function() {
             for (var item in this.selection) {
-                console.log("clr");
-                alert(item.length);
-
-                for (var bleh in item) {
-                    alert(bleh.length)
-                    this.deselect(bleh);
-                }
+                this.deselect(this.selection[item]);
             }
         };
         context.select = function(s) {
-            if (s.hasOwnProperty('root')){
-                console.log("{");
-                for (i in s) {
-                    console.log(i);
-                }
-                console.log ("}root in s");
-
-            }else {
-                console.log ("root notin s");
+            if (s.hasOwnProperty('uid')) {
+                s.root.dispatchEvent({type : 'select', canvasTarget: s});
+                this.selection[s.uid]=s;
+                s.select();
             }
-            s.root.dispatchEvent({type : 'select', canvasTarget: s})
-            this.selection[s]=s
-            console.log("selct");
         };
         context.deselect = function(s) {
-            if (s.hasOwnProperty('root')){
-
-            }else {
-                console.log("{");
-                for (i in s) {
-                    console.log(i);
+            if (s.uid in this.selection) {
+                if (s.hasOwnProperty('uid')) {
+                    s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
+                    delete this.selection[s.uid]
                 }
-                console.log ("}root notin s");
             }
-            if (s in this.selection) {
-                s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
-                delete this.selection[s]
-                console.log("deselct");
-            }else {
-                console.log("deselect erro");
-            }
+            s.deselect();
         };
         context.getSelectionCenter = function() {
             var x = 0
@@ -169,16 +146,41 @@
     }
   
     currentMaxZ = 2;
+    
+    getUID= (function() {
+            var start=0;
+            return function() {
+                start+=1;
+                return start;
+            };
+        })();
+    Selectable = Klass (CanvasNode, {
+        initialize: function() {
+            CanvasNode.initialize.call(this);
+            this.uid=getUID()
+            this.mSelected=false;
+        },
+        getBoundingBox:function() {
+            return CanvasNode.getBoundingBox.call(this);
+        },
+        select:function(){
+            this.mSelected=true;
+        },
+        deselect:function(){
+            this.mSelected=false;
+        },
+        isSelected:function() {
+            return this.mSelected;
+        }
+    });
 
-    Lobe = Klass(CanvasNode, {
+    Lobe = Klass(Selectable, {
             initialize: function() {
-                CanvasNode.initialize.call(this);
+                Selectable.initialize.call(this);
                 this.lobe=new Rectangle(64,32, {
                         stroke : false,
-                        strokeOpacity : 0.1,
-                        stroke : '#ffff00',
-                        fillOpacity : 0.1,
-                        fill : '#ffff00',
+                        stroke : [0,0,0,0],
+                        fill : [128,128,128,0.25],
                         visible : true,
                         zIndex : currentMaxZ+=2
                     });
@@ -193,6 +195,14 @@
                 bb[2]+=this.lobe.x;
                 bb[3]+=this.lobe.y;
                 return bb;
+            },
+            select:function() {
+                Selectable.select.call(this);
+                this.lobe.fill[3]=0.5;
+            },
+            deselect:function() {
+                Selectable.deselect.call(this);
+                this.lobe.fill[3]=0.25;
             }
         });
       
@@ -208,38 +218,55 @@
         this.bg = new Rectangle(this.width, this.height)
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
+        this.ignoreNextClick=false;
         var selectionStart, startX, startY
         var th = this
-        var objectsInside = function(rect) {
-          return th.childNodes.filter(function(s) {
-            var x1 = Math.min(rect.cx, rect.x2)
-            var x2 = Math.max(rect.cx, rect.x2)
-            var y1 = Math.min(rect.cy, rect.y2)
-            var y2 = Math.max(rect.cy, rect.y2)
-            /*
-            console.log("{")
-            for (i in s) {
-                console.log("property "+i);
-            }
-            console.log("}")
-            */
-            try {
-                var bb=s.getBoundingBox();
-                if (bb[0]<bb[2]&&bb[1]<bb[3]) {
-                    var minbb=[Math.max(bb[0],x1),
-                               Math.max(bb[1],y1),
-                               Math.min(bb[2],x2),
-                               Math.min(bb[3],y2)];
-                    console.log("test"+minbb)
-                        if (minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
-                            console.log("hit"+bb);
-                            return true;
-                        }else {
-                            return false;
-                        }
-                }else return false;
-            }catch(e){return false;}
-          })
+        var objectsInside = function(rect, mouseUpPoint, isSelectionBox) {
+          var x1 = Math.min(rect.cx, rect.x2)
+          var x2 = Math.max(rect.cx, rect.x2)
+          var y1 = Math.min(rect.cy, rect.y2)
+          var y2 = Math.max(rect.cy, rect.y2)
+          if (isSelectionBox) {
+              if (mouseUpPoint[0]==0&&mouseUpPoint[1]==0) {
+                  var delta=20;
+                  if (x1-delta<0)
+                      x1=0;
+                  if (x2+delta>windowWidth)
+                      x2=windowWidth;
+                  if (y1-delta<0)
+                      y1=0;
+                  if (y2+delta>windowHeight) 
+                      y2=windowHeight;
+                  //console.log ("Unknown location guessing ("+x1+","+y1+"),("+x2+","+y2+")");
+              }
+              return th.childNodes.filter(function(s) {
+                      try {
+                          var bb=s.getBoundingBox();
+                          if (bb[0]<bb[2]&&bb[1]<bb[3]) {
+                              var minbb=[Math.max(bb[0],x1),
+                                         Math.max(bb[1],y1),
+                                         Math.min(bb[2],x2),
+                                         Math.min(bb[3],y2)];
+                              if (minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
+                                  return true;
+                              }else {
+                                  return false;
+                              }
+                          }else return false;
+                      }catch(e){return false;}
+                  });
+          }else {
+              x1=x2=mouseUpPoint[0];
+              y1=y2=mouseUpPoint[1];
+              return th.childNodes.filter(function(s) {
+                      try {
+                          var bb=s.getBoundingBox();
+                          if (bb[0]<bb[2]&&bb[1]<bb[3]) {
+                              return x1>=bb[0]&&x1<=bb[2]&&y1>=bb[1]&&y1<=bb[3];
+                          }else return false;
+                      }catch(e){return false;}
+                  });
+          }
         }
         this.selectRect = new Rectangle(0,0, {
           stroke : 1,
@@ -284,10 +311,14 @@
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
           )
-          if (selectionStart && th.selectRect.visible) {
+          var doIgnoreNext=false;
+          //console.log("click at "+JSON.stringify(point)+" selected started at "+JSON.stringify(selectionStart)+ " ignored? "+th.ignoreNextClick+" visible{"+th.selectRect.visible+"}");
+          if (selectionStart||!th.ignoreNextClick) {
+            var selectionBox=th.selectRect.visible;
+            doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
             th.selectRect.visible = false
             selectionStart = null
-            var selection = objectsInside(th.selectRect)
+            var selection = objectsInside(th.selectRect,point,selectionBox)
             if (ev.shiftKey) {
               selection.forEach(context.select.bind(context))
             } else if (ev.altKey) {
@@ -301,6 +332,7 @@
             th.selectRect.visible = false
             selectionStart = null
           }
+          th.ignoreNextClick=doIgnoreNext;
         }
         this.addEventListener('rootChanged', function(ev) {
           if (ev.canvasTarget == this) {
@@ -326,8 +358,10 @@
       makeNewLobe : function () {
          var lobe = new Lobe();
          var thus = this;
-         redoFunction=function(){thus.append(lobe);}
-         undoFunction=function(){thus.remove(lobe);}
+         var isSelected=lobe.selected;
+         var context=this.context;
+         redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}}
+         undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);}
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
       },
