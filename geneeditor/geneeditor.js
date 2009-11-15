@@ -26,7 +26,15 @@
     MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
     TARGET_CURSOR = 'crosshair'
     SELECT_CURSOR = 'pointer'
-
+    function debugPrint(x) {
+        if(typeof(console)!='undefined') {
+            if (console) {
+                if (console.hasOwnProperty('log')) {
+                    console.log(x);
+                }
+            }
+        }
+    }
     M = {
       rotation : function(rotation) {
         return CanvasSupport.tRotationMatrix(rotation)
@@ -120,15 +128,15 @@
                 i+=1;
             }
             if(returnAny) {
-                //console.log("returning any");
+                debugPrint("returning any");
                 return context.frontNonselected(sel);
             }
-            //console.log("returning before "+i+"/"+sel.length);
+            debugPrint("returning before "+i+"/"+sel.length);
             if(i==0) {
-                //console.log("(z="+sel[sel.length-1].getZIndex()+")");
+                debugPrint("(z="+sel[sel.length-1].getZIndex()+")");
                 return [sel[sel.length-1]];
             }
-            //console.log("(z="+sel[i-1].getZIndex()+")");
+            debugPrint("(z="+sel[i-1].getZIndex()+")");
             return [sel[i-1]];
         };
         context.clearSelection = function() {
@@ -398,15 +406,16 @@
           return context.frontSelected(objectsInside({cx:point[0],cy:point[1],x1:point[0],x2:point[1]},point,false)).length!=0;
         };
         this.mouseDragDownHandler=function(ev) {
+          th.performedDrag=false;
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
           )
           selectionStart = point;
           selectionDragPlace = point
-          console.log("Drag Start");
         }
         this.mouseDragMoveHandler=function(ev) {
+          th.performedDrag=true;
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
@@ -421,6 +430,7 @@
           selectionDragPlace=point;
         }
         this.mouseDownHandler=function(ev) {
+          th.performedDrag=false;
           th.enableMoveOnMouseUp=false;
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
@@ -433,6 +443,7 @@
           th.selectRect.y2 = th.selectRect.cy = point[1]
         };
         this.mouseDragHandler=function(ev) {
+          th.performedDrag=true;
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
@@ -451,8 +462,6 @@
         this.bg.addEventListener('mousedown', this.mouseDownHandler, false)
         this.bg.addEventListener('drag', this.mouseDragHandler, false)
         this.makeSelectionMoveUndo=function(delta) {
-            console.log("Drag stop delta "+delta);
-
             var firstItem=true;
             for (uid in th.context.selection) {                
                 var item=th.context.selection[uid];
@@ -461,17 +470,14 @@
                 for (var i=0;i<delta.length&&i<newOrigin.length;i+=1) {
                     oldOrigin[i]=newOrigin[i]-delta[i];
                 }
-                console.log("new origin "+newOrigin+" old origin "+oldOrigin);
                 (function(nOrigin,oOrigin,cItem) {
                     var heapNewOrigin=nOrigin.slice(0);
                     var heapOldOrigin=oOrigin.slice(0);
                     var heapItem=cItem;
                     undoFunction=function() {
-                        console.log("new origin "+nOrigin+" old origin "+oOrigin);                    
                         heapItem.setOrigin(heapOldOrigin);
                     };
                     redoFunction=function() {
-                        console.log("new origin "+nOrigin+" old origin "+oOrigin);                    
                         heapItem.setOrigin(heapNewOrigin);
                     };
                     th.context.performedAction(redoFunction,undoFunction);                    
@@ -487,7 +493,7 @@
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
           )
-          if(th.enableMoveOnMouseUp) {
+          if(th.enableMoveOnMouseUp&&th.performedDrag) {
               if (selectionStart) {
                   th.mouseDragMoveHandler(ev);
                   th.makeSelectionMoveUndo([point[0]-selectionStart[0],point[1]-selectionStart[1]]);
@@ -497,7 +503,7 @@
             var doIgnoreNext=false;
           //console.log("click at "+JSON.stringify(point)+" selected started at "+JSON.stringify(selectionStart)+ " ignored? "+th.ignoreNextClick+" visible{"+th.selectRect.visible+"}");
             if (selectionStart||!th.ignoreNextClick) {
-              var selectionBox=th.selectRect.visible;
+              var selectionBox=th.performedDrag;
               doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
               th.selectRect.visible = false
               selectionStart = null
