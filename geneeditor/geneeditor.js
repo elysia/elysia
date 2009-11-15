@@ -19,9 +19,9 @@
 
       http://www.gnu.org/copyleft/gpl.html
     */
-    windowWidth=1024
-    windowHeight=768
-
+    windowWidth=1024;
+    windowHeight=768;
+    zMin=-99999999999999.;
     DEFAULT_CURSOR = 'default'
     MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
     TARGET_CURSOR = 'crosshair'
@@ -68,6 +68,68 @@
                 this.select(s);
             else
                 this.deselect(s);
+        };
+        context.frontNonselected = function(sel) {
+            var maxZ=zMin;
+            var frontObjects=[];
+            sel.forEach(function(item) {
+                if (item.hasOwnProperty('uid')&&!context.selection[item.uid]) {
+                    var zi=item.getZIndex();
+                    if (zi>maxZ||frontObjects.length==0) {
+                        frontObjects=[item];
+                        maxZ=zi;
+                    }
+                }
+            });
+            return frontObjects;
+        };
+        context.frontSelected = function(sel) {
+            var maxZ=zMin;
+            var frontObjects=[];
+            sel.forEach(function(item) {
+                if (item.hasOwnProperty('uid')&&context.selection[item.uid]) {
+                    var zi=item.getZIndex();
+                    if (zi>maxZ||frontObjects.length==0) {
+                        frontObjects=[item];
+                        maxZ=zi;
+                    }
+                }
+            });
+            return frontObjects;
+        };
+        context.nextItemsInLine = function(sel) {
+            var maxZ=zMin;
+            var returnAny=true;
+            var oldselection=sel;
+            sel=new Array(0);
+            var item;
+            oldselection.forEach(function(item) {
+                if(item.hasOwnProperty('uid')) {
+                    sel.push(item);
+                }
+                });
+            sel=sel.sort(function(a,b){var az=a.getZIndex(); var bz=b.getZIndex(); if (az==bz) return az.uid<bz.uid;return az>bz;});
+            var sellen=sel.length;
+            var i=0;
+            while (i<sellen) {
+                item=sel[i];
+                if (context.selection[item.uid]) {
+                    returnAny=false;
+                    break;
+                }
+                i+=1;
+            }
+            if(returnAny) {
+                //console.log("returning any");
+                return context.frontNonselected(sel);
+            }
+            //console.log("returning before "+i+"/"+sel.length);
+            if(i==0) {
+                //console.log("(z="+sel[sel.length-1].getZIndex()+")");
+                return [sel[sel.length-1]];
+            }
+            //console.log("(z="+sel[i-1].getZIndex()+")");
+            return [sel[i-1]];
         };
         context.clearSelection = function() {
             for (var item in this.selection) {
@@ -171,6 +233,9 @@
         },
         isSelected:function() {
             return this.mSelected;
+        },
+        getZIndex: function() {
+            return zMin;
         }
     });
 
@@ -187,6 +252,9 @@
                 this.lobe.x+=5;
                 this.lobe.y+=274;
                 this.append(this.lobe)
+            },
+            getZIndex: function() {
+                return this.lobe.zIndex;
             },
             getBoundingBox: function() {
                 var bb=this.lobe.getBoundingBox();
@@ -247,7 +315,7 @@
                                          Math.max(bb[1],y1),
                                          Math.min(bb[2],x2),
                                          Math.min(bb[3],y2)];
-                              if (minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
+                              if (s.hasOwnProperty('uid')&&minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
                                   return true;
                               }else {
                                   return false;
@@ -320,12 +388,21 @@
             selectionStart = null
             var selection = objectsInside(th.selectRect,point,selectionBox)
             if (ev.shiftKey) {
-              selection.forEach(context.select.bind(context))
+              if (!selectionBox) {
+                  selection=context.frontNonselected(selection);
+              }
+              selection.forEach(context.select.bind(context));
             } else if (ev.altKey) {
-              selection.forEach(context.deselect.bind(context))
+                if(!selectionBox) {
+                    selection=context.frontSelected(selection);
+                }
+                selection.forEach(context.deselect.bind(context));
             } else {
-              context.clearSelection()
-              selection.forEach(context.select.bind(context))
+                if (!selectionBox) {
+                    selection=context.nextItemsInLine(selection);
+                }
+                context.clearSelection();
+                selection.forEach(context.select.bind(context));
             }
           } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
               context.setLobeTarget(point)
