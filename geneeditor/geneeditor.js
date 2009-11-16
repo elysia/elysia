@@ -35,6 +35,62 @@
             }
         }
     }
+
+    function onlyOneElement(a) {
+        var onlyOneElement=false;
+        for (i in a) {
+            if (onlyOneElement) {
+                onlyOneElement=false;
+                break;
+            }else {
+                onlyOneElement=true;
+            }
+        }
+        return onlyOneElement;
+    }
+    function distanceSquared(A,B) {
+        var a=(A[0]-B[0]);
+        var b=(A[1]-B[1]);
+        return a*a+b*b;
+    }
+    function nearCorner(point, boundingBox) {
+        var testConstant=3;
+        testConstant*=testConstant;
+        if (point[0]-testConstant<boundingBox[0]&&point[1]-testConstant<boundingBox[1]) {
+            return 0;
+        }
+
+        if (point[0]+testConstant>boundingBox[2]&&point[1]-testConstant<boundingBox[1]) {
+            return 1;
+        }
+
+        if (point[0]+testConstant>boundingBox[2]&&point[1]+testConstant>boundingBox[3]) {
+            return 2;
+        }
+
+        if (point[0]-testConstant<boundingBox[0]&&point[1]+testConstant>boundingBox[3]) {
+            return 3;
+        }
+        return -1;
+    }
+    function nearEdge(point, boundingBox) {
+        var testConstant=3;
+        testConstant*=testConstant;
+        if (point[0]-testConstant<boundingBox[0]) {
+            return 0;
+        }
+        if (point[1]-testConstant<boundingBox[1]) {
+            return 1;
+        }
+        if (point[0]+testConstant>boundingBox[2]) {
+            return 2;
+        }
+        if (point[1]+testConstant>boundingBox[3]) {
+            return 3;
+        }
+        return -1;
+    }
+
     M = {
       rotation : function(rotation) {
         return CanvasSupport.tRotationMatrix(rotation)
@@ -276,6 +332,10 @@
         setOrigin:function(origin) {
             this.x=origin[0];
             this.y=origin[1];
+        },
+        setBoundingBox:function(bb) {
+            this.x=bb[0];
+            this.y=bb[1];
         }
     });
 
@@ -298,11 +358,12 @@
             },
             getBoundingBox: function() {
                 var bb=this.lobe.getBoundingBox();
-                bb[0]+=this.lobe.x;
-                bb[1]+=this.lobe.y;
-                bb[2]+=this.lobe.x;
-                bb[3]+=this.lobe.y;
-                return bb;
+                var retval=new Array(4);
+                retval[0]=bb[0]+this.lobe.x;
+                retval[1]=bb[1]+this.lobe.y;
+                retval[2]=bb[2]+this.lobe.x;
+                retval[3]=bb[3]+this.lobe.y;
+                return retval;
             },
             select:function() {
                 Selectable.select.call(this);
@@ -323,8 +384,18 @@
                 this.lobe.x=origin[0];
                 this.lobe.y=origin[1];
                 this.lobe.zIndex=origin[2];
+            },
+            setBoundingBox:function(bb) {
+                var x1 = Math.min(bb[0], bb[2])
+                var x2 = Math.max(bb[0], bb[2])
+                var y1 = Math.min(bb[1], bb[3])
+                var y2 = Math.max(bb[1], bb[3])
+
+                this.lobe.x=x1;
+                this.lobe.y=y1;
+                this.lobe.width=x2-x1;
+                this.lobe.height=y2-y1;
             }
-            
         });
       
 
@@ -340,7 +411,7 @@
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
         this.ignoreNextClick=false;
-        var selectionStart, startX, startY, selectionDragPlace;
+        var selectionStart, startX, startY, selectionDragPlace, nearWhichEdge=-1, nearWhichCorner=-1;
         var th = this
         var objectsInside = function(rect, mouseUpPoint, isSelectionBox) {
           var x1 = Math.min(rect.cx, rect.x2)
@@ -411,6 +482,17 @@
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
           )
+          nearWhichEdge=-1;
+          nearWhichCorner=-1;
+          var resizePossibility=onlyOneElement(context.selection);
+          if (resizePossibility) {
+              for (uid in context.selection) {
+                  var bounds=context.selection[uid].getBoundingBox();
+                  nearWhichCorner=nearCorner(point,bounds);
+                  nearWhichEdge=nearEdge(point,bounds);
+              
+              }              
+          }
           selectionStart = point;
           selectionDragPlace = point
         }
@@ -422,10 +504,31 @@
           )
           var delta=[point[0]-selectionDragPlace[0],point[1]-selectionDragPlace[1]];
           for (uid in context.selection) {
-              origin=context.selection[uid].getOrigin();
-              origin[0]+=delta[0];
-              origin[1]+=delta[1];
-              context.selection[uid].setOrigin(origin);
+              var origin=context.selection[uid].getOrigin();
+              if (nearWhichCorner!=-1) {
+                  var bb=context.selection[uid].getBoundingBox();
+                  if (nearWhichCorner==0) {
+                      bb[0]+=delta[0];
+                      bb[1]+=delta[1];                      
+                  }else if (nearWhichCorner==1){
+                      bb[2]+=delta[0];
+                      bb[1]+=delta[1];
+                  }else if (nearWhichCorner==2) {
+                      bb[2]+=delta[0];
+                      bb[3]+=delta[1];
+                  }else if (nearWhichCorner==3) {
+                      bb[0]+=delta[0];
+                      bb[3]+=delta[1];
+                  }
+                  context.selection[uid].setBoundingBox(bb);
+              }else if (false&&nearWhichEdge!=-1) {
+                  //IF YOU ADD THIS EDGE FUNCTION MAKE SURE TO ADD THE CORRESPONDING UNDO BELOW
+                  debugPrint("dragEdge "+nearWhichEdge);
+              }else {
+                  origin[0]+=delta[0];
+                  origin[1]+=delta[1];
+                  context.selection[uid].setOrigin(origin);
+              }
           }
           selectionDragPlace=point;
         }
@@ -436,6 +539,8 @@
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
           )
+          nearWhichEdge=-1;
+          nearWhichCorner=-1;
           startX = this.root.mouseX
           startY = this.root.mouseY
           selectionStart = point
@@ -463,7 +568,45 @@
         this.bg.addEventListener('drag', this.mouseDragHandler, false)
         this.makeSelectionMoveUndo=function(delta) {
             var firstItem=true;
-            for (uid in th.context.selection) {                
+            if (nearWhichCorner!=-1){
+              for (uid in th.context.selection) {                
+                  var item=context.selection[uid];
+                  var newbb=item.getBoundingBox();
+                  var oldbb=item.getBoundingBox();
+                  if (nearWhichCorner==0) {
+                      oldbb[0]-=delta[0];
+                      oldbb[1]-=delta[1];                      
+                  }else if (nearWhichCorner==1){
+                      oldbb[2]-=delta[0];
+                      oldbb[1]-=delta[1];
+                  }else if (nearWhichCorner==2) {
+                      oldbb[2]-=delta[0];
+                      oldbb[3]-=delta[1];
+                  }else if (nearWhichCorner==3) {
+                      oldbb[0]-=delta[0];
+                      oldbb[3]-=delta[1];
+                  }
+                  (function(nBb,oBb,cItem) {
+                      var heapNewBb=nBb.slice(0);
+                      var heapOldBb=oBb.slice(0);
+                      var heapItem=cItem;
+                      undoFunction=function() {
+                          heapItem.setBoundingBox(heapOldBb);
+                      };
+                      redoFunction=function() {
+                          heapItem.setBoundingBox(heapNewBb);
+                      };
+                      th.context.performedAction(redoFunction,undoFunction);                    
+                  })(newbb,oldbb,item);
+                  if (!firstItem) {
+                      th.context.coalesceUndos(); 
+                  }
+                  firstItem=false;                  
+              }
+            }else if (false&&nearWhichEdge!=-1) {
+                  //IF YOU ADD THIS EDGE UNDO FUNCTION MAKE SURE TO ADD THE CORRESPONDING RESIZER ABOVE
+            }else {
+              for (uid in th.context.selection) {                
                 var item=th.context.selection[uid];
                 var newOrigin=item.getOrigin();
                 var oldOrigin=item.getOrigin();
@@ -486,6 +629,7 @@
                     th.context.coalesceUndos(); 
                 }
                 firstItem=false;
+              }
             }
         }
         this.mouseupHandler = function(ev) {
