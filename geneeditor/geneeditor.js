@@ -174,6 +174,8 @@
         iframe.style.left="100px";
         iframe.style.top="200px";
         iframe.style.position="absolute"
+        iframe.style.border="solid 10px #00ff00"
+        //iframe.style.backgroundColor="green";
         lobeIFrameCount+=1;
         iframe.id="liframe"+lobeIFrameCount;
         var div = iframe.doc.createElement("div");
@@ -186,19 +188,19 @@
 //        div.innerHTML = "Hello IFrame!";
         
         iframe.doc.body.appendChild(div);
-        bringSelectedIframeToTop(true);
-        addHandle(div,iframe);
+        //bringSelectedIframeToTop(true);
+        //addHandle(div,iframe);
         var divX = iframe.doc.createElement("divX");
         divX.id=iframe.id+"x";
         divX.style.width = "240px"; div.style.height = "32px";
         div.innerHTML = '<a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
-        addHandle(divX,iframe);
-        
+        //addHandle(divX,iframe);
+        jQuery("#"+iframe.id).draggable({iframeFix:true});
         return iframe;
     }
     LobeIFrame.close=function(name) {
         iframe=document.getElementById(name);
-        removeHandles(iframe);
+        //removeHandles(iframe);FIXME do we need to kill draggable
         iframe.parentNode.removeChild(iframe);
     }
     Context = function() {
@@ -648,6 +650,7 @@
         };
         this.bg.addEventListener('mousedown', this.mouseDownHandler, false)
         this.bg.addEventListener('drag', this.mouseDragHandler, false)
+        //this.bg.addEventListener('mouseup',function(evt){DIF_mouseMove(evt)});
         this.makeSelectionMoveUndo=function(delta) {
             var firstItem=true;
             if (nearWhichCorner!=-1){
@@ -715,10 +718,12 @@
             }
         }
         this.mouseupHandler = function(ev) {
+            //DIF_enddrag(ev);
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
           )
+          
           if(th.enableMoveOnMouseUp&&th.performedDrag) {
               if (selectionStart) {
                   th.mouseDragMoveHandler(ev);
