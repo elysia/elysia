@@ -190,7 +190,7 @@
         addHandle(div,iframe);
         var divX = iframe.doc.createElement("divX");
         divX.id=iframe.id+"x";
-        divX.style.width = "120px"; div.style.height = "20px";
+        divX.style.width = "240px"; div.style.height = "32px";
         div.innerHTML = '<a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
         addHandle(divX,iframe);
         
