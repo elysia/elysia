@@ -32,6 +32,15 @@ function bringSelectedIframeToTop(val) {
 function allowDragOffScreen(val) {
 	DIF_allowDragOffScreen=val;
 	}
+function removeHandles(win) {
+    delete DIF_handles[win.id];
+    delete DIF_iframeObjects[win.id];
+    delete DIF_iframeMouseDownLeft[win.id];
+    delete DIF_iframeMouseDownTop[win.id];
+    delete DIF_pageMouseDownLeft[win.id];
+    delete DIF_pageMouseDownTop [win.id];
+
+}
 
 // Method to be used by iframe content document to specify what object can be draggable in the window
 function addHandle(o, win) {
@@ -55,18 +64,17 @@ function addHandle(o, win) {
 		// This is done in a funky way to make Netscape happy
 		with (win) { 
 			function OnMouseDownHandler(evt) { 
-                console.log('mouse down');
                 if(typeof(evt)=='undefined'){evt=event;}
                 DIF_begindrag(evt, win); 
             }
 			eval("document.onmousedown=OnMouseDownHandler;o.onmousedown=OnMouseDownHandler;");
-			eval("function OnMouseUpHandler(evt) { console.log('mouse up');if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_enddrag(evt, "+topRefStr+") }");
+			eval("function OnMouseUpHandler(evt) { if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_enddrag(evt, "+topRefStr+") }");
 			eval("document.onmouseup=OnMouseUpHandler;win.onmouseup=OnMouseUpHandler;o.onmouseup=OnMouseUpHandler;");
 
-			eval("function OnMouseMoveHandler(evt) { console.log('mouse move');if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_iframemove(evt, "+topRefStr+") }");
+			eval("function OnMouseMoveHandler(evt) { if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_iframemove(evt, "+topRefStr+") }");
 			eval("document.onmousemove=OnMouseMoveHandler;win.onmousemove=OnMouseMoveHandler;o.onmousemove=OnMouseMoveHandler;");
 
-			eval("function OnMouseOutHandler(evt) { console.log('mouse out');if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_enddrag(evt, "+topRefStr+") }");
+			eval("function OnMouseOutHandler(evt) { if(typeof(evt)=='undefined'){evt=event;}"+topRefStr+".parent.DIF_enddrag(evt, "+topRefStr+") }");
 			eval("o.onmouseout=OnMouseOutHandler;");
 
 			win.DIF_handlersAdded = true;
@@ -81,7 +89,6 @@ function addHandle(o, win) {
         };
 		document.onmousemove=win.onmousemove=o.onmousemove=OnMouseMoveHandler;
 		function OnMouseUpHandler(evt) { 
-            console.log('mouse up2');
             if(typeof(evt)=='undefined'){
                 evt=event;
             }
@@ -89,7 +96,6 @@ function addHandle(o, win) {
         };
 		document.onmouseup=o.onmouseup=OnMouseUpHandler;
 		function OnMouseOutHandler(evt) { 
-            console.log('mouse out2');
             if(typeof(evt)=='undefined'){
                 evt=event;
             }
@@ -146,26 +152,8 @@ function DIF_getEventPosition(evt) {
 function DIF_getIframeId(win) {
 	// Loop through the window's IFRAME objects looking for a matching window object
 	DIF_iframeObjects[win.id] = win;
-    console.log("looking for match to "+win.id);
     return win.id;
-	var iframes = document.getElementsByTagName("IFRAME");
-	for (var i=0; i<iframes.length; i++) {
-		var o = iframes.item(i);
-		var w = null;
-		if (o.contentWindow) {
-			// For IE5.5 and IE6
-			w = o.contentWindow;
-			}
-		else if (window.frames && window.frames[o.id].window) {
-			w = window.frames[o.id];
-			}
-		if (w == win) {
-
-			return o.id; 
-			}
-		}
-	return null;
-	}
+}
 
 // Gets the page x, y coordinates of the iframe (or any object)
 function DIF_getObjectXY(o) {
@@ -201,7 +189,6 @@ function isHandleClicked(handle, objectClicked) {
 function DIF_begindrag(e, win) {
 	// Get the IFRAME ID that was clicked on
 	var iframename = DIF_getIframeId(win);
-    console.log("Dragged "+iframename);
 	if (iframename==null) { return; }
 	// Make sure that this IFRAME has a handle and that the handle was clicked
 	if (DIF_handles[iframename]==null || DIF_handles[iframename].length<1) {
@@ -261,7 +248,6 @@ function DIF_drag(x,y) {
 		if (newPositionX < 0) { newPositionX=0; }
 		if (newPositionY < 0) { newPositionY=0; }
 		}
-    console.log("moving to "+newPositionX+"px "+newPositionY);
 	DIF_iframeObjects[DIF_iframeBeingDragged].style.left = newPositionX + "px";
 	DIF_iframeObjects[DIF_iframeBeingDragged].style.top  = newPositionY + "px";
 	DIF_pageMouseDownLeft[DIF_iframeBeingDragged] += x;

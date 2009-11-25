@@ -188,7 +188,18 @@
         iframe.doc.body.appendChild(div);
         bringSelectedIframeToTop(true);
         addHandle(div,iframe);
+        var divX = iframe.doc.createElement("divX");
+        divX.id=iframe.id+"x";
+        divX.style.width = "120px"; div.style.height = "20px";
+        div.innerHTML = '<a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
+        addHandle(divX,iframe);
+        
         return iframe;
+    }
+    LobeIFrame.close=function(name) {
+        iframe=document.getElementById(name);
+        removeHandles(iframe);
+        iframe.parentNode.removeChild(iframe);
     }
     Context = function() {
         context={};
