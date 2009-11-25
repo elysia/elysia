@@ -203,11 +203,12 @@
         //addHandle(divX,iframe);
         //jQuery("#"+iframe.id).resizable();
         jQuery("#"+iframe.id).draggable({iframeFix:true});
-        jQuery("#"+div.id).resizable({iframeFix:true});
+        //jQuery("#"+div.id).resizable({iframeFix:true});
         return iframe;
     }
     LobeIFrame.close=function(name) {
         iframe=document.getElementById(name);
+        jQuery("#"+iframe.id).draggable("destroy");
         //removeHandles(iframe);FIXME do we need to kill draggable
         iframe.parentNode.removeChild(iframe);
     }
