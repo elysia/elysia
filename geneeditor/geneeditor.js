@@ -118,45 +118,50 @@
         return CanvasSupport.tMatrixMultiplyPoint(matrix, v[0], v[1])
       }
     }
+    var iframeMaxZIndex=100;
     function IFrame(parentElement)
     {
-   // Create the iframe which will be returned
-   var iframe = document.createElement("iframe");
-
-   // If no parent element is specified then use body as the parent element
-   if(parentElement == null)
-      parentElement = document.body;
-
-   // This is necessary in order to initialize the document inside the iframe
-   parentElement.appendChild(iframe);
-
-   // Initiate the iframe's document to null
-   iframe.doc = null;
-
-   // Depending on browser platform get the iframe's document, this is only
-   // available if the iframe has already been appended to an element which
-   // has been added to the document
-   if(iframe.contentDocument)
-      // Firefox, Opera
-      iframe.doc = iframe.contentDocument;
-   else if(iframe.contentWindow)
-      // Internet Explorer
-      iframe.doc = iframe.contentWindow.document;
-   else if(iframe.document)
-      // Others?
-      iframe.doc = iframe.document;
-
-   // If we did not succeed in finding the document then throw an exception
-   if(iframe.doc == null)
-      throw "Document not found, append the parent element to the DOM before creating the IFrame";
-
-   // Create the script inside the iframe's document which will call the
-   iframe.doc.open();
-   iframe.doc.close();
-
-   // Return the iframe, now with an extra property iframe.doc containing the
-   // iframe's document
-   return iframe;
+        // Create the iframe which will be returned
+        var iframe = document.createElement("iframe");
+        
+        // If no parent element is specified then use body as the parent element
+        if(parentElement == null)
+            parentElement = document.body;
+        
+        // This is necessary in order to initialize the document inside the iframe
+        parentElement.appendChild(iframe);
+        
+        // Initiate the iframe's document to null
+        iframe.doc = null;
+        
+        // Depending on browser platform get the iframe's document, this is only
+        // available if the iframe has already been appended to an element which
+        // has been added to the document
+        if(iframe.contentDocument)
+            // Firefox, Opera
+            iframe.doc = iframe.contentDocument;
+        else if(iframe.contentWindow)
+            // Internet Explorer
+            iframe.doc = iframe.contentWindow.document;
+        else if(iframe.document)
+            // Others?
+            iframe.doc = iframe.document;
+        
+        // If we did not succeed in finding the document then throw an exception
+        if(iframe.doc == null)
+            throw "Document not found, append the parent element to the DOM before creating the IFrame";
+        
+        // Create the script inside the iframe's document which will call the
+        iframe.doc.open();
+        iframe.doc.close();
+        iframe.onmousedown=function(){iframe.raiseIFrame();};
+        
+        iframe.raiseIFrame=function (){            
+            iframe.style.zIndex=iframeMaxZIndex++;
+        };
+        // Return the iframe, now with an extra property iframe.doc containing the
+        // iframe's document
+        return iframe;
     }
     lobeIFrameCount=0;
     LobeIFrame = function(selection) {
@@ -171,21 +176,21 @@
         */
         
         var iframe = new IFrame(document.body);//E('IFRAME');
-        iframe.style.left="100px";
+        iframe.style.left="400px";
         iframe.style.top="200px";
+        iframe.style.height="500px";
         iframe.style.position="absolute"
-        iframe.style.border="solid 10px #00ff00"
-        //iframe.style.backgroundColor="green";
+        iframe.style.border="solid 10px #10107c"
+        iframe.style.backgroundColor="#000008";
         lobeIFrameCount+=1;
         iframe.id="liframe"+lobeIFrameCount;
         var div = iframe.doc.createElement("div");
         div.id=iframe.id+"d";
-        div.style.width = "120px"; div.style.height = "20px";
+        div.style.width = "240px"; div.style.height = "20px";
         
         div.style.border = "solid 0px #00ff00";
-        div.style.backgroundColor = "red";
+        //div.style.backgroundColor = "red";
         
-//        div.innerHTML = "Hello IFrame!";
         
         iframe.doc.body.appendChild(div);
         //bringSelectedIframeToTop(true);
@@ -193,9 +198,12 @@
         var divX = iframe.doc.createElement("divX");
         divX.id=iframe.id+"x";
         divX.style.width = "240px"; div.style.height = "32px";
-        div.innerHTML = '<a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
+        div.innerHTML = '<br/><a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
+        div.innerHTML += "Hello IFrame!";
         //addHandle(divX,iframe);
+        //jQuery("#"+iframe.id).resizable();
         jQuery("#"+iframe.id).draggable({iframeFix:true});
+        jQuery("#"+div.id).resizable({iframeFix:true});
         return iframe;
     }
     LobeIFrame.close=function(name) {
@@ -783,7 +791,7 @@
           else
             this.cursor = DEFAULT_CURSOR
         })
-        this.showDescription()
+        //this.showDescription()
       },
       makeNewLobe : function () {
          var lobe = new Lobe(this);
@@ -917,6 +925,9 @@
 
       showDescription : function() {},
       makeNewLobe : function () {
+                //noop
+      },
+      lobeProperties : function () {
                 //noop
       },
       setupMenu : function() {
