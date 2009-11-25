@@ -118,7 +118,78 @@
         return CanvasSupport.tMatrixMultiplyPoint(matrix, v[0], v[1])
       }
     }
+    function IFrame(parentElement)
+    {
+   // Create the iframe which will be returned
+   var iframe = document.createElement("iframe");
 
+   // If no parent element is specified then use body as the parent element
+   if(parentElement == null)
+      parentElement = document.body;
+
+   // This is necessary in order to initialize the document inside the iframe
+   parentElement.appendChild(iframe);
+
+   // Initiate the iframe's document to null
+   iframe.doc = null;
+
+   // Depending on browser platform get the iframe's document, this is only
+   // available if the iframe has already been appended to an element which
+   // has been added to the document
+   if(iframe.contentDocument)
+      // Firefox, Opera
+      iframe.doc = iframe.contentDocument;
+   else if(iframe.contentWindow)
+      // Internet Explorer
+      iframe.doc = iframe.contentWindow.document;
+   else if(iframe.document)
+      // Others?
+      iframe.doc = iframe.document;
+
+   // If we did not succeed in finding the document then throw an exception
+   if(iframe.doc == null)
+      throw "Document not found, append the parent element to the DOM before creating the IFrame";
+
+   // Create the script inside the iframe's document which will call the
+   iframe.doc.open();
+   iframe.doc.close();
+
+   // Return the iframe, now with an extra property iframe.doc containing the
+   // iframe's document
+   return iframe;
+    }
+    lobeIFrameCount=0;
+    LobeIFrame = function(selection) {
+        /*
+        var ifrm = document.createElement("IFRAME");
+        
+        ifrm.width="640px";
+        ifrm.height="480px";
+        ifrm.style.zIndex=10000000;
+        ifrm.style.frameborder="1";
+        ifrm.style.scrolling="auto";
+        */
+        
+        var iframe = new IFrame(document.body);//E('IFRAME');
+        iframe.style.left="100px";
+        iframe.style.top="200px";
+        iframe.style.position="absolute"
+        lobeIFrameCount+=1;
+        iframe.id="liframe"+lobeIFrameCount;
+        var div = iframe.doc.createElement("div");
+        div.id=iframe.id+"d";
+        div.style.width = "120px"; div.style.height = "20px";
+        
+        div.style.border = "solid 0px #00ff00";
+        div.style.backgroundColor = "red";
+        
+//        div.innerHTML = "Hello IFrame!";
+        
+        iframe.doc.body.appendChild(div);
+        bringSelectedIframeToTop(true);
+        addHandle(div,iframe);
+        return iframe;
+    }
     Context = function() {
         context={};
         context.selection={};
@@ -708,6 +779,10 @@
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
       },
+      lobeProperties: function() {
+          ifrm=new LobeIFrame(this.context.selection)
+          
+      },
       undo : function () {
           this.context.undo();
       },
@@ -818,7 +893,7 @@
         Editor.initialize.call(this)
         this.menu = new CanvasNode()
         this.menu.scale = 1
-        this.menu.zIndex = 100
+        this.menu.zIndex = 1002
         this.append(this.menu)
         this.setupMenu()
         this.selectRect.opacity = 0
@@ -967,6 +1042,9 @@
       makeNewLobe:function(s) {
          this.currentEditor().makeNewLobe()
       },
+      lobeProperties:function(s) {
+         this.currentEditor().lobeProperties()
+      },
       undo:function(s) {
          this.currentEditor().undo()
       },
@@ -1027,8 +1105,9 @@
             ['Age', '0.0..1.0'],
             'Radiation',
             ['makeNewLobe','function'],
-            ['undo','function'],
+            ['lobeProperties','function'],
             ['redo','function'],
+            ['undo','function'],
           ]
         })
         this.controlPanel.show()

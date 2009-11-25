@@ -3,6 +3,7 @@
   <title>ELYSIA BRAIN EDITOR</title>
   <script type="text/javascript" src="cake.js"></script>
   <script type="text/javascript" src="support.js"></script>
+  <script type="text/javascript" src="dragiframe.js"></script>
   <script type="text/javascript" src="json2.js"></script><!-- for debugging-->
   <script type="text/javascript" src="geneeditor.js">
   </script>
@@ -92,6 +93,22 @@
     #debug canvas {
       margin-top: 4px;
     }
+  #iframeroot {
+  position:absolute;
+  height:300px;
+  width:300px;
+  background-color:#F4F4F4;
+  border:1px solid #333;
+  }
+
+  #iframehandle {
+  margin:2px;
+  padding:2px;
+  width: 98%;
+  color:white;
+  background-color: navy;
+  font-weight: bold;
+  }
   </style>
 </head>
 <body>
