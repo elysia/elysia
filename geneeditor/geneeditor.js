@@ -350,6 +350,8 @@
             this.mEditor=editor;
             {
                 var th=this;
+                this.addEventListener('keydown',editor.keyDown)
+                this.addEventListener('keyup',editor.keyUp)
                 this.addEventListener('mousedown',function(ev) {
                         if (editor.clickedSelected(ev)) {
                             editor.enableMoveOnMouseUp=true;
@@ -566,7 +568,26 @@
           }
           selectionStart = point;
           selectionDragPlace = point
-        }
+        };
+        this.keyUp=function(evt) {
+
+        };
+        this.keyDown=function(evt) {
+            keyCode=evt.keyCode;
+            if (keyCode==65) {//left
+                th.x-=10*th.scale;
+            }else if (keyCode==68) {//right
+                th.x+=10*th.scale;
+            }else if (keyCode==87) {//up
+                th.y+=10*th.scale;
+            }else if (keyCode==83) {//down
+                th.y-=10*th.scale;
+            }else if (keyCode==81) {//zoom in
+                th.scale*=1.01;
+            }else if (keyCode==69) {//zoom out
+                th.scale/=1.01;
+            }
+        };
         this.mouseDragMoveHandler=function(ev) {
           th.performedDrag=true;
           var point = CanvasSupport.tMatrixMultiplyPoint(
@@ -635,8 +656,10 @@
             th.selectRect.y2 = point[1]
           }
         };
-        this.bg.addEventListener('mousedown', this.mouseDownHandler, false)
-        this.bg.addEventListener('drag', this.mouseDragHandler, false)
+        this.bg.addEventListener('mousedown', this.mouseDownHandler, false);
+        this.bg.addEventListener('drag', this.mouseDragHandler, false);
+        this.bg.addEventListener('keydown',this.keyDown)
+        this.bg.addEventListener('keyup',this.keyUp)
         //this.bg.addEventListener('mouseup',function(evt){DIF_mouseMove(evt)});
         this.makeSelectionMoveUndo=function(delta) {
             var firstItem=true;
