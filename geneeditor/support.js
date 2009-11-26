@@ -330,7 +330,25 @@ GuiConfig.widgets = {
     }
     return p
   },
-
+  string : function(config) {
+    var obj = config.object
+    var varName = config.varName
+    var title = config.title
+    var p = E('p')
+    var t = E('input', {type:'text', value: ''});
+    var e = E('input', {type:'submit', value: title});
+    p.appendChild(t);
+    p.appendChild(e);
+    e.onclick = function () {
+        obj.object[varName](t.value)
+    }
+    t.onkeydown = function(ev) {
+        if (ev.keyCode==13) {
+            e.onclick();
+        }
+    }
+    return p
+  },
   boolean : function(config) {
     var obj = config.object
     var methodName = config.methodName

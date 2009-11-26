@@ -136,7 +136,7 @@
         iframe.style.left="10px";
         iframe.style.top="20px";
         iframe.style.width="256px";
-        iframe.style.height="64px";
+        iframe.style.height="512px";
         iframe.style.padding="0.5em";
         iframe.style.position="absolute"
         iframe.style.border="solid 10px #10107c"
@@ -145,7 +145,6 @@
         lobeIFrameCount+=1;
         iframe.id="liframe"+lobeIFrameCount;
         iframe.onmousedown=function(){iframe.raiseIFrame();};
-        
         iframe.raiseIFrame=function (){            
             iframe.style.zIndex=iframeMaxZIndex++;
         };
@@ -170,7 +169,22 @@
         //addHandle(divX,iframe);
         //jQuery("#"+iframe.id).resizable();
         jQuery("#"+iframe.id).draggable().resizable();
-        iframe.innerHTML='<br/><a href="javascript:LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>'
+        iframe.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeIFrame.close('+"'"+iframe.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
+        this.controlPanel = new GuiConfig({
+          object : this,
+          container : iframe,
+          controls : [
+//            ['Age', '0.0..1.0'],
+            ['makeNewLobe','function'],
+            ['lobeProperties','function'],
+            ['nameObject','string'],
+            ['redo','function'],
+            ['undo','function'],
+          ]
+        })
+        this.controlPanel.show()
+        
+
         //jQuery("#"+div.id).resizable({iframeFix:true});
         return iframe;
     }
