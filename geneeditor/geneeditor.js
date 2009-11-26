@@ -119,50 +119,6 @@
       }
     }
     var iframeMaxZIndex=100;
-    function IFrame(parentElement)
-    {
-        // Create the iframe which will be returned
-        var iframe = document.createElement("iframe");
-        
-        // If no parent element is specified then use body as the parent element
-        if(parentElement == null)
-            parentElement = document.body;
-        
-        // This is necessary in order to initialize the document inside the iframe
-        parentElement.appendChild(iframe);
-        
-        // Initiate the iframe's document to null
-        iframe.doc = null;
-        
-        // Depending on browser platform get the iframe's document, this is only
-        // available if the iframe has already been appended to an element which
-        // has been added to the document
-        if(iframe.contentDocument)
-            // Firefox, Opera
-            iframe.doc = iframe.contentDocument;
-        else if(iframe.contentWindow)
-            // Internet Explorer
-            iframe.doc = iframe.contentWindow.document;
-        else if(iframe.document)
-            // Others?
-            iframe.doc = iframe.document;
-        
-        // If we did not succeed in finding the document then throw an exception
-        if(iframe.doc == null)
-            throw "Document not found, append the parent element to the DOM before creating the IFrame";
-        
-        // Create the script inside the iframe's document which will call the
-        iframe.doc.open();
-        iframe.doc.close();
-        iframe.onmousedown=function(){iframe.raiseIFrame();};
-        
-        iframe.raiseIFrame=function (){            
-            iframe.style.zIndex=iframeMaxZIndex++;
-        };
-        // Return the iframe, now with an extra property iframe.doc containing the
-        // iframe's document
-        return iframe;
-    }
     lobeIFrameCount=0;
     LobeIFrame = function(selection) {
         /*
@@ -175,15 +131,25 @@
         ifrm.style.scrolling="auto";
         */
         
-        var iframe = new IFrame(document.body);//E('IFRAME');
-        iframe.style.left="400px";
-        iframe.style.top="200px";
-        iframe.style.height="500px";
+        var iframe = document.createElement("div");//new IFrame(document.body);//E('IFRAME');
+        document.body.appendChild(iframe);
+        iframe.style.left="10px";
+        iframe.style.top="20px";
+        iframe.style.width="256px";
+        iframe.style.height="64px";
+        iframe.style.padding="0.5em";
         iframe.style.position="absolute"
         iframe.style.border="solid 10px #10107c"
         iframe.style.backgroundColor="#000008";
+        //iframe.style.zIndex=1000;
         lobeIFrameCount+=1;
         iframe.id="liframe"+lobeIFrameCount;
+        iframe.onmousedown=function(){iframe.raiseIFrame();};
+        
+        iframe.raiseIFrame=function (){            
+            iframe.style.zIndex=iframeMaxZIndex++;
+        };
+        /*
         var div = iframe.doc.createElement("div");
         div.id=iframe.id+"d";
         div.style.width = "240px"; div.style.height = "20px";
@@ -200,9 +166,11 @@
         divX.style.width = "240px"; div.style.height = "32px";
         div.innerHTML = '<br/><a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
         div.innerHTML += "Hello IFrame!";
+        */
         //addHandle(divX,iframe);
         //jQuery("#"+iframe.id).resizable();
-        jQuery("#"+iframe.id).draggable({iframeFix:true});
+        jQuery("#"+iframe.id).draggable().resizable();
+        iframe.innerHTML='<br/><a href="javascript:LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>'
         //jQuery("#"+div.id).resizable({iframeFix:true});
         return iframe;
     }
