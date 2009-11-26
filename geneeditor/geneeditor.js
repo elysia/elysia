@@ -413,6 +413,14 @@
                 this.lobe.x+=5;
                 this.lobe.y+=274;
                 this.append(this.lobe)
+                this.name=new TextNode("lobe"+getUID());//,{align:'center',baseline:'hanging'});
+                this.name.align='center';
+                this.name.baseline='bottom';
+                this.name.cx=0;
+                this.name.cy=this.lobe.height;
+                this.name.maxWidth=this.lobe.width;
+                this.lobe.append(this.name);
+                
             },
             getZIndex: function() {
                 return this.lobe.zIndex;
@@ -456,6 +464,8 @@
                 this.lobe.y=y1;
                 this.lobe.width=x2-x1;
                 this.lobe.height=y2-y1;
+                this.name.cy=this.lobe.height;
+                this.name.maxWidth=this.lobe.width;
             }
         });
       
