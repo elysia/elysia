@@ -26,6 +26,8 @@
     MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
     TARGET_CURSOR = 'crosshair'
     SELECT_CURSOR = 'pointer'
+
+    ///debugPrint prints to the console if there is a console, but does not error if the console is unavailable
     function debugPrint(x) {
         if(typeof(console)!='undefined') {
             if (console) {
@@ -33,9 +35,11 @@
                     console.log(x);
                 }
             }
+        }else {
+            debugPrint=function(x){};
         }
-    }
-
+    } 
+    ///This function checks if the number of items in a {} hashtable numbers exactly 1.
     function onlyOneElement(a) {
         var onlyOneElement=false;
         for (i in a) {
@@ -48,11 +52,7 @@
         }
         return onlyOneElement;
     }
-    function distanceSquared(A,B) {
-        var a=(A[0]-B[0]);
-        var b=(A[1]-B[1]);
-        return a*a+b*b;
-    }
+    ///This function tells if a point is near a corner of a bounding box. Returns the corner number in clockwise order starting from 0. -1 means it is not near a corner
     function nearCorner(point, boundingBox) {
         var testConstant=3;
         testConstant*=testConstant;
@@ -73,6 +73,7 @@
         }
         return -1;
     }
+    ///This function tells if a point is near a edge of a bounding box. Returns the edge number in clockwise order starting from 0. -1 means it is not near a corner
     function nearEdge(point, boundingBox) {
         var testConstant=3;
         testConstant*=testConstant;
@@ -118,11 +119,13 @@
         return CanvasSupport.tMatrixMultiplyPoint(matrix, v[0], v[1])
       }
     }
-    var iframeMaxZIndex=100;
-    lobeIFrameCount=0;
-    LobeIFrame = function(selection) {
+
+    ///global variable indicating what the zindex of the current frontmost div is
+    var divMaxZIndex=100;
+    lobeDivCount=0;
+    LobeDiv = function(selection) {
         /*
-        var ifrm = document.createElement("IFRAME");
+        var ifrm = document.createElement("DIV");
         
         ifrm.width="640px";
         ifrm.height="480px";
@@ -131,48 +134,48 @@
         ifrm.style.scrolling="auto";
         */
         
-        var iframe = document.createElement("div");//new IFrame(document.body);//E('IFRAME');
-        document.body.appendChild(iframe);
-        iframe.style.left="10px";
-        iframe.style.top="20px";
-        iframe.style.width="256px";
-        iframe.style.height="512px";
-        iframe.style.padding="0.5em";
-        iframe.style.position="absolute"
-        iframe.style.border="solid 10px #10107c"
-        iframe.style.backgroundColor="#000008";
-        //iframe.style.zIndex=1000;
-        lobeIFrameCount+=1;
-        iframe.id="liframe"+lobeIFrameCount;
-        iframe.onmousedown=function(){iframe.raiseIFrame();};
-        iframe.raiseIFrame=function (){            
-            iframe.style.zIndex=iframeMaxZIndex++;
+        var div = document.createElement("div");//new Div(document.body);//E('DIV');
+        document.body.appendChild(div);
+        div.style.left="10px";
+        div.style.top="20px";
+        div.style.width="256px";
+        div.style.height="512px";
+        div.style.padding="0.5em";
+        div.style.position="absolute"
+        div.style.border="solid 10px #10107c"
+        div.style.backgroundColor="#000008";
+        //div.style.zIndex=1000;
+        lobeDivCount+=1;
+        div.id="ldiv"+lobeDivCount;
+        div.onmousedown=function(){div.raiseDiv();};
+        div.raiseDiv=function (){            
+            div.style.zIndex=divMaxZIndex++;
         };
         /*
-        var div = iframe.doc.createElement("div");
-        div.id=iframe.id+"d";
+        var div = div.doc.createElement("div");
+        div.id=div.id+"d";
         div.style.width = "240px"; div.style.height = "20px";
         
         div.style.border = "solid 0px #00ff00";
         //div.style.backgroundColor = "red";
         
         
-        iframe.doc.body.appendChild(div);
-        //bringSelectedIframeToTop(true);
-        //addHandle(div,iframe);
-        var divX = iframe.doc.createElement("divX");
-        divX.id=iframe.id+"x";
+        div.doc.body.appendChild(div);
+        //bringSelectedDivToTop(true);
+        //addHandle(div,div);
+        var divX = div.doc.createElement("divX");
+        divX.id=div.id+"x";
         divX.style.width = "240px"; div.style.height = "32px";
-        div.innerHTML = '<br/><a href="javascript:parent.LobeIFrame.close('+"'"+iframe.id+"'"+')">Close IFrame!</a>';
-        div.innerHTML += "Hello IFrame!";
+        div.innerHTML = '<br/><a href="javascript:parent.LobeDiv.close('+"'"+div.id+"'"+')">Close Div!</a>';
+        div.innerHTML += "Hello Div!";
         */
-        //addHandle(divX,iframe);
-        //jQuery("#"+iframe.id).resizable();
-        jQuery("#"+iframe.id).draggable().resizable();
-        iframe.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeIFrame.close('+"'"+iframe.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
+        //addHandle(divX,div);
+        //jQuery("#"+div.id).resizable();
+        jQuery("#"+div.id).draggable().resizable();
+        div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
         this.controlPanel = new GuiConfig({
           object : this,
-          container : iframe,
+          container : div,
           controls : [
 //            ['Age', '0.0..1.0'],
             ['makeNewLobe','function'],
@@ -185,14 +188,14 @@
         this.controlPanel.show()
         
 
-        //jQuery("#"+div.id).resizable({iframeFix:true});
-        return iframe;
+        //jQuery("#"+div.id).resizable({divFix:true});
+        return div;
     }
-    LobeIFrame.close=function(name) {
-        iframe=document.getElementById(name);
-        jQuery("#"+iframe.id).draggable("destroy");
-        //removeHandles(iframe);FIXME do we need to kill draggable
-        iframe.parentNode.removeChild(iframe);
+    LobeDiv.close=function(name) {
+        div=document.getElementById(name);
+        jQuery("#"+div.id).draggable("destroy");
+        //removeHandles(div);FIXME do we need to kill draggable
+        div.parentNode.removeChild(div);
     }
     Context = function() {
         context={};
@@ -829,7 +832,7 @@
          this.context.performedAction(redoFunction,undoFunction);
       },
       lobeProperties: function() {
-          ifrm=new LobeIFrame(this.context.selection)
+          ifrm=new LobeDiv(this.context.selection)
           
       },
       undo : function () {
