@@ -472,6 +472,8 @@
       ///this sets the state of the editor and binds all the mouse functions, etc
       initialize : function() {
         CanvasNode.initialize.call(this)
+        this.x=-windowWidth/2;
+        this.y=-windowHeight/2;
         this.context=Context();
         this.bg = new Rectangle(this.width, this.height)
         this.bg.fill = this.bgColor
@@ -570,17 +572,17 @@
         this.keyDownRepeat=function(keyCode) {
             if (th.keyPressed[keyCode]) {
                 if (keyCode==65) {//left
-                    th.x-=10*th.scale;
+                    th.parent.x-=10*th.scale;
                 }else if (keyCode==68) {//right
-                    th.x+=10*th.scale;
+                    th.parent.x+=10*th.scale;
                 }else if (keyCode==87) {//up
-                    th.y+=10*th.scale;
+                    th.parent.y+=10*th.scale;
                 }else if (keyCode==83) {//down
-                    th.y-=10*th.scale;
+                    th.parent.y-=10*th.scale;
                 }else if (keyCode==81) {//zoom in
-                    th.scale*=1.01;
+                    th.parent.scale*=1.01;
                 }else if (keyCode==69) {//zoom out
-                    th.scale/=1.01;
+                    th.parent.scale/=1.01;
                 }
                 th.after(5,function(){th.keyDownRepeat(keyCode)});
             }
@@ -1031,6 +1033,8 @@
         this.canvas = new Canvas(canvasElem)
         this.canvas.frameDuration = 30
         this.canvas.append(this)
+        this.x=windowWidth/2;
+        this.y=windowHeight/2;
         this.canvas.fixedTimestep = true
         this.canvas.clear = false
         this.returnToMenu()
