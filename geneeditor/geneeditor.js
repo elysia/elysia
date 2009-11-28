@@ -168,12 +168,13 @@
         div.nameItem=function(newName){
             var first=true;
             for (var uid in div.lobes) {
-                var lobe=div.lobes[uid];
-                var oldName=lobe.name.text;
+
+                
+                var oldName=div.lobes[uid].name.text;
                 var nName=newName;
-                lobe.name.text=newName;
-                context.performedAction(function(){lobe.name.text=nName;},
-                                        function(){lobe.name.text=oldName;});
+                div.lobes[uid].name.text=newName;
+                context.performedAction(function(){var nName=newName;var lobe=div.lobes[uid];return function(){lobe.name.text=nName;}}(),
+                                        function(){var oName=oldName;var lobe=div.lobes[uid];return function(){lobe.name.text=oName;}}());
                 if (!first) {
                     context.coalesceUndos();
                 }
