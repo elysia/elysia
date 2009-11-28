@@ -120,21 +120,14 @@
       }
     }
 
-    ///global variable indicating what the zindex of the current frontmost div is
+    ///global variable indicating what the zindex of the current frontmost div is--this allows clicking to put one in front of the other
     var divMaxZIndex=100;
+    ///this is the number of lobe property panes that have been brought up. Since we want to assure each has a unique id we will need a unique value for each one
     lobeDivCount=0;
+
+    ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
     LobeDiv = function(selection) {
-        /*
-        var ifrm = document.createElement("DIV");
-        
-        ifrm.width="640px";
-        ifrm.height="480px";
-        ifrm.style.zIndex=10000000;
-        ifrm.style.frameborder="1";
-        ifrm.style.scrolling="auto";
-        */
-        
-        var div = document.createElement("div");//new Div(document.body);//E('DIV');
+        var div = document.createElement("div");
         document.body.appendChild(div);
         div.style.left="10px";
         div.style.top="20px";
@@ -144,59 +137,33 @@
         div.style.position="absolute"
         div.style.border="solid 10px #10107c"
         div.style.backgroundColor="#000008";
-        //div.style.zIndex=1000;
+
         lobeDivCount+=1;
         div.id="ldiv"+lobeDivCount;
         div.onmousedown=function(){div.raiseDiv();};
         div.raiseDiv=function (){            
             div.style.zIndex=divMaxZIndex++;
         };
-        /*
-        var div = div.doc.createElement("div");
-        div.id=div.id+"d";
-        div.style.width = "240px"; div.style.height = "20px";
-        
-        div.style.border = "solid 0px #00ff00";
-        //div.style.backgroundColor = "red";
-        
-        
-        div.doc.body.appendChild(div);
-        //bringSelectedDivToTop(true);
-        //addHandle(div,div);
-        var divX = div.doc.createElement("divX");
-        divX.id=div.id+"x";
-        divX.style.width = "240px"; div.style.height = "32px";
-        div.innerHTML = '<br/><a href="javascript:parent.LobeDiv.close('+"'"+div.id+"'"+')">Close Div!</a>';
-        div.innerHTML += "Hello Div!";
-        */
-        //addHandle(divX,div);
-        //jQuery("#"+div.id).resizable();
         jQuery("#"+div.id).draggable().resizable();
         div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
         this.controlPanel = new GuiConfig({
           object : this,
           container : div,
           controls : [
-//            ['Age', '0.0..1.0'],
-            ['makeNewLobe','function'],
-            ['lobeProperties','function'],
-            ['nameObject','string'],
-            ['redo','function'],
-            ['undo','function'],
+//          ['makeNewLobe','function'],
+            ['nameItem','string'],
           ]
         })
         this.controlPanel.show()
-        
-
-        //jQuery("#"+div.id).resizable({divFix:true});
         return div;
     }
+    ///this function disposes of a lobe with unique id passed in. It removes the draggable property then destroys the div
     LobeDiv.close=function(name) {
         div=document.getElementById(name);
         jQuery("#"+div.id).draggable("destroy");
-        //removeHandles(div);FIXME do we need to kill draggable
         div.parentNode.removeChild(div);
     }
+    /// This function makes a new context. Context holds transient editor state such as the currently held selection and the undo list. This state will not be serialized to disk when the save function is invoked.
     Context = function() {
         context={};
         context.selection={};
@@ -211,6 +178,7 @@
             else
                 this.deselect(s);
         };
+        ///this gets the front item that is not selected in the passed in list
         context.frontNonselected = function(sel) {
             var maxZ=zMin;
             var frontObjects=[];
@@ -225,6 +193,7 @@
             });
             return frontObjects;
         };
+        ///this gets the front item that is selected in the passed in list
         context.frontSelected = function(sel) {
             var maxZ=zMin;
             var frontObjects=[];
@@ -239,6 +208,7 @@
             });
             return frontObjects;
         };
+        ///this gets the next item in a cycle from front to back starting with the currently selected guy (or else the front one if nothing is selected)
         context.nextItemsInLine = function(sel) {
             var maxZ=zMin;
             var returnAny=true;
@@ -273,11 +243,13 @@
             debugPrint("(z="+sel[i-1].getZIndex()+")");
             return [sel[i-1]];
         };
+        ///this clears any selected item and makes it so no items are selected
         context.clearSelection = function() {
             for (var item in this.selection) {
                 this.deselect(this.selection[item]);
             }
         };
+        ///this selects the given item that inherits from Selectable
         context.select = function(s) {
             if (s.hasOwnProperty('uid')) {
                 s.root.dispatchEvent({type : 'select', canvasTarget: s});
@@ -285,6 +257,7 @@
                 s.select();
             }
         };
+        ;///this deselects the given item that inherits from Selectable
         context.deselect = function(s) {
             if (s.uid in this.selection) {
                 if (s.hasOwnProperty('uid')) {
@@ -294,18 +267,11 @@
             }
             s.deselect();
         };
-        context.getSelectionCenter = function() {
-            var x = 0
-            var y = 0
-            for(var item in this.selection) {
-                x += s.x;
-                y += s.y;//better centroid detection
-            }
-            return [ x / this.selection.length, y / this.selection.length ]
-        };
+        ///this is a future use function for making lobe tarets
         context.setLobeTarget= function(point)  {
             
         };
+        ///this takes the top two undos in the stack and turns them into a single action that must be undone or redone together
         context.coalesceUndos = function () {
             if (this.mUndoList.length>1 && this.mRedoList.length>1) {
                 var lastUndo=this.mUndoList.pop();
@@ -315,7 +281,7 @@
                 this.performedAction(function(){penultimateRedo();lastRedo();},function(){lastUndo();penultimateUndo();});
             }
         };
-        
+        ///this indicates that an action has been performed and it should be stored in the undo/redo list
         context.performedAction= function(redoFunction,undoFunction) {
             if (this.mCurUndoCounter!=this.mUndoList.length) {
                 var leng=this.mUndoList.length;
@@ -331,15 +297,15 @@
             this.mUndoList.push(undoFunction);
             this.mRedoList.push(redoFunction);
             this.mCurUndoCounter=this.mUndoList.length;
-            //console.log ("undo list len "+this.mCurUndoCounter+" redo "+this.mRedoList.length);
         }
+        ///this finds the last function that is on the undo list and executes it, effectively undoing an action
         context.undo= function () {      
             if (this.mCurUndoCounter>0) {
                 this.mCurUndoCounter--;
                 this.mUndoList[this.mCurUndoCounter]();
-                // console.log(this.mCurUndoCounter);
             }
         }
+        ///this finds the next function to be redone if there are any and executes it.
         context.redo = function() {
             if (this.mCurUndoCounter<this.mUndoList.length) {
                 this.mRedoList[this.mCurUndoCounter]();
@@ -348,9 +314,9 @@
         }
         return context;
     }
-  
+    ///this keeps track of the maximum lobe z value of the lobes so that new lobes come out in front of other lobes
     currentMaxZ = 2;
-    
+    ///this function gets a unique lobe identifier for this session so that two lobes are not given the same name
     getUID= (function() {
             var start=0;
             return function() {
@@ -358,7 +324,7 @@
                 return start;
             };
         })();
-
+    /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     Selectable = Klass (CanvasNode, {
         initialize: function(editor) {
             CanvasNode.initialize.call(this);
@@ -418,10 +384,12 @@
             this.y=bb[1];
         }
     });
-
+    ///Lobe is a Selectable that represents a gene area on the map of the creature. Each lobe has a number of propreties that will affect the development of a given creature
     Lobe = Klass(Selectable, {
             initialize: function(editor) {
+                //call the Selectable initialize function which sets whether this is selected to false, etc
                 Selectable.initialize.bind(this)(editor);
+                //make the meat of the gene: the region it occupies in the creature
                 this.lobe=new Rectangle(64,32, {
                         stroke : false,
                         stroke : [0,0,0,0],
@@ -432,6 +400,7 @@
                 this.lobe.x+=5;
                 this.lobe.y+=274;
                 this.append(this.lobe)
+                //make an canvas TextNode that prints the name of the gene on the lobe
                 this.name=new TextNode("lobe"+getUID());//,{align:'center',baseline:'hanging'});
                 this.name.align='center';
                 this.name.baseline='bottom';
@@ -441,9 +410,11 @@
                 this.lobe.append(this.name);
                 
             },
+            ///returns the z value (for selection and viewing order)
             getZIndex: function() {
                 return this.lobe.zIndex;
             },
+            ///gets the bounding box of the lobe by returning the this.lobe's bounding box
             getBoundingBox: function() {
                 var bb=this.lobe.getBoundingBox();
                 var retval=new Array(4);
@@ -453,14 +424,17 @@
                 retval[3]=bb[3]+this.lobe.y;
                 return retval;
             },
+            ///select this lobe and paint it differently
             select:function() {
                 Selectable.select.call(this);
                 this.lobe.fill[3]=0.5;
             },
+            ///deselect this lobe and paint it differently
             deselect:function() {
                 Selectable.deselect.call(this);
                 this.lobe.fill[3]=0.25;
             },
+            ///gets the x,y origin of the painted rectangle
             getOrigin:function() {
                 var retval=new Array(3);
                 retval[0]=this.lobe.x;
@@ -468,11 +442,13 @@
                 retval[2]=this.getZIndex();
                 return retval;
             },
+            ///resets the x,y origin of the painted rectangle
             setOrigin:function(origin) {
                 this.lobe.x=origin[0];
                 this.lobe.y=origin[1];
                 this.lobe.zIndex=origin[2];
             },
+            ///sets the bounding box of the entire gene--this specifies the top left corner and bottom right corner. This function can effectively move a lobe by moving its topleft and bottom right corners.
             setBoundingBox:function(bb) {
                 var x1 = Math.min(bb[0], bb[2])
                 var x2 = Math.max(bb[0], bb[2])
@@ -488,12 +464,12 @@
             }
         });
       
-
+    ///The editor holds the state of the canvas, the context, and all active lobes as well as current transient mouse state and selection boxes
     Editor = Klass(CanvasNode, {
       bgColor : 'rgb(0,0,0)',
       bgOpacity : 0.15,
 
-
+      ///this sets the state of the editor and binds all the mouse functions, etc
       initialize : function() {
         CanvasNode.initialize.call(this)
         this.context=Context();
@@ -503,6 +479,7 @@
         this.ignoreNextClick=false;
         var selectionStart, startX, startY, selectionDragPlace, nearWhichEdge=-1, nearWhichCorner=-1;
         var th = this
+        ///returns the list of objects that are inside the selection box or mouse click (depending on whether isSelectionBox is set).  MouseUpPoint is also used to better guess the end of the selection rectangle
         var objectsInside = function(rect, mouseUpPoint, isSelectionBox) {
           var x1 = Math.min(rect.cx, rect.x2)
           var x2 = Math.max(rect.cx, rect.x2)
@@ -519,7 +496,6 @@
                       y1=0;
                   if (y2+delta>windowHeight) 
                       y2=windowHeight;
-                  //console.log ("Unknown location guessing ("+x1+","+y1+"),("+x2+","+y2+")");
               }
               return th.childNodes.filter(function(s) {
                       try {
@@ -550,6 +526,7 @@
                   });
           }
         }
+        //actually make the visible selection rectangle, which is an actual CAKE object.
         this.selectRect = new Rectangle(0,0, {
           stroke : 1,
           strokeOpacity : 0.4,
@@ -566,6 +543,7 @@
             this.root.mouseX, this.root.mouseY);
           return context.frontSelected(objectsInside({cx:point[0],cy:point[1],x1:point[0],x2:point[1]},point,false)).length!=0;
         };
+        ///Make the mouse drag down handler which handles what happens when a lobe is clicked to be dragged
         this.mouseDragDownHandler=function(ev) {
           th.performedDrag=false;
           var point = CanvasSupport.tMatrixMultiplyPoint(
@@ -586,7 +564,9 @@
           selectionStart = point;
           selectionDragPlace = point
         };
+        ///hash map of keyCodes which are currently pressed--this is used on firefox to reinject key events while the key is down
         this.keyPressed={};
+        ///this function gets called every 10 milliseconds (triggered by itself) while a given keyCode is down until that key is "up"
         this.keyDownRepeat=function(keyCode) {
             if (th.keyPressed[keyCode]) {
                 if (keyCode==65) {//left
@@ -605,15 +585,18 @@
                 th.after(5,function(){th.keyDownRepeat(keyCode)});
             }
         }
+        ///mark that a key is no longer down in the keyPressed hash table
         this.keyUp=function(evt) {
             th.keyPressed[evt.keyCode]=false;
         };
+        ///if the key is not down in the keyPressed hashtable, mark that a key is down in the keyPressed hash table and start a repeating keyDownRepeat function.
         this.keyDown=function(evt) {
             if (th.keyPressed[evt.keyCode]!=true) {
                 th.keyPressed[evt.keyCode]=true;
                 th.keyDownRepeat(evt.keyCode);
             }
         };
+        ///What happens when a selection box or drag has been started from a click that began on a lobe itself
         this.mouseDragMoveHandler=function(ev) {
           th.performedDrag=true;
           var point = CanvasSupport.tMatrixMultiplyPoint(
@@ -650,6 +633,7 @@
           }
           selectionDragPlace=point;
         }
+        ///This function gets called when a click is made on the background canvas in preparation for either a select or a drag
         this.mouseDownHandler=function(ev) {
           th.performedDrag=false;
           th.enableMoveOnMouseUp=false;
@@ -665,6 +649,7 @@
           th.selectRect.x2 = th.selectRect.cx = point[0]
           th.selectRect.y2 = th.selectRect.cy = point[1]
         };
+        ///This function gets called when a drag happens that started on a blank canvas area
         this.mouseDragHandler=function(ev) {
           th.performedDrag=true;
           var point = CanvasSupport.tMatrixMultiplyPoint(
@@ -686,7 +671,7 @@
         this.bg.addEventListener('drag', this.mouseDragHandler, false);
         this.bg.addEventListener('keydown',this.keyDown)
         this.bg.addEventListener('keyup',this.keyUp)
-        //this.bg.addEventListener('mouseup',function(evt){DIF_mouseMove(evt)});
+        ///commit a move command that moved one or more items to a final location (i.e. mouse released) and coalesce all the movements into a single undo command
         this.makeSelectionMoveUndo=function(delta) {
             var firstItem=true;
             if (nearWhichCorner!=-1){
@@ -753,8 +738,8 @@
               }
             }
         }
+        ///Handle the mouse being released which causes moves on items to be committed or items to be selected
         this.mouseupHandler = function(ev) {
-            //DIF_enddrag(ev);
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
@@ -768,7 +753,6 @@
               }
           }else {
             var doIgnoreNext=false;
-          //console.log("click at "+JSON.stringify(point)+" selected started at "+JSON.stringify(selectionStart)+ " ignored? "+th.ignoreNextClick+" visible{"+th.selectRect.visible+"}");
             if (selectionStart||!th.ignoreNextClick) {
               var selectionBox=th.performedDrag;
               doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
@@ -819,8 +803,8 @@
           else
             this.cursor = DEFAULT_CURSOR
         })
-        //this.showDescription()
       },
+      ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
          var lobe = new Lobe(this);
          var thus = this;
@@ -844,6 +828,7 @@
       beginEditing : function() {
           this.root.dispatchEvent({type: 'started', canvasTarget : this })
       },
+      ///make some html that describes the current action appear ontop of the canvas
       showDescription : function() {
         var desc = E('div')
         desc.appendChild(E('h1', this.name))
@@ -853,7 +838,7 @@
           'Back to main menu', function() { this.parentNode.returnToMenu() }
         )
       },
-
+      ///make some HTML appear ontop of the Canvase
       query : function(header) {
         var div = E('div', {className : 'message'})
         var msg = new ElementNode(div,
@@ -882,7 +867,7 @@
         msg.animateTo('opacity', 1, 500, 'sine')
         this.messageLayer.append(msg)
       },
-
+      ///Unknown
       notify : function(message, after, duration) {
         if (!after) after = 0
         this.after(after, function(){
@@ -899,7 +884,7 @@
         })
       },
 
-
+      ///Return to the menu that will eventually allow load/save of items
       returnToMenu : function() {
         if (this.completed) return
         this.failed = true
@@ -917,7 +902,7 @@
 
 
 
-
+    /// This editor function makes a new blank brain
     NewBrain = Klass(Editor, {
       width : windowWidth,
       height : windowHeight,
@@ -935,7 +920,7 @@
 
     })
 
-
+    ///This editor function gives a menu whether to make new, load, or get editor help
     Menu = Klass(Editor, {
       width : windowWidth,
       height : windowHeight,
@@ -958,6 +943,7 @@
       lobeProperties : function () {
                 //noop
       },
+      ///This is the fancy splash screen
       setupMenu : function() {
         var elem = E('h1')
         elem.appendChild(T('ELYSIA GENOME EDITOR'))
@@ -1035,7 +1021,7 @@
     })
 
 
-
+    ///This is the singleton object that represents the whole of the editor and the control dialog that is always visible (to make new lobes, etc)
     GenomeEditor = Klass(CanvasNode, {
       editorIndex : 0,
       editors : [Menu, NewBrain],
@@ -1106,6 +1092,7 @@
       redo:function(s) {
          this.currentEditor().redo()
       },
+      ///This makes the global control panel that allows users to make new lobes, etc
       setupEtc : function() {
         this.canvas.updateFps = true
         var debug = E('div')
@@ -1171,7 +1158,7 @@
     })
 
 
-
+    ///Called when the page is onload()ed
     function init() {
       var c = E.canvas(windowWidth, windowHeight)
       var d = E('div', { id: 'screen' })
