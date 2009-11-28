@@ -583,23 +583,32 @@
           selectionStart = point;
           selectionDragPlace = point
         };
+        this.keyPressed={};
+        this.keyDownRepeat=function(keyCode) {
+            if (th.keyPressed[keyCode]) {
+                if (keyCode==65) {//left
+                    th.x-=10*th.scale;
+                }else if (keyCode==68) {//right
+                    th.x+=10*th.scale;
+                }else if (keyCode==87) {//up
+                    th.y+=10*th.scale;
+                }else if (keyCode==83) {//down
+                    th.y-=10*th.scale;
+                }else if (keyCode==81) {//zoom in
+                    th.scale*=1.01;
+                }else if (keyCode==69) {//zoom out
+                    th.scale/=1.01;
+                }
+                th.after(5,function(){th.keyDownRepeat(keyCode)});
+            }
+        }
         this.keyUp=function(evt) {
-
+            th.keyPressed[evt.keyCode]=false;
         };
         this.keyDown=function(evt) {
-            keyCode=evt.keyCode;
-            if (keyCode==65) {//left
-                th.x-=10*th.scale;
-            }else if (keyCode==68) {//right
-                th.x+=10*th.scale;
-            }else if (keyCode==87) {//up
-                th.y+=10*th.scale;
-            }else if (keyCode==83) {//down
-                th.y-=10*th.scale;
-            }else if (keyCode==81) {//zoom in
-                th.scale*=1.01;
-            }else if (keyCode==69) {//zoom out
-                th.scale/=1.01;
+            if (th.keyPressed[evt.keyCode]!=true) {
+                th.keyPressed[evt.keyCode]=true;
+                th.keyDownRepeat(evt.keyCode);
             }
         };
         this.mouseDragMoveHandler=function(ev) {
