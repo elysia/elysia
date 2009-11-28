@@ -39,10 +39,16 @@
             debugPrint=function(x){};
         }
     } 
+    function mapEmpty(a) {
+        for (var i in a) {
+            return false;
+        }
+        return true;
+    }
     ///This function checks if the number of items in a {} hashtable numbers exactly 1.
     function onlyOneElement(a) {
         var onlyOneElement=false;
-        for (i in a) {
+        for (var i in a) {
             if (onlyOneElement) {
                 onlyOneElement=false;
                 break;
@@ -126,7 +132,7 @@
     lobeDivCount=0;
 
     ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
-    LobeDiv = function(selection) {
+    LobeDiv = function(context) {
         var div = document.createElement("div");
         document.body.appendChild(div);
         div.style.left="10px";
@@ -146,15 +152,35 @@
         };
         jQuery("#"+div.id).draggable().resizable();
         div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
-        this.controlPanel = new GuiConfig({
-          object : this,
+        div.lobes={};
+        for (uid in context.selection) {
+            div.lobes[uid]=context.selection[uid]
+        }
+        div.controlPanel = new GuiConfig({
+          object : div,
           container : div,
           controls : [
 //          ['makeNewLobe','function'],
             ['nameItem','string'],
           ]
         })
-        this.controlPanel.show()
+        div.controlPanel.show()
+        div.nameItem=function(newName){
+            var first=true;
+            for (var uid in div.lobes) {
+                var lobe=div.lobes[uid];
+                var oldName=lobe.name.text;
+                var nName=newName;
+                lobe.name.text=newName;
+                console.log ("Transforming "+oldName+" to "+nName);
+                context.performedAction(function(){lobe.name.text=nName;},
+                                        function(){lobe.name.text=oldName;});
+                if (!first) {
+                    context.coalesceUndos();
+                }
+                first=false;
+            }
+        }
         return div;
     }
     ///this function disposes of a lobe with unique id passed in. It removes the draggable property then destroys the div
@@ -742,11 +768,12 @@
         }
         ///Handle the mouse being released which causes moves on items to be committed or items to be selected
         this.mouseupHandler = function(ev) {
+
+            
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
           )
-          
           if(th.enableMoveOnMouseUp&&th.performedDrag) {
               if (selectionStart) {
                   th.mouseDragMoveHandler(ev);
@@ -755,7 +782,7 @@
               }
           }else {
             var doIgnoreNext=false;
-            if (selectionStart||!th.ignoreNextClick) {
+            if (selectionStart||(th.root.mouseX>0&&th.root.mouseY>0&&!th.ignoreNextClick)) {
               var selectionBox=th.performedDrag;
               doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
               th.selectRect.visible = false
@@ -818,8 +845,9 @@
          this.context.performedAction(redoFunction,undoFunction);
       },
       lobeProperties: function() {
-          ifrm=new LobeDiv(this.context.selection)
-          
+          if (!mapEmpty(this.context.selection)) {
+              ifrm=new LobeDiv(this.context);
+          }
       },
       undo : function () {
           this.context.undo();
