@@ -152,33 +152,41 @@
         };
         jQuery("#"+div.id).draggable().resizable();
         div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
-        div.lobes={};
+        div.lobes=[];
+        var first=true;
+        var lobeNames='';
         for (uid in context.selection) {
-            div.lobes[uid]=context.selection[uid]
+            div.lobes[div.lobes.length]=context.selection[uid];
+            if (!first) {
+                lobeNames+=',';
+            }
+            lobeNames+=context.selection[uid].name.text;
+            first=false;
         }
         div.controlPanel = new GuiConfig({
           object : div,
           container : div,
           controls : [
 //          ['makeNewLobe','function'],
-            ['nameItem','string'],
+            ['nameItem','string',{value:lobeNames}],
           ]
         })
         div.controlPanel.show()
         div.nameItem=function(newName){
-            var first=true;
-            for (var uid in div.lobes) {
-
-                
-                var oldName=div.lobes[uid].name.text;
-                var nName=newName;
-                div.lobes[uid].name.text=newName;
-                context.performedAction(function(){var nName=newName;var lobe=div.lobes[uid];return function(){lobe.name.text=nName;}}(),
-                                        function(){var oName=oldName;var lobe=div.lobes[uid];return function(){lobe.name.text=oName;}}());
-                if (!first) {
+            newNames=newName.split(',');
+            for (var index=0;index<div.lobes.length;index+=1) {
+                var divlobe=div.lobes[index];
+                var oldName=divlobe.name.text;
+                var nName=newNames[newNames.length-1];
+                if (newNames.length>index) {
+                    nName=newNames[index];
+                }
+                divlobe.name.text=nName;
+                context.performedAction(function(){var lnName=nName;var lobe=divlobe;return function(){lobe.name.text=lnName;}}(),
+                                        function(){var oName=oldName;var lobe=divlobe;return function(){lobe.name.text=oName;}}());
+                if (index!=0) {
                     context.coalesceUndos();
                 }
-                first=false;
             }
         }
         return div;

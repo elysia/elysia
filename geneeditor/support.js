@@ -334,8 +334,12 @@ GuiConfig.widgets = {
     var obj = config.object
     var varName = config.varName
     var title = config.title
+    var defaultValue='';
+    if (config.hasOwnProperty('value')) {
+        defaultValue=config.value;
+    }
     var p = E('p')
-    var t = E('input', {type:'text', value: ''});
+    var t = E('input', {type:'text', value: defaultValue});
     var e = E('input', {type:'submit', value: title});
     p.appendChild(t);
     p.appendChild(e);
