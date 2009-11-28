@@ -172,7 +172,6 @@
                 var oldName=lobe.name.text;
                 var nName=newName;
                 lobe.name.text=newName;
-                console.log ("Transforming "+oldName+" to "+nName);
                 context.performedAction(function(){lobe.name.text=nName;},
                                         function(){lobe.name.text=oldName;});
                 if (!first) {
@@ -258,7 +257,6 @@
                 i+=1;
             }
             if(returnAny) {
-                debugPrint("returning any");
                 return context.frontNonselected(sel);
             }
             debugPrint("returning before "+i+"/"+sel.length);
