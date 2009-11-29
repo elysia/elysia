@@ -168,11 +168,12 @@
           container : div,
           controls : [
 //          ['makeNewLobe','function'],
-            ['nameItem','string',{value:lobeNames}],
+            ['name','string',{value:lobeNames,reverse:false}],
+            ['createLobeTargetTo','string',{size:10,reverse:true}],
           ]
         })
         div.controlPanel.show()
-        div.nameItem=function(newName){
+        div.name=function(newName){
             newNames=newName.split(',');
             for (var index=0;index<div.lobes.length;index+=1) {
                 var divlobe=div.lobes[index];

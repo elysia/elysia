@@ -339,10 +339,19 @@ GuiConfig.widgets = {
         defaultValue=config.value;
     }
     var p = E('p')
-    var t = E('input', {type:'text', value: defaultValue});
+    var textProperties={type:'text', value: defaultValue}
+    if (config.hasOwnProperty('size')) {
+        textProperties.size=config.size;
+    }
+    var t = E('input', textProperties);
     var e = E('input', {type:'submit', value: title});
-    p.appendChild(t);
-    p.appendChild(e);
+    if (config.hasOwnProperty('reverse')&&config.reverse) {
+        p.appendChild(e);
+        p.appendChild(t);
+    }else {
+        p.appendChild(t);
+        p.appendChild(e);
+    }
     e.onclick = function () {
         obj.object[varName](t.value)
     }
