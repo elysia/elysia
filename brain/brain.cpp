@@ -1,36 +1,43 @@
 
+
+class Lobe{
+    public:
+        float cell_location[2][2];                      //[0][0] lower left, [1][0] lower right, [0][1] upper left, [1][1] upper right
+        float target_location[2][2];                    //[0][0] lower left, [1][0] lower right, [0][1] upper left, [1][1] upper right
+        float neuron_density;                           //how many neurons does this lobe grow per unit area
+        int emitters[receptor_limit];                   //a list that determines which dendrites can synapse onto neurons from this lobe
+        int receptors[receptor_limit];                  //a list that determines which neurons can be targets of dendrites from this lobe
+        int tree_branchiness[tree_depth];               //used to build the neuron tree. An array that holds the number of branches at each level of the dendrite tree
+        int tree_thresholds[tree_depth];                //the number of branches that have to be active at each position in the branch to fire through. Neurons have their own value that they can adapt
+        float tree_pruning[tree_depth];                 //after building the tree, this proportion of branches are pruned
+        
+        //to grow neuron, call the constructor for Neuron
+        //to delete neuron, call destructor
+        
+}
+
 //The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
-class Neuron{
+class Neuron: public Lobe {
     public:
         float activity=0;
         float threshold=1;
-        float connection_range[2][2];                        //lower left and upper right corner where the dendrites look for input
-        int receptor_type[receptor_limit];                   //determines which other neurons this neuron's dendrites can synapse onto
-        int dendrite_tree[depth_limit][branchiness_limit][2] //determines the architecture of the tree. first value in 3rd D is the number of branches, the second is the probability that one is randomly pruned   
-        int emitter_type[receptor_limit];                    //a list that determines which dendrites can synapse onto this neuron
-        int *target[target_limit]=0;
-        void grow_tree();
-        void fire();
-}
+        Dendrite_tip *target[target_limit];
 
-fire(){
-    int i = 0;
-    while(&targets[i] > 0){
-        *target[i] = 1;
-    }
-}
+};
+
 
 //The dendrite class covers all branch points in the dendrite tree. When a dendrite is active, it passes activity
 //to the previous dendrite branch (whose identity it stores as a pointer). Neurons at the base 
-class Dendrite{
+class Branch: public Neuron{
     public:
         float activity=0;                   
         float threshold=1;                  //How much activity is required to fire
+        Branch *upstream_branch;          //0 for a branch at the base, signifying to fire the neuron
+        Neuron *parent_neuron;              //Which neuron does this dendrite belong to
         int depth;                          //How many levels into the dendrite tree this branch is
-        int dendrite_tree[branchiness];     //How many branches come immediately off of this point
-        int *parent;                        //Location of the branch this comes off of, or (if a branch at the base), the parent neuron
-        void fire();
-}
+        int branches;                       //How many branches come immediately off of this point
+
+};
 
 //The dendrite_tip represents connections from the dendrite tree onto other neurons. Neurons pass activity onto
 //dendrite_tips and dendrite_tips pass that activity onto dendrites
@@ -38,13 +45,14 @@ class Dendrite_tip{
     public:
         float activity=0;                   
         float threshold=1;
-        int *parent_dendrite;
-        int *target;
-        void fire();
+        Branch *upstream_branch
+        Neuron *recipient;
+        void fire(Dendrite ->parent_dendrite);
         void connect();
-}
+        void detach(Neuron ->recipient);
+};
 
-connect(){
+void Dendrite_tip::detach(Neuron ->target){}
     
 }
 
@@ -63,8 +71,3 @@ connect(){
 
 
 
-
-
-
-// * gets the value stored at an address *var returns the value stored at the memory address var
-// & gets the memory address &var returns the memory address var
