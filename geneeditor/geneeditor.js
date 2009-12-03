@@ -175,9 +175,21 @@
 //          ['makeNewLobe','function'],
             ['name','string',{value:lobeNames,reverse:false}],
             ['createLobeTargetTo','string',{size:10,reverse:true}],
+            ['selectOutputLobes','function'],
+            ['selectInputLobes','function'],
           ]
         })
         div.controlPanel.show()
+        div.selectOutputLobes=function() {
+            for (var index=0;index<div.genes.length;index+=1) {
+                div.genes[index].selectOutputs();
+            }            
+        };
+        div.selectInputLobes=function() {
+            for (var index=0;index<div.genes.length;index+=1) {
+                div.genes[index].selectInputs();
+            }            
+        };
         div.name=function(newName){
             newNames=newName.split(',');
             for (var index=0;index<div.genes.length;index+=1) {
@@ -368,9 +380,8 @@
         this.name="gene_"+getUID();
         this.uid=getUID();       
         var th=this;
-        this.setChildrenName=function(newName) {
-            this.name=newName;
-            editor.childNodes.filter(function(s) {
+        this.findLobesWithThisGene=function() {
+            return editor.childNodes.filter(function(s) {
                 try {
                     if(s.hasOwnProperty('gene')) {
                         if (s.gene.uid==th.uid) {
@@ -379,8 +390,27 @@
                     }
                 }catch (e) {return false;}
                 return false;
-            }).forEach(function(s) {
-                s.name.text=newName;});
+            })
+        }
+        this.selectOutputs=function() {
+            this.findLobesWithThisGene().forEach(function(s) {
+                if(s.isAxon) {
+                    editor.context.select(s);
+                }
+            });
+        }
+        this.selectInputs=function() {
+            this.findLobesWithThisGene().forEach(function(s) {
+                if(!s.isAxon) {
+                    editor.context.select(s);
+                }
+            });
+        }
+        this.setChildrenName=function(newName) {
+            this.name=newName;
+            this.findLobesWithThisGene().forEach(function(s) {
+                s.name.text=newName;
+            });
         }
       }
     });
