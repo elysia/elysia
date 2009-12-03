@@ -152,16 +152,21 @@
         };
         jQuery("#"+div.id).draggable().resizable();
         div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
-        div.lobes=[];
+        div.genes=[];
         var first=true;
         var lobeNames='';
-        for (uid in context.selection) {
-            div.lobes[div.lobes.length]=context.selection[uid];
-            if (!first) {
-                lobeNames+=',';
+        var geneuids={}
+        for (var uid in context.selection) {
+            lobe=context.selection[uid];    
+            if (!geneuids[lobe.gene.uid]) {
+                geneuids[lobe.gene.uid]=lobe.gene;
+                div.genes[div.genes.length]=lobe.gene;
+                if (!first) {
+                    lobeNames+=',';
+                }
+                lobeNames+=lobe.gene.name;
+                first=false;
             }
-            lobeNames+=context.selection[uid].name.text;
-            first=false;
         }
         div.controlPanel = new GuiConfig({
           object : div,
@@ -175,16 +180,17 @@
         div.controlPanel.show()
         div.name=function(newName){
             newNames=newName.split(',');
-            for (var index=0;index<div.lobes.length;index+=1) {
-                var divlobe=div.lobes[index];
-                var oldName=divlobe.name.text;
+            for (var index=0;index<div.genes.length;index+=1) {
+                var divgene=div.genes[index];
+                var oldName=divgene.name;
                 var nName=newNames[newNames.length-1];
                 if (newNames.length>index) {
                     nName=newNames[index];
                 }
-                divlobe.name.text=nName;
-                context.performedAction(function(){var lnName=nName;var lobe=divlobe;return function(){lobe.name.text=lnName;}}(),
-                                        function(){var oName=oldName;var lobe=divlobe;return function(){lobe.name.text=oName;}}());
+                divgene.setChildrenName(nName);
+                
+                context.performedAction(function(){var lnName=nName;var gene=divgene;return function(){gene.setChildrenName(lnName)}}(),
+                                        function(){var oName=oldName;var gene=divgene;return function(){gene.setChildrenName(oName)}}());
                 if (index!=0) {
                     context.coalesceUndos();
                 }
@@ -358,6 +364,26 @@
                 return start;
             };
         })();
+    Gene = Klass({initialize:function(editor) {
+        this.name="gene_"+getUID();
+        this.uid=getUID();       
+        var th=this;
+        this.setChildrenName=function(newName) {
+            this.name=newName;
+            editor.childNodes.filter(function(s) {
+                try {
+                    if(s.hasOwnProperty('gene')) {
+                        if (s.gene.uid==th.uid) {
+                            return true;
+                        }
+                    }
+                }catch (e) {return false;}
+                return false;
+            }).forEach(function(s) {
+                s.name.text=newName;});
+        }
+      }
+    });
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     Selectable = Klass (CanvasNode, {
         initialize: function(editor) {
@@ -420,14 +446,16 @@
     });
     ///Lobe is a Selectable that represents a gene area on the map of the creature. Each lobe has a number of propreties that will affect the development of a given creature
     Lobe = Klass(Selectable, {
-            initialize: function(editor) {
+        initialize: function(editor,gene) {
                 //call the Selectable initialize function which sets whether this is selected to false, etc
                 Selectable.initialize.bind(this)(editor);
                 //make the meat of the gene: the region it occupies in the creature
+                this.gene=gene;
+
                 this.lobe=new Rectangle(64,32, {
                         stroke : false,
                         stroke : [0,0,0,0],
-                        fill : [128,128,128,0.25],
+                        fill : [256,256,256,0.0625],
                         visible : true,
                         zIndex : currentMaxZ+=2
                     });
@@ -435,7 +463,7 @@
                 this.lobe.y+=274;
                 this.append(this.lobe)
                 //make an canvas TextNode that prints the name of the gene on the lobe
-                this.name=new TextNode("lobe"+getUID());//,{align:'center',baseline:'hanging'});
+                this.name=new TextNode(gene.name);//,{align:'center',baseline:'hanging'});
                 this.name.align='center';
                 this.name.baseline='bottom';
                 this.name.cx=0;
@@ -461,12 +489,12 @@
             ///select this lobe and paint it differently
             select:function() {
                 Selectable.select.call(this);
-                this.lobe.fill[3]=0.5;
+                this.lobe.fill[3]=0.25;
             },
             ///deselect this lobe and paint it differently
             deselect:function() {
                 Selectable.deselect.call(this);
-                this.lobe.fill[3]=0.25;
+                this.lobe.fill[3]=0.0625;
             },
             ///gets the x,y origin of the painted rectangle
             getOrigin:function() {
@@ -497,7 +525,17 @@
                 this.name.maxWidth=this.lobe.width;
             }
         });
-      
+        LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
+            Lobe.initialize.bind(this)(editor,gene);
+            this.isAxon=true;
+        }
+                              });
+        LobeInput=Klass(Lobe,{initialize:function(editor,gene) {
+            Lobe.initialize.bind(this)(editor,gene);
+            this.lobe.fill[0]=0;
+            this.isAxon=false;
+        }
+                              });
     ///The editor holds the state of the canvas, the context, and all active lobes as well as current transient mouse state and selection boxes
     Editor = Klass(CanvasNode, {
       bgColor : 'rgb(0,0,0)',
@@ -843,7 +881,7 @@
       },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
-         var lobe = new Lobe(this);
+         var lobe = new LobeOutput(this,new Gene(this));
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
