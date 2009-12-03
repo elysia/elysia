@@ -549,10 +549,25 @@
         this.context=Context();
         var sizeMultiplier=1000;
         this.bg = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
-        this.bg.x=-this.width*sizeMultiplier/2;
-        this.bg.y=-this.height*sizeMultiplier/2;
+          //this.bg.x=-this.width*sizeMultiplier/2;
+          //this.bg.y=-this.height*sizeMultiplier/2;
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
+
+        this.bgleft = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier*2);
+        this.bgleft.x=-this.width*sizeMultiplier;
+        this.bgleft.y=-this.height*sizeMultiplier;
+        this.bgleft.fill = [35,38,44,1.0];
+        this.bgleft.fillOpacity = this.bgOpacity
+
+        this.bgup = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
+        this.bgup.x=0
+        this.bgup.y=-this.height*sizeMultiplier;
+        this.bgup.fill = [35,38,44,1.0];
+        this.bgup.fillOpacity = this.bgOpacity
+        this.append(this.bgup);        
+        this.append(this.bgleft);
+
         this.ignoreNextClick=false;
         var selectionStart, startX, startY, selectionDragPlace, nearWhichEdge=-1, nearWhichCorner=-1;
         var th = this
@@ -648,12 +663,14 @@
             if (th.keyPressed[keyCode]) {
                 if (keyCode==65) {//left
                     th.parent.x-=10*th.scale;
+                    if(th.parent.x<0) th.parent.x=0;
                 }else if (keyCode==68) {//right
                     th.parent.x+=10*th.scale;
                 }else if (keyCode==87) {//up
                     th.parent.y+=10*th.scale;
                 }else if (keyCode==83) {//down
                     th.parent.y-=10*th.scale;
+                    if(th.parent.y<0) th.parent.y=0;
                 }else if (keyCode==81) {//zoom in
                     th.parent.scale*=1.01;
                 }else if (keyCode==69) {//zoom out
@@ -769,6 +786,16 @@
                       oldbb[0]-=delta[0];
                       oldbb[3]-=delta[1];
                   }
+                  if (!(oldbb[0]>0)) oldbb[0]=0;
+                  if (!(oldbb[1]>0)) oldbb[1]=0;
+                  if (!(oldbb[2]>0)) oldbb[2]=0;
+                  if (!(oldbb[3]>0)) oldbb[3]=0;
+
+                  if (!(newbb[0]>0)) newbb[0]=0;
+                  if (!(newbb[1]>0)) newbb[1]=0;
+                  if (!(newbb[2]>0)) newbb[2]=0;
+                  if (!(newbb[3]>0)) newbb[3]=0;
+                  item.setBoundingBox(newbb);
                   (function(nBb,oBb,cItem) {
                       var heapNewBb=nBb.slice(0);
                       var heapOldBb=oBb.slice(0);
@@ -796,6 +823,11 @@
                 for (var i=0;i<delta.length&&i<newOrigin.length;i+=1) {
                     oldOrigin[i]=newOrigin[i]-delta[i];
                 }
+                  if(!(oldOrigin[0]>0)) oldOrigin[0]=0;
+                  if(!(oldOrigin[1]>0)) oldOrigin[1]=0;
+                  if(!(newOrigin[0]>0)) newOrigin[0]=0;
+                  if(!(newOrigin[1]>0)) newOrigin[1]=0;
+                item.setOrigin(newOrigin);
                 (function(nOrigin,oOrigin,cItem) {
                     var heapNewOrigin=nOrigin.slice(0);
                     var heapOldOrigin=oOrigin.slice(0);
