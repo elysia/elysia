@@ -547,7 +547,10 @@
         this.x=-windowWidth/2;
         this.y=-windowHeight/2;
         this.context=Context();
-        this.bg = new Rectangle(this.width, this.height)
+        var sizeMultiplier=1000;
+        this.bg = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
+        this.bg.x=-this.width*sizeMultiplier/2;
+        this.bg.y=-this.height*sizeMultiplier/2;
         this.bg.fill = this.bgColor
         this.bg.fillOpacity = this.bgOpacity
         this.ignoreNextClick=false;
