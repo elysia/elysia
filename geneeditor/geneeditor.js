@@ -141,7 +141,7 @@
         document.body.appendChild(div);
         div.style.left="10px";
         div.style.top="20px";
-        div.style.width="256px";
+        div.style.width="288px";
         div.style.height="512px";
         div.style.padding="0.5em";
         div.style.position="absolute"
@@ -177,24 +177,22 @@
           container : div,
           controls : [
 //          ['makeNewLobe','function'],
-            ['name','string',{value:lobeNames,reverse:false}],
-            ['createLobeInputFrom','string',{size:10,reverse:true}],
-            ['createLobeOutputTo','string',{size:10,reverse:true}],
+            ['name','string',{value:lobeNames,size:26,reverse:false}],
+            ['createLobeInputFrom','string',{size:13,reverse:true}],
+            ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
           ]
         })
         div.controlPanel.show()
         div.createLobesOn=function(str, lobeCreator){
-            var width=64;
-            var height=32;
             if (stringWhitespaceOnly(str)) {
                 var ycount=0;
                 var divlen=div.genes.length;
                 for (var i =0; i< divlen;i+=1) {
                     var gene=div.genes[i];
-                    lobeCreator(gene,0,ycount,width,height+ycount);
-                    ycount+=width*1.5;
+                    lobeCreator(gene,[0,ycount,64,32+ycount]);
+                    ycount+=48;
                 }
             }else {
                 var regexMatch= function (lobe) {
@@ -203,26 +201,26 @@
                 }
                 for (var gene in div.genes) {                    
                     editor.createLobesOnPredicate(regexMatch,function(bbox) {
-                        lobeCreator(gene,bbox[0],bbox[1],bbox[2],bbox[3]);
+                        lobeCreator(gene,bbox);
                     });
                 }
                 //only place it on matching nodes
             }
         };
         div.createLobeOutputTo=function(string) {
-            var lobeOutputCreator=function(gene,xmin,xmax,ymin,ymax) {
+            var lobeOutputCreator=function(gene,bbox) {
                 var lobe= new LobeOutput(editor,gene);
                 console.log("output lobe");
-                lobe.setBoundingBox([xmin,ymin,xmax,ymax]);
+                lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
             }
             div.createLobesOn(string,lobeOutputCreator);                     
         }
         div.createLobeInputFrom=function(string) {
-            var lobeInputCreator=function(gene,xmin,xmax,ymin,ymax) {
+            var lobeInputCreator=function(gene,bbox) {
                 console.log("input lobe");
                 var lobe= new LobeInput(editor,gene);
-                lobe.setBoundingBox([xmin,ymin,xmax,ymax]);
+                lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
             }   
             div.createLobesOn(string,lobeInputCreator);         
