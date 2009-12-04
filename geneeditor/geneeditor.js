@@ -26,7 +26,10 @@
     MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
     TARGET_CURSOR = 'crosshair'
     SELECT_CURSOR = 'pointer'
-
+    function stringWhitespaceOnly(st){ // NOT USED IN FORM VALIDATION
+        var regex = /[\S]/g
+        return !(regex.test(st));
+    }
     ///debugPrint prints to the console if there is a console, but does not error if the console is unavailable
     function debugPrint(x) {
         if(typeof(console)!='undefined') {
@@ -132,7 +135,8 @@
     lobeDivCount=0;
 
     ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
-    LobeDiv = function(context) {
+    LobeDiv = function(editor) {
+        var context=editor.context;
         var div = document.createElement("div");
         document.body.appendChild(div);
         div.style.left="10px";
@@ -174,12 +178,55 @@
           controls : [
 //          ['makeNewLobe','function'],
             ['name','string',{value:lobeNames,reverse:false}],
-            ['createLobeTargetTo','string',{size:10,reverse:true}],
+            ['createLobeInputFrom','string',{size:10,reverse:true}],
+            ['createLobeOutputTo','string',{size:10,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
           ]
         })
         div.controlPanel.show()
+        div.createLobesOn=function(str, lobeCreator){
+            var width=64;
+            var height=32;
+            if (stringWhitespaceOnly(str)) {
+                var ycount=0;
+                var divlen=div.genes.length;
+                for (var i =0; i< divlen;i+=1) {
+                    var gene=div.genes[i];
+                    lobeCreator(gene,0,ycount,width,height+ycount);
+                    ycount+=width*1.5;
+                }
+            }else {
+                var regexMatch= function (lobe) {
+                    if (lobe.gene) return lobe.gene.name==str;
+                    return false;
+                }
+                for (var gene in div.genes) {                    
+                    editor.createLobesOnPredicate(regexMatch,function(bbox) {
+                        lobeCreator(gene,bbox[0],bbox[1],bbox[2],bbox[3]);
+                    });
+                }
+                //only place it on matching nodes
+            }
+        };
+        div.createLobeOutputTo=function(string) {
+            var lobeOutputCreator=function(gene,xmin,xmax,ymin,ymax) {
+                var lobe= new LobeOutput(editor,gene);
+                console.log("output lobe");
+                lobe.setBoundingBox([xmin,ymin,xmax,ymax]);
+                return editor.makeNewSelectable(lobe);
+            }
+            div.createLobesOn(string,lobeOutputCreator);                     
+        }
+        div.createLobeInputFrom=function(string) {
+            var lobeInputCreator=function(gene,xmin,xmax,ymin,ymax) {
+                console.log("input lobe");
+                var lobe= new LobeInput(editor,gene);
+                lobe.setBoundingBox([xmin,ymin,xmax,ymax]);
+                return editor.makeNewSelectable(lobe);
+            }   
+            div.createLobesOn(string,lobeInputCreator);         
+        };
         div.selectOutputLobes=function() {
             for (var index=0;index<div.genes.length;index+=1) {
                 div.genes[index].selectOutputs();
@@ -946,7 +993,11 @@
       },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
-         var lobe = new LobeOutput(this,new Gene(this));
+          return this.makeNewSelectable(new LobeOutput(this,new Gene(this)));
+      },
+      ///When a new lobe is created and passed in, this attaches it to the scene graph and make the do and undo functions for it
+      makeNewSelectable : function (lobe) {
+
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
@@ -954,10 +1005,24 @@
          undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);}
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
+         return lobe;
+      },
+      createLobesOnPredicate : function (predicate,lobeCreator) {
+          this.childNodes.filter(function(s) {
+              try {
+                  if(s.hasOwnProperty('gene')) {
+                      if (predicate(s.gene.name))
+                          return true;
+                  }
+              }catch(e) {return false;}
+              return false;
+          }).forEach(function(lobe) {
+              lobeCreator(lobe.getBoundingBox());
+          });
       },
       lobeProperties: function() {
           if (!mapEmpty(this.context.selection)) {
-              ifrm=new LobeDiv(this.context);
+              ifrm=new LobeDiv(this);
           }
       },
       undo : function () {
