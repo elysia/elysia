@@ -27,8 +27,7 @@
     TARGET_CURSOR = 'crosshair'
     SELECT_CURSOR = 'pointer'
     function stringWhitespaceOnly(st){ // NOT USED IN FORM VALIDATION
-        var regex = /[\S]/g
-        return !(regex.test(st));
+        return /^\s*$/.test(st);
     }
     ///debugPrint prints to the console if there is a console, but does not error if the console is unavailable
     function debugPrint(x) {
@@ -185,7 +184,7 @@
           ]
         })
         div.controlPanel.show()
-        div.createLobesOn=function(str, lobeCreator){
+        div.createLobesOn=function(str, lobeCreator, compatPredicate){
             if (stringWhitespaceOnly(str)) {
                 var ycount=0;
                 var divlen=div.genes.length;
@@ -196,12 +195,15 @@
                 }
             }else {
                 var regexMatch= function (lobe) {
-                    if (lobe.gene) return lobe.gene.name==str;
+                    if (lobe.gene&&compatPredicate(lobe)) {
+                        return lobe.gene.name==str;
+                    }
                     return false;
                 }
-                for (var gene in div.genes) {                    
+                var divlen=div.genes.length;
+                for (var i =0; i< divlen;i+=1) {
                     editor.createLobesOnPredicate(regexMatch,function(bbox) {
-                        lobeCreator(gene,bbox);
+                        lobeCreator(div.genes[i],bbox);
                     });
                 }
                 //only place it on matching nodes
@@ -210,20 +212,18 @@
         div.createLobeOutputTo=function(string) {
             var lobeOutputCreator=function(gene,bbox) {
                 var lobe= new LobeOutput(editor,gene);
-                console.log("output lobe");
                 lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
             }
-            div.createLobesOn(string,lobeOutputCreator);                     
+            div.createLobesOn(string,lobeOutputCreator,function(l){return !l.isAxon;});                     
         }
         div.createLobeInputFrom=function(string) {
             var lobeInputCreator=function(gene,bbox) {
-                console.log("input lobe");
                 var lobe= new LobeInput(editor,gene);
                 lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
             }   
-            div.createLobesOn(string,lobeInputCreator);         
+            div.createLobesOn(string,lobeInputCreator,function(l){return l.isAxon;});         
         };
         div.selectOutputLobes=function() {
             for (var index=0;index<div.genes.length;index+=1) {
@@ -385,7 +385,7 @@
                 var rleng=this.mRedoList.length;
                 var count=0;
                 for (var i=this.mCurUndoCounter;i<leng;i+=1) {
-                    //console.log ("Pushing redo "+(leng-1-count)+ " to undo stack");
+                    //debugPrint ("Pushing redo "+(leng-1-count)+ " to undo stack");
                     this.mUndoList.push(this.mRedoList[leng-1-count]);
                     this.mRedoList.push(this.mUndoList[leng-1-count]);
                     count+=1;
@@ -1006,17 +1006,22 @@
          return lobe;
       },
       createLobesOnPredicate : function (predicate,lobeCreator) {
+          var createdLobes={};
           this.childNodes.filter(function(s) {
               try {
                   if(s.hasOwnProperty('gene')) {
-                      if (predicate(s.gene.name))
+                      if (predicate(s)) {
                           return true;
+                      }
                   }
               }catch(e) {return false;}
               return false;
           }).forEach(function(lobe) {
-              lobeCreator(lobe.getBoundingBox());
-          });
+                  createdLobes[lobe.uid]=lobe.getBoundingBox();
+              });
+          for (var uid in createdLobes) {
+              lobeCreator(createdLobes[uid]);
+          }
       },
       lobeProperties: function() {
           if (!mapEmpty(this.context.selection)) {
