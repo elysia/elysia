@@ -989,6 +989,29 @@
             this.cursor = DEFAULT_CURSOR
         })
       },
+      deleteLobe : function () {
+         var thus=this;
+         var context=this.context;
+         var first=true;
+         for (var uid in context.selection) {
+             var lb = context.selection[uid];
+             var doIt=function (lobe) {
+                 //need a separate isSelected variable per item in the loop to track selection of the objects individually
+                 var isSelected=lobe.selected;
+                 var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}}
+                 var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);}
+                 redoFunction();
+                 this.context.performedAction(redoFunction,undoFunction);
+             }
+             doIt(lb);
+             if (!first){
+                 this.context.coalesceUndos();
+             }
+             first=false;
+         }
+         return lb;
+
+      },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
           return this.makeNewSelectable(new LobeOutput(this,new Gene(this)));
@@ -1149,6 +1172,9 @@
       makeNewLobe : function () {
                 //noop
       },
+      deleteLobe: function () {
+
+      },
       lobeProperties : function () {
                 //noop
       },
@@ -1294,6 +1320,9 @@
       makeNewLobe:function(s) {
          this.currentEditor().makeNewLobe()
       },
+      deleteLobe:function(s) {
+         this.currentEditor().deleteLobe()
+      },
       lobeProperties:function(s) {
          this.currentEditor().lobeProperties()
       },
@@ -1358,6 +1387,7 @@
             ['Age', '0.0..1.0'],
             'Radiation',
             ['makeNewLobe','function'],
+            ['deleteLobe','function'],
             ['lobeProperties','function'],
             ['redo','function'],
             ['undo','function'],
