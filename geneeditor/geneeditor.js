@@ -718,7 +718,7 @@
         this.x=-windowWidth/2;
         this.y=-windowHeight/2;
         this.context=Context();
-        var sizeMultiplier=1000;
+        var sizeMultiplier=16;
         this.bg = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
           //this.bg.x=-this.width*sizeMultiplier/2;
           //this.bg.y=-this.height*sizeMultiplier/2;
