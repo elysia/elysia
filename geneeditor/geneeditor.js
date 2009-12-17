@@ -132,7 +132,91 @@
     var divMaxZIndex=100;
     ///this is the number of lobe property panes that have been brought up. Since we want to assure each has a unique id we will need a unique value for each one
     lobeDivCount=0;
-
+    PerGeneValueEntryBox=function(editor,newValueName) {
+        var perGeneValueEntryBox={};
+        perGeneValueEntryBox.genes=[]
+        perGeneValueEntryBox.initializeGene=function(gene) {
+            var newValue=gene[newValueName];
+            perGeneValueEntryBox.valueName=newValueName;
+            perGeneValueEntryBox.genes[perGeneValueEntryBox.genes.length]=gene;
+            if (perGeneValueEntryBox.hasOwnProperty('minValue')) {
+                if( newValue<perGeneValueEntryBox.minValue) {
+                    perGeneValueEntryBox.minValue=newValue; 
+                }
+                if( newValue>perGeneValueEntryBox.maxValue) {
+                    perGeneValueEntryBox.maxValue=newValue; 
+                }
+            }else{ 
+                perGeneValueEntryBox.minValue=newValue;
+                perGeneValueEntryBox.maxValue=newValue;
+            }
+        }
+        perGeneValueEntryBox.getDescriptionString=function(){ 
+            if (perGeneValueEntryBox.hasOwnProperty('minValue')) {
+                if (perGeneValueEntryBox.minValue<perGeneValueEntryBox.maxValue) {
+                    return "["+perGeneValueEntryBox.minValue+","+perGeneValueEntryBox.maxValue+"]";
+                }
+                return ""+perGeneValueEntryBox.minValue;
+            }else return "";
+        }
+        perGeneValueEntryBox.update=function(newValue) {
+            bracket="[".charAt(0);
+            rbracket="]".charAt(0);                        
+            var minValue=0;
+            var maxValue=0;
+            if (newValue.charAt(0)==bracket) {
+                newValue=newValue.substr(1,newValue.length-1);
+                if (newValue.charAt(newValue.length-1)==rbracket) {
+                    newValue=newValue.substr(0,newValue.length-1);
+                }
+                newValues=newValue.split(',');
+                minValue=parseFloat(newValues[0]);
+                if (newValues.length>1) {
+                    maxValue=parseFloat(newValues[1]);
+                    if (maxValue<minValue) {
+                        var tmp=minValue;
+                        minValue=maxValue;
+                        maxValue=tmp;
+                    }
+                }else maxValue=minValue;
+            }else {
+                minValue=maxValue=parseFloat(newValue);
+            }
+            var leng=perGeneValueEntryBox.genes.length;
+            var first=true;
+            var valueName=perGeneValueEntryBox.valueName;
+            for (var i=0;i<leng;++i) {
+                var gene=perGeneValueEntryBox.genes[i];
+                if (gene[valueName]<minValue||gene[valueName]>maxValue) {
+                    //perform undo
+                    var undoFunctor=function (myGene) {
+                        var gene=myGene;
+                        var oldValue=myGene[valueName];
+                        return function() {
+                            gene[valueName]=oldValue;
+                        }
+                    };
+                    var redoFunctor=function (myGene) {
+                        var gene=myGene;
+                        var oldValue=myGene[valueName];
+                        return function() {
+                            if (oldValue<minValue)
+                                gene[valueName]=minValue;
+                            if (oldValue>maxValue)
+                                gene[valueName]=maxValue;
+                        }
+                    };
+                    redoFunctor(gene)();
+                    editor.context.performedAction(redoFunctor(gene),undoFunctor(gene));
+                    if (!first) {
+                        editor.context.coalesceUndos();
+                    }
+                    first=false;
+                }
+            }
+        }
+        return perGeneValueEntryBox;
+    }
     ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
     LobeDiv = function(editor) {
         var context=editor.context;
@@ -158,12 +242,18 @@
         div.genes=[];
         var first=true;
         var lobeNames='';
+        var minAge=PerGeneValueEntryBox(editor,'minAge');
+        var maxAge=PerGeneValueEntryBox(editor,'maxAge');
+        
         var geneuids={}
         for (var uid in context.selection) {
             lobe=context.selection[uid];    
             if (!geneuids[lobe.gene.uid]) {
                 geneuids[lobe.gene.uid]=lobe.gene;
                 div.genes[div.genes.length]=lobe.gene;
+                minAge.initializeGene(lobe.gene);
+                maxAge.initializeGene(lobe.gene);
+
                 if (!first) {
                     lobeNames+=',';
                 }
@@ -171,6 +261,8 @@
                 first=false;
             }
         }
+        div.minAge=minAge.update;
+        div.maxAge=maxAge.update;
         div.controlPanel = new GuiConfig({
           object : div,
           container : div,
@@ -181,6 +273,8 @@
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
+            ['minAge','string',{value:minAge.getDescriptionString(),size:22,reverse:false}],
+            ['maxAge','string',{value:maxAge.getDescriptionString(),size:22,reverse:false}],
           ]
         })
         div.controlPanel.show()
@@ -424,6 +518,8 @@
     Gene = Klass({initialize:function(editor) {
         this.name="gene_"+getUID();
         this.uid=getUID();       
+        this.minAge=0.0;
+        this.maxAge=1.0;
         var th=this;
         this.findLobesWithThisGene=function() {
             return editor.childNodes.filter(function(s) {
