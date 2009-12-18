@@ -193,7 +193,6 @@
                         var gene=myGene;
                         var oldValue=myGene[valueName];
                         return function() {
-                            console.log("undo "+valueName+" to "+oldValue);
                             gene[valueName]=oldValue;
                         }
                     };
@@ -201,7 +200,6 @@
                         var gene=myGene;
                         var oldValue=myGene[valueName];
                         return function() {
-                            console.log(minValue+","+oldValue+","+maxValue);
                             if (oldValue<minValue)
                                 gene[valueName]=minValue;
                             if (oldValue>maxValue)
