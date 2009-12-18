@@ -275,8 +275,8 @@
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
-            ['minAge','string',{value:minAge.getDescriptionString(),size:22,onblur:true,reverse:true}],
-            ['maxAge','string',{value:maxAge.getDescriptionString(),size:22,onblur:true,reverse:true}],
+            ['minAge','string',{value:minAge.getDescriptionString(),size:13,onblur:true,reverse:true}],
+            ['maxAge','string',{value:maxAge.getDescriptionString(),size:13,onblur:true,reverse:true}],
           ]
         })
         div.controlPanel.show()

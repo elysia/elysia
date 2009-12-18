@@ -349,7 +349,7 @@ GuiConfig.widgets = {
     var e;
     if (config.hasOwnProperty('onblur')&&config.onblur) {
         textProperties.onblur=onclickfn
-        e = E('span',title);
+        e = E('span',title+':&nbsp;');
     }else { 
         e = E('input', {type:'submit', value: title});
     }
