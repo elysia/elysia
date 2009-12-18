@@ -343,8 +343,17 @@ GuiConfig.widgets = {
     if (config.hasOwnProperty('size')) {
         textProperties.size=config.size;
     }
+    var onclickfn = function () {
+        obj.object[varName](t.value)
+    }
+    var e;
+    if (config.hasOwnProperty('onblur')&&config.onblur) {
+        textProperties.onblur=onclickfn
+        e = E('span',title);
+    }else { 
+        e = E('input', {type:'submit', value: title});
+    }
     var t = E('input', textProperties);
-    var e = E('input', {type:'submit', value: title});
     if (config.hasOwnProperty('reverse')&&config.reverse) {
         p.appendChild(e);
         p.appendChild(t);
@@ -352,9 +361,7 @@ GuiConfig.widgets = {
         p.appendChild(t);
         p.appendChild(e);
     }
-    e.onclick = function () {
-        obj.object[varName](t.value)
-    }
+    e.onclick = onclickfn;
     t.onkeydown = function(ev) {
         if (ev.keyCode==13) {
             e.onclick();

@@ -193,6 +193,7 @@
                         var gene=myGene;
                         var oldValue=myGene[valueName];
                         return function() {
+                            console.log("undo "+valueName+" to "+oldValue);
                             gene[valueName]=oldValue;
                         }
                     };
@@ -200,14 +201,15 @@
                         var gene=myGene;
                         var oldValue=myGene[valueName];
                         return function() {
+                            console.log(minValue+","+oldValue+","+maxValue);
                             if (oldValue<minValue)
                                 gene[valueName]=minValue;
                             if (oldValue>maxValue)
                                 gene[valueName]=maxValue;
                         }
                     };
-                    redoFunctor(gene)();
                     editor.context.performedAction(redoFunctor(gene),undoFunctor(gene));
+                    redoFunctor(gene)();
                     if (!first) {
                         editor.context.coalesceUndos();
                     }
@@ -273,8 +275,8 @@
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
-            ['minAge','string',{value:minAge.getDescriptionString(),size:22,reverse:false}],
-            ['maxAge','string',{value:maxAge.getDescriptionString(),size:22,reverse:false}],
+            ['minAge','string',{value:minAge.getDescriptionString(),size:22,onblur:true,reverse:true}],
+            ['maxAge','string',{value:maxAge.getDescriptionString(),size:22,onblur:true,reverse:true}],
           ]
         })
         div.controlPanel.show()
