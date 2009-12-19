@@ -672,12 +672,20 @@
                 this.recomputeAgeIndicator();
             },
             recomputeAgeIndicator:function() {
-                if (this.minAge==0&&this.maxAge==1) {
-                    this.ageSpan.text="["+this.gene.minAge+","+this.gene.maxAge+"]";
+                var gmna=this.gene.minAge;
+                var gmxa=this.gene.maxAge;
+                var mna=this.minAge;
+                var mxa=this.maxAge;
+                gmna=Math.round(gmna*100)/100;
+                gmxa=Math.round(gmxa*100)/100;
+                mna=Math.round(mna*100)/100;
+                mxa=Math.round(mxa*100)/100;
+                if (mna==0&&mxa==1) {
+                    this.ageSpan.text="["+gmna+","+gmxa+"]";
                 }else if (this.gene.minAge==0&&this.gene.maxAge==1) {
-                    this.ageSpan.text="{"+this.minAge+","+this.maxAge+"}";
+                    this.ageSpan.text="{"+mna+","+mxa+"}";
                 }else {
-                    this.ageSpan.text='['+this.gene.minAge+"{"+this.minAge+","+this.maxAge+"}"+this.gene.maxAge+"]";
+                    this.ageSpan.text='['+gmna+"{"+mna+","+mxa+"}"+gmxa+"]";
                 }
             },
             getMinAge:function() {
@@ -694,12 +702,13 @@
             },
             setMinAge:function(mA) {
                 this.minAge=mA;
-                return this.minAge==getMinAge();
+                this.recomputeAgeIndicator();
+                return this.minAge==this.getMinAge();
             },
             setMaxAge:function(mA) {
                 this.maxAge=mA;
-                
-                return this.maxAge==getMaxAge();
+                this.recomputeAgeIndicator();
+                return this.maxAge==this.getMaxAge();
             },
             ///returns the z value (for selection and viewing order)
             getZIndex: function() {
@@ -1173,6 +1182,50 @@
       makeNewLobe : function () {
           return this.makeNewSelectable(new LobeOutput(this,new Gene(this)));
       },
+      makeSelectedAppearAt : function (age) {
+          var first=true;
+          for (var uid in this.context.selection) {
+              var redo=function (lobe) {
+                  return function() {
+                      lobe.setMinAge(age);
+                  }
+              }(this.context.selection[uid]);
+              var undo=function (lobe) {
+                  var oldAge=lobe.minAge;
+                  return function() {
+                      lobe.setMinAge(oldAge);
+                  }
+              }(this.context.selection[uid]);
+              redo();
+              this.context.performedAction(redo,undo);
+              if (!first) {
+                  this.context.coalesceUndos();
+              }
+              first=false;
+          }          
+      },
+      makeSelectedVanishAt: function (age) {
+          var first=true;
+          for (var uid in this.context.selection) {
+              var redo=function (lobe) {
+                  return function() {
+                      lobe.setMaxAge(age);
+                  }
+              }(this.context.selection[uid]);
+              var undo=function (lobe) {
+                  var oldAge=lobe.maxAge;
+                  return function() {
+                      lobe.setMaxAge(oldAge);
+                  }
+              }(this.context.selection[uid]);
+              redo();
+              this.context.performedAction(redo,undo);
+              if (!first) {
+                  this.context.coalesceUndos();
+              }
+              first=false;
+          }          
+      },
       ///When a new lobe is created and passed in, this attaches it to the scene graph and make the do and undo functions for it
       makeNewSelectable : function (lobe) {
 
@@ -1332,6 +1385,12 @@
       deleteLobe: function () {
 
       },
+      makeSelectedAppearAt : function (age) {
+                //noop
+      },
+      makeSelectedVanishAt: function (age) {
+
+      },
       lobeProperties : function () {
                 //noop
       },
@@ -1475,10 +1534,17 @@
         this.Age = s;
       },
       makeSelectedAppearAtThisAge:function(s) {
-          this.currentEditor.makeSelectedAppearAt(this.Age);
+         var age=parseFloat(""+this.Age);
+         if (age>=.98) age=1.0;
+         if (age<=.01) age=0.0;
+
+         this.currentEditor().makeSelectedAppearAt(age);
       },
       makeSelectedVanishAtThisAge:function(s) {
-          this.currentEditor.makeSelectedVanishAt(this.Age);
+         var age=parseFloat(""+this.Age);
+         if (age>=.98) age=1.0;
+         if (age<=.01) age=0.0;
+         this.currentEditor().makeSelectedVanishAt(age);
       },
       makeNewLobe:function(s) {
          this.currentEditor().makeNewLobe()
