@@ -1350,7 +1350,7 @@
             width : windowWidth+'px',
             height : windowHeight+'px',
             backgroundColor: this.bgColor,
-            opacity: 0.5
+            opacity: 1.0
           }
         }), {zIndex : 1001})
         controls.append(bg)
