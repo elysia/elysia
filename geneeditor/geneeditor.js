@@ -565,8 +565,7 @@
                 s.name.text=newName;
             });
         }
-        this.setChildrenAgeIndicator=function(newName) {
-            this.name=newName;
+        this.setChildrenAgeIndicator=function(newAge) {
             this.findLobesWithThisGene().forEach(function(s) {
                s.recomputeAgeIndicator();
             });
@@ -687,6 +686,47 @@
                 }else {
                     this.ageSpan.text='['+gmna+"{"+mna+","+mxa+"}"+gmxa+"]";
                 }
+                var full=this.visibleColor();
+                var empty=this.vanishColor();
+                if (gmna>mna) mna=gmna;
+                if (gmxa<mxa) mxa=gmxa;
+                if (mxa>1.0) {
+                    debugPrint("max age > 1.0");
+                    mxa=1.0;
+                }
+                if (mna<0.0) {
+                    debugPrint("min age < 0.0");
+                    mna=0.0;
+                }
+                var age=this.mEditor.context.age;
+                if (age>1.0) {
+                    debugPrint("age > 1.0");
+                    age=1.0;
+                }
+                if (age<0.0) {
+                    debugPrint("age < 0.0");
+                    age=0.0;
+                }
+                var pctBad=0.0;
+                if (age>mxa) {
+                    pctBad=(age-mxa)/(1.0-mxa);
+                    pctBad*=.5;
+                    pctBad+=.5;
+                }else if (age<mna) {
+                    pctBad=(mna-age)/mna
+                    pctBad*=.5;
+                    pctBad+=.5;                    
+                }
+                var pctGood=1.0-pctBad;
+                var col=[full[0]*pctGood+empty[0]*pctBad,
+                         full[1]*pctGood+empty[1]*pctBad,
+                         full[2]*pctGood+empty[2]*pctBad,
+                         full[3]*pctGood+empty[3]*pctBad]
+                if (!this.isSelected()) {
+                    col[3]*=.25;
+                }
+                this.lobe.fill=col;
+                debugPrint("Updating age "+this.mEditor.context.age+" for uid "+this.uid+ " col is "+col);
             },
             getMinAge:function() {
                 var retval=this.minAge;
@@ -727,12 +767,12 @@
             ///select this lobe and paint it differently
             select:function() {
                 Selectable.select.call(this);
-                this.lobe.fill[3]=0.25;
+                this.recomputeAgeIndicator();
             },
             ///deselect this lobe and paint it differently
             deselect:function() {
                 Selectable.deselect.call(this);
-                this.lobe.fill[3]=0.0625;
+                this.recomputeAgeIndicator();
             },
             ///gets the x,y origin of the painted rectangle
             getOrigin:function() {
@@ -769,12 +809,23 @@
         LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
             Lobe.initialize.bind(this)(editor,gene);
             this.isAxon=true;
+        },
+        visibleColor:function() {
+           return [128,128,128,.5];
+        },
+        vanishColor:function() {
+           return [128,0,0,.0625];
         }
                               });
         LobeInput=Klass(Lobe,{initialize:function(editor,gene) {
             Lobe.initialize.bind(this)(editor,gene);
-            this.lobe.fill[0]=0;
             this.isAxon=false;
+        },
+        visibleColor:function() {
+           return [0,128,128,.5];
+        },
+        vanishColor:function() {
+           return [64,64,0,.06125];
         }
                               });
     ///The editor holds the state of the canvas, the context, and all active lobes as well as current transient mouse state and selection boxes
@@ -1178,6 +1229,18 @@
          return lb;
 
       },
+      setAge : function (age) {
+          if (this.context.hasOwnProperty("age")&&this.context.age==age)    {
+              //nop
+          }else {
+              this.context.age=age;
+              this.childNodes.filter(function(s) {
+                      return s.hasOwnProperty('uid')&&s.hasOwnProperty("gene");
+                  }).forEach(function (s) {
+                          s.recomputeAgeIndicator();
+                      });
+          }
+      },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
           return this.makeNewSelectable(new LobeOutput(this,new Gene(this)));
@@ -1377,7 +1440,7 @@
         this.setupMenu()
         this.selectRect.opacity = 0
       },
-
+      setAge: function (age) {},
       showDescription : function() {},
       makeNewLobe : function () {
                 //noop
@@ -1520,18 +1583,20 @@
         if (this.editor) this.editor.removeSelf()
         if (editor) {
           this.editor = new editor()
+          this.setAge(this.Age);
           this.append(this.editor)
         }
       },
 
       Radiation : true,
       setRadiation : function(fb) {
-        this.Radiation = fb
+        this.Radiation = fb;
       },
 
-      Age : 0.5,
+      Age : 1.0,
       setAge : function(s) {
-        this.Age = s;
+        this.Age = parseFloat(""+s);
+        this.editor.setAge(this.Age);        
       },
       makeSelectedAppearAtThisAge:function(s) {
          var age=parseFloat(""+this.Age);
