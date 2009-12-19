@@ -132,7 +132,7 @@
     var divMaxZIndex=100;
     ///this is the number of lobe property panes that have been brought up. Since we want to assure each has a unique id we will need a unique value for each one
     lobeDivCount=0;
-    PerGeneValueEntryBox=function(editor,newValueName) {
+    PerGeneValueEntryBox=function(editor,newValueName,geneUpdateFunctionName) {
         var perGeneValueEntryBox={};
         perGeneValueEntryBox.genes=[]
         perGeneValueEntryBox.initializeGene=function(gene) {
@@ -194,16 +194,28 @@
                         var oldValue=myGene[valueName];
                         return function() {
                             gene[valueName]=oldValue;
+                            if (gene.hasOwnProperty(geneUpdateFunctionName)) {
+                                gene[geneUpdateFunctionName](oldValue);
+                            }
+
                         }
                     };
                     var redoFunctor=function (myGene) {
                         var gene=myGene;
                         var oldValue=myGene[valueName];
                         return function() {
-                            if (oldValue<minValue)
+                            if (oldValue<minValue) {
                                 gene[valueName]=minValue;
-                            if (oldValue>maxValue)
+                                if (gene.hasOwnProperty(geneUpdateFunctionName)) {
+                                    gene[geneUpdateFunctionName](minValue);
+                                }
+                            }
+                            if (oldValue>maxValue) {
                                 gene[valueName]=maxValue;
+                                if (gene.hasOwnProperty(geneUpdateFunctionName)) {
+                                    gene[geneUpdateFunctionName](maxValue);
+                                }
+                            }
                         }
                     };
                     editor.context.performedAction(redoFunctor(gene),undoFunctor(gene));
@@ -242,8 +254,8 @@
         div.genes=[];
         var first=true;
         var lobeNames='';
-        var minAge=PerGeneValueEntryBox(editor,'minAge');
-        var maxAge=PerGeneValueEntryBox(editor,'maxAge');
+        var minAge=PerGeneValueEntryBox(editor,'minAge','setChildrenAgeIndicator');
+        var maxAge=PerGeneValueEntryBox(editor,'maxAge','setChildrenAgeIndicator');
         
         var geneuids={}
         for (var uid in context.selection) {
@@ -553,6 +565,12 @@
                 s.name.text=newName;
             });
         }
+        this.setChildrenAgeIndicator=function(newName) {
+            this.name=newName;
+            this.findLobesWithThisGene().forEach(function(s) {
+               s.recomputeAgeIndicator();
+            });
+        }
       }
     });
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
@@ -641,7 +659,47 @@
                 this.name.cy=this.lobe.height;
                 this.name.maxWidth=this.lobe.width;
                 this.lobe.append(this.name);
+                this.minAge=0.0;
+                this.maxAge=1.0;
+           
+                this.ageSpan=new TextNode('[0,1]');//,{align:'center',baseline:'hanging'});
+                this.ageSpan.align='center';
+                this.ageSpan.baseline='bottom';
+                this.ageSpan.cx=0;
+                this.ageSpan.cy=this.lobe.height/2;
+                this.ageSpan.maxWidth=this.lobe.width;
+                this.lobe.append(this.ageSpan);
+                this.recomputeAgeIndicator();
+            },
+            recomputeAgeIndicator:function() {
+                if (this.minAge==0&&this.maxAge==1) {
+                    this.ageSpan.text="["+this.gene.minAge+","+this.gene.maxAge+"]";
+                }else if (this.gene.minAge==0&&this.gene.maxAge==1) {
+                    this.ageSpan.text="{"+this.minAge+","+this.maxAge+"}";
+                }else {
+                    this.ageSpan.text='['+this.gene.minAge+"{"+this.minAge+","+this.maxAge+"}"+this.gene.maxAge+"]";
+                }
+            },
+            getMinAge:function() {
+                var retval=this.minAge;
+                if (this.minAge>this.gene.minAge)
+                    return this.gene.minAge;
+                return this.minAge;
+            },
+            getMaxAge:function() {
+                var retval=this.maxAge;
+                if (this.maxAge<this.gene.maxAge)
+                    return this.gene.maxAge;
+                return this.maxAge;
+            },
+            setMinAge:function(mA) {
+                this.minAge=mA;
+                return this.minAge==getMinAge();
+            },
+            setMaxAge:function(mA) {
+                this.maxAge=mA;
                 
+                return this.maxAge==getMaxAge();
             },
             ///returns the z value (for selection and viewing order)
             getZIndex: function() {
@@ -694,6 +752,9 @@
                 this.lobe.height=y2-y1;
                 this.name.cy=this.lobe.height;
                 this.name.maxWidth=this.lobe.width;
+
+                this.ageSpan.cy=this.lobe.height/2;
+                this.ageSpan.maxWidth=this.lobe.width;
             }
         });
         LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
@@ -1413,6 +1474,12 @@
       setAge : function(s) {
         this.Age = s;
       },
+      makeSelectedAppearAtThisAge:function(s) {
+          this.currentEditor.makeSelectedAppearAt(this.Age);
+      },
+      makeSelectedVanishAtThisAge:function(s) {
+          this.currentEditor.makeSelectedVanishAt(this.Age);
+      },
       makeNewLobe:function(s) {
          this.currentEditor().makeNewLobe()
       },
@@ -1485,6 +1552,8 @@
             ['makeNewLobe','function'],
             ['deleteLobe','function'],
             ['lobeProperties','function'],
+            ['makeSelectedAppearAtThisAge','function'],
+            ['makeSelectedVanishAtThisAge','function'],
             ['redo','function'],
             ['undo','function'],
           ]
