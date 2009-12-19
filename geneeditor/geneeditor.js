@@ -368,8 +368,9 @@
         div.parentNode.removeChild(div);
     }
     /// This function makes a new context. Context holds transient editor state such as the currently held selection and the undo list. This state will not be serialized to disk when the save function is invoked.
-    Context = function() {
+    Context = function(genomeEditor) {
         context={};
+        context.mGenomeEditor=genomeEditor;
         context.selection={};
         context.groupUndoIndexStack=[]
         context.groupRedoIndexStack=[]
@@ -604,6 +605,10 @@
         getBoundingBox:function() {
             return CanvasNode.getBoundingBox.call(this);
         },
+        ///returns true unless the node is hidden or otherwise unselectable
+        isSelectable:function() {
+            return true;
+        },
         select:function(){
             this.mSelected=true;
         },
@@ -688,6 +693,35 @@
                 }
                 var full=this.visibleColor();
                 var empty=this.vanishColor();
+                var pctBad=this.getPercentOutsideAgeRange();
+                if (pctBad>0)  {
+                    pctBad*=.5;
+                    pctBad+=.5;
+                }
+                var pctGood=1.0-pctBad;
+                var col=[full[0]*pctGood+empty[0]*pctBad,
+                         full[1]*pctGood+empty[1]*pctBad,
+                         full[2]*pctGood+empty[2]*pctBad,
+                         full[3]*pctGood+empty[3]*pctBad]
+                if (!this.isSelected()) {
+                    col[3]*=.25;
+                    if (pctBad!=0) {
+                        if (!this.mEditor.context.mGenomeEditor.DrawAgeInactiveLobes) {
+                            col[3]=0;
+                        }
+                    }
+                }
+                this.lobe.fill=col;
+                //debugPrint("Updating age "+this.mEditor.context.age+"("+this.mEditor.context.mGenomeEditor.Age+")"+" for uid "+this.uid+ " col is "+col+" cbox "+this.mEditor.context.mGenomeEditor.DrawAgeInactiveLobes);
+            },
+            isSelectable:function() {
+                return this.mEditor.context.mGenomeEditor.DrawAgeInactiveLobes||this.getPercentOutsideAgeRange()==0;
+            },
+            getPercentOutsideAgeRange:function() {
+                var gmna=this.gene.minAge;
+                var gmxa=this.gene.maxAge;
+                var mna=this.minAge;
+                var mxa=this.maxAge;
                 if (gmna>mna) mna=gmna;
                 if (gmxa<mxa) mxa=gmxa;
                 if (mxa>1.0) {
@@ -698,7 +732,7 @@
                     debugPrint("min age < 0.0");
                     mna=0.0;
                 }
-                var age=this.mEditor.context.age;
+                var age=this.mEditor.context.mGenomeEditor.Age;
                 if (age>1.0) {
                     debugPrint("age > 1.0");
                     age=1.0;
@@ -710,23 +744,10 @@
                 var pctBad=0.0;
                 if (age>mxa) {
                     pctBad=(age-mxa)/(1.0-mxa);
-                    pctBad*=.5;
-                    pctBad+=.5;
                 }else if (age<mna) {
                     pctBad=(mna-age)/mna
-                    pctBad*=.5;
-                    pctBad+=.5;                    
                 }
-                var pctGood=1.0-pctBad;
-                var col=[full[0]*pctGood+empty[0]*pctBad,
-                         full[1]*pctGood+empty[1]*pctBad,
-                         full[2]*pctGood+empty[2]*pctBad,
-                         full[3]*pctGood+empty[3]*pctBad]
-                if (!this.isSelected()) {
-                    col[3]*=.25;
-                }
-                this.lobe.fill=col;
-                debugPrint("Updating age "+this.mEditor.context.age+" for uid "+this.uid+ " col is "+col);
+                return pctBad;
             },
             getMinAge:function() {
                 var retval=this.minAge;
@@ -834,11 +855,11 @@
       bgOpacity : 0.15,
 
       ///this sets the state of the editor and binds all the mouse functions, etc
-      initialize : function() {
+      initialize : function(genomeEditor) {
         CanvasNode.initialize.call(this)
         this.x=-windowWidth/2;
         this.y=-windowHeight/2;
-        this.context=Context();
+        this.context=Context(genomeEditor);
         var sizeMultiplier=16;
         this.bg = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
           //this.bg.x=-this.width*sizeMultiplier/2;
@@ -889,7 +910,7 @@
                                          Math.max(bb[1],y1),
                                          Math.min(bb[2],x2),
                                          Math.min(bb[3],y2)];
-                              if (s.hasOwnProperty('uid')&&minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
+                              if (s.hasOwnProperty('uid')&&s.isSelectable()&&minbb[0]==bb[0]&&minbb[1]==bb[1]&&minbb[2]==bb[2]&&minbb[3]==bb[3]) {
                                   return true;
                               }else {
                                   return false;
@@ -1230,16 +1251,11 @@
 
       },
       setAge : function (age) {
-          if (this.context.hasOwnProperty("age")&&this.context.age==age)    {
-              //nop
-          }else {
-              this.context.age=age;
               this.childNodes.filter(function(s) {
                       return s.hasOwnProperty('uid')&&s.hasOwnProperty("gene");
                   }).forEach(function (s) {
                           s.recomputeAgeIndicator();
                       });
-          }
       },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
@@ -1416,8 +1432,8 @@
       name : "Start new brain",
       description : "Make basic lobes that control reactions to food when hungry.",
 
-      initialize : function() {
-        Editor.initialize.call(this)
+      initialize : function(genomeEditor) {
+        Editor.initialize.call(this,genomeEditor)
         this.when('started', function() {
 
         })
@@ -1431,8 +1447,8 @@
       height : windowHeight,
       scale : 1,
 
-      initialize : function() {
-        Editor.initialize.call(this)
+      initialize : function(genomeEditor) {
+        Editor.initialize.call(this,genomeEditor)
         this.menu = new CanvasNode()
         this.menu.scale = 1
         this.menu.zIndex = 1002
@@ -1582,7 +1598,7 @@
       changeEditor : function(editor) {
         if (this.editor) this.editor.removeSelf()
         if (editor) {
-          this.editor = new editor()
+          this.editor = new editor(this)
           this.setAge(this.Age);
           this.append(this.editor)
         }
@@ -1592,7 +1608,11 @@
       setRadiation : function(fb) {
         this.Radiation = fb;
       },
-
+      DrawAgeInactiveLobes : true,
+      setDrawAgeInactiveLobes:function(doDraw){
+         this.DrawAgeInactiveLobes=doDraw;
+         this.setAge(this.Age);
+      },
       Age : 1.0,
       setAge : function(s) {
         this.Age = parseFloat(""+s);
@@ -1680,6 +1700,7 @@
           controls : [
             ['Age', '0.0..1.0'],
             'Radiation',
+            'DrawAgeInactiveLobes',
             ['makeNewLobe','function'],
             ['deleteLobe','function'],
             ['lobeProperties','function'],
