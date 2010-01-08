@@ -53,18 +53,27 @@ Neuron* grow_neuron(lobe_location, emitters, receptors, tree_branchiness, tree_t
 
 //The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
 class Neuron public CellComponent{
-    public:
-        static int target_limit;              //how many dendrites can connect to a single neuron
-        static int total_neurons;
-        int neuron_number;
-        float neuron_location[2][2];          //The location of the neuron
-        Lobe *parent_lobe;
-        Branch *child_branch[];                //Array of child branches
-        Dendrite_tip *target[100];             //100 is the limit for dendrite connections
-        void fire(Dendrite_tip ->target);
-        void grow_branch(Branch *child_branch);
-        Neuron(int number, int threshold, int *lobe, float location);
-        void detach_dendrite();
+private:
+    ///Neuron location
+    Vector3f neuron_location;
+    Lobe *parent_lobe;
+    //Array of child branches
+    std::vector<Branch *>child_branches;
+    //Array of dendrites connections
+    std::vector<Dendrite_tip *>connected_dendrites;
+    /**
+     * Fire activates a DendriteTip
+     * \param target is the DendriteTip that should be activated
+     * \returns whether the signal successfully passed through the inter-neuron gap
+     */
+    bool fire(DendriteTip *target);
+public:
+    Neuron(int number, int threshold, Lobe *lobe/*parent?*/, Vector3f location);
+    void fire();
+    void grow_branch(Branch *child_branch);
+    void detach_dendrite();
+    ///Simulates one millisecond of neural time
+    void tick();
 };
 
 Neuron::Neuron(int threshold,Lobe *lobe,float location,int emitters,int receptors, tree_branchiness, tree_thresholds, signal_duration, tree_pruning){
@@ -164,7 +173,7 @@ void Dendrite_tip::strengthen_tip(reward, ->self, ->recipient){
 void Dendrite_tip::set_activity(float signal_strength){
     activity = signal_strength;
 }
-
+//==============================================================================MAIN
 void main(){
 int Neuron::neuron_limit = 200;
 Neuron neuron_list[];
