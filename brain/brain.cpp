@@ -4,6 +4,11 @@ int receptor_limit = 4;
 int tree_depth = 4;
 int target_limit = 1000;
 
+class CellComponent{
+    float activity;                   
+    float threshold;                  //How much activity is required to fire
+    int stage;                        //0 = development, 1=mature
+}
 
 class Lobe{
     public:
@@ -47,17 +52,14 @@ Neuron* grow_neuron(lobe_location, emitters, receptors, tree_branchiness, tree_t
 
 
 //The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
-class Neuron{
+class Neuron public CellComponent{
     public:
         static int target_limit;              //how many dendrites can connect to a single neuron
         static int total_neurons;
         int neuron_number;
         float neuron_location[2][2];          //The location of the neuron
-        float cell_activity;
-        float cell_threshold;
         Lobe *parent_lobe;
         Branch *child_branch[];                //Array of child branches
-        int stage;                             //0 = development, 1=mature
         Dendrite_tip *target[100];             //100 is the limit for dendrite connections
         void fire(Dendrite_tip ->target);
         void grow_branch(Branch *child_branch);
@@ -84,72 +86,84 @@ void Neuron::detach_dendrite()
 
 //The branch class covers all branch points in the dendrite tree. When a dendrite is active, it passes activity
 //to the previous dendrite branch (whose identity it stores as a pointer). Neurons at the base 
-class Branch{
+class Branch public CellComponent{
     public:
-        float activity;                   
-        float threshold;                  //How much activity is required to fire
-        int stage;                        //0 = development, 1=mature
-        int signal_strength=1;
+        int signal_strength;
         Branch *upstream_branch;            //0 for a branch at the base, signifying to fire the neuron
         Neuron *parent_neuron;              //Which neuron does this dendrite belong to
         Dendrite_tip *child_dendrite_tips;  //Which dendrite tips come from this branch
         Branch *child_branch                //Pointers to branches that come off of this branch
         int depth;                          //How many levels into the dendrite tree this branch is
         int branches;                       //How many branches come immediately off of this point
-        void set_activity(float excitation){activity += excitation;}
+        void activate(float excitation);
         void fire_branch(Branch ->upstream_branch);
         void fire_neuron(Neuron ->parent_neuron);
-        void strengthen(Branch ->child_branch, Dendrite_tip ->child_dendrite_tip);
-        void weaken(Branch ->child_branch, Dendrite_tip ->child_dendrite_tip);
+        void strengthen(Branch ->child_branch, Dendrite_tip ->child_dendrite_tip, float reward); //for punishment, use negative reward
+
 };
 
-void Branch::fire_branch(Branch ->upstream_branch, signal_strength){}
+void Branch::fire_branch(Branch ->upstream_branch, signal_strength){
+    upstream_branch -> set_activity(1.00);
+}
 
-void Branch::fire_neuron(Neuron ->parent_neuron){}
+void Branch::fire_neuron(Neuron ->parent_neuron){
+    parent_neuron -> set_activity(1.00);
+}
 
-void Branch::strengthen(Branch ->child_branch, Dendrite_tip ->child_dendrite_tip){}
+void Branch::strengthen(->child_branch, ->child_dendrite_tip, reward){
+    if(child_dendrite_tip > 0){
+        child_dendrite_tip -> strenghen_tip(reward);
+    }
+    child_branch -> strengthen(reward);
+}
 
-void Branch::weaken(Branch ->child_branch, Dendrite_tip ->child_dendrite_tip){}
-
+void activate(excitation){
+    activity += excitation
+    if(activity ) threshold){
+        upstream_branch -> fire_branch;
+    }
+}
 
 
 //The dendrite_tip represents connections from the dendrite tree onto other neurons. Neurons pass activity onto
 //dendrite_tips and dendrite_tips pass that activity onto branches
-class Dendrite_tip{
+class Dendrite_tip public CellComponent{
     public:
-        float activity;                   
-        float threshold;
-        int stage;                                                                            //0 = development, 1=mature
-        Branch *upstream_branch
+        Branch *parent_branch
         Neuron *recipient;
-        void fire(Branch ->parent_dendrite, Dendrite_tip ->self);
+        float connection_strength;
+        void fire(Branch ->parent_branch, Dendrite_tip ->self);
         void connect_tip();
-        void strengthen_tip();
-        void weaken_tip();
-        int detach(Neuron ->recipient, Dendrite_tip ->this);                                 //Detach dendrite tip from target neuron return 1 for success
+        int detach(Neuron ->recipient, Dendrite_tip ->self);                                 //Detach dendrite tip from target neuron return 1 for success
         void activate(void);
+        void fire_branch(Branch ->upstream_branch);
+        void strengthen_tip(float reward, Dendrite_tip ->self, Neuron ->recipient);
 };
 
-int Dendrite_tip::detach(Neuron ->recipient, ->this){
-    recipient -> detach_dendrite(->this);
+int Dendrite_tip::detach(->recipient, ->self){
+    recipient -> detach_dendrite(self);
     *recipient = 0;
 }
     
-void Dendrite_tip::fire(Dendrite ->parent_dendrite, Dendrite_tip ->self){}
-
-void Dendrite_tip::strengthen_tip(){}
-
-void Dendrite_tip::weaken_tip(){}
-
-void Dendrite_tip::detach(){}
-
-void Dendrite_tip::activate(void){
-    activity = 1;
+void Dendrite_tip::fire(->parent_branch, ->self){
+    self -> set_acivity(0);
+    parent_branch -> activate(1)
+    
 }
 
-//Base development stage
+void Dendrite_tip::strengthen_tip(reward, ->self, ->recipient){
+    connection_strength += reward;          //could use a more complicated reward function, this is rather naive
+    if(connection_strength > 1){
+        connection_strength = 1;
+    }
+    if(connection_strength <= 0){
+        detach_dendrite(-> recipient, ->self);
+    }
+}
 
-//
+void Dendrite_tip::set_activity(float signal_strength){
+    activity = signal_strength;
+}
 
 void main(){
 int Neuron::neuron_limit = 200;
