@@ -45,6 +45,7 @@ message Gene {
   optional uint64 protein=2;//the protein produced by this gene
   optional Bounds bounds=3;
   repeated ConditionClause conjunction=4;
+  optional boundingbox3f target_region=5;
 }
 
 message Chromosome {
