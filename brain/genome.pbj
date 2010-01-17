@@ -1,27 +1,35 @@
 "pbj-0.0.3"
-
+package Elysia.Genome;
 
 message Protein {
   required uint64 id=1;
-  enum Function {
+  enum Effect {
      CUSTOM=0;
      GROW_LEAF=1;
-     GROW_NEURON=2;
+     GROW_NEURON0=2;
+     GROW_NEURON1=3;
+     GROW_NEURON2=4;
+     GROW_NEURON3=5;
+     GROW_NEURON4=6;
+     GROW_NEURON5=7;
+     GROW_NEURON6=8;
+     GROW_NEURON7=9;
   }
-  optional Function function=2;
+  optional Effect effect=2;
 }
 
 message Proteins {
   repeated Protein proteins=1;
 }
-
-message Bounds {
-   required float xmin=0;
-   required float ymin=1;
-   required float zmin=2;
-   required float xmax=3;
-   required float ymax=4;
-   required float zmax=5;
+message TemporalBoundingBox {
+   float minx=1;
+   float maxx=2;
+   float miny=3;
+   float maxy=4;
+   float minx=5;
+   float maxz=6;
+   float mint=7;
+   float maxt=8;
 }
 
 message Condition {
@@ -43,9 +51,9 @@ message ConditionClause {
 message Gene {
   required float position=1;//in centimorgans with 0 at the start of the chromosome
   optional uint64 protein=2;//the protein produced by this gene
-  optional Bounds bounds=3;
+  repeated TemporalBoundingBox bounds=3;
   repeated ConditionClause conjunction=4;
-  optional boundingbox3f target_region=5;
+  repeated TemporalBoundingBox target_region=5;
 }
 
 message Chromosome {
@@ -55,4 +63,5 @@ message Chromosome {
 message Genome {
   optional Chromosome fathers=1;
   optional Chromosome mothers=2;
+  optional Proteins proteins=3;
 }
