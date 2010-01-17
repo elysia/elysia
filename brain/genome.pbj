@@ -1,20 +1,20 @@
 "pbj-0.0.3"
 package Elysia.Genome;
+enum Effect {
+   CUSTOM=0;
+   GROW_LEAF=1;
+   GROW_NEURON0=2;
+   GROW_NEURON1=3;
+   GROW_NEURON2=4;
+   GROW_NEURON3=5;
+   GROW_NEURON4=6;
+   GROW_NEURON5=7;
+   GROW_NEURON6=8;
+   GROW_NEURON7=9;
+}
 
 message Protein {
   required uint64 id=1;
-  enum Effect {
-     CUSTOM=0;
-     GROW_LEAF=1;
-     GROW_NEURON0=2;
-     GROW_NEURON1=3;
-     GROW_NEURON2=4;
-     GROW_NEURON3=5;
-     GROW_NEURON4=6;
-     GROW_NEURON5=7;
-     GROW_NEURON6=8;
-     GROW_NEURON7=9;
-  }
   optional Effect effect=2;
 }
 
@@ -63,5 +63,4 @@ message Chromosome {
 message Genome {
   optional Chromosome fathers=1;
   optional Chromosome mothers=2;
-  optional Proteins proteins=3;
 }

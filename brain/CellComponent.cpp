@@ -1,0 +1,1 @@
+CellComponent::CellComponent(){    //These are default values for a generic neuron    mActivity = 0;    mThreshold = 1;    mDevelopmentStage = 0;    mSignalStrength = 1;    }    

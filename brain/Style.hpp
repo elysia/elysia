@@ -1,6 +1,5 @@
 In general, follow the Ogre coding style. If some code requires formatting not covered by this page, please add the appropriate guidelines for such code to this list.
 
-    * Adhere to the ISO C++ standard. If you must put in non-standard workarounds for specific compilers, document this and make sure the code compiles as expected on a standards-compliant compiler as well.
     * Indent with four spaces: no tabs. (Note that this is different from Ogre.)
     * Use Unix linebreaks (LF).
     * End each file with a newline, and remove all trailing whitespace from individual lines.

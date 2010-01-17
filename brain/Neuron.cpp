@@ -4,9 +4,6 @@ Neuron::Neuron(int threshold,Lobe *lobe,float location,int emitters,int receptor
     cell_threshold = threshold;
     parent_lobe = lobe;
     cell_location = location;
-    cell_threshold = 0;
-    cell_activity = 0;
-    stage = 0; 
 }
 void Neuron::fire() {
     for (std::vector<Dendrite_Tip>::iterator i=attached_dendrites.begin(),ie=attached_dendrites.end();
@@ -23,6 +20,14 @@ ProteinDensity& Neuron::getProteinDensityStructure(){
 }
 void Neuron::growBranch() {
     Branch * b=new Branch(this);
-    child_branches.push_back(b);
+    mChildBranches.push_back(b);
     
+}
+void Neuron::removeSynapse(Synapse*synapse){
+  std::vector<Synapse* >::iterator where=std::find(mConnectedDendrites.begin(),mConnectedDendrites.end(),synapse);
+  if (where!=mConnectedDendrites.end()) {
+    mConnectedDendrites.erase(where);
+  }else {
+    std::cerr<< "Could not find synapse\n";
+  }
 }
