@@ -12,7 +12,6 @@ Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint){
             maxDistance=currentDistance;
             maxDistanceItem=current;
        }
-       
     }
     return maxDistanceItem;
 }
