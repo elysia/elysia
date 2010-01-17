@@ -19,8 +19,8 @@ private:
 public:
     Neuron(int number, int threshold, Lobe *lobe/*parent?*/, Vector3f location);
     void fire();
-    void grow_branch(Branch *child_branch);
-    void detach_dendrite();
+    void growBranch();
     ///Simulates one millisecond of neural time
     void tick();
+    ProteinDensity& getProteindensityStructure();
 };

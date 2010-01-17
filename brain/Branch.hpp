@@ -12,6 +12,8 @@ class Branch public CellComponent{
 	std::vector<Branch *>mChildBranch
     void strengthen(Branch *child_branch, Synapse *childSynapseTip, float reward); //for punishment, use negative reward
 public:
+    Branch(CellComponent*parent);
+    ProteinDensity&getProteinDensityStructure();
     //Pointers to branches that come off of this branch
     void activate(float excitation);
     void fire();

@@ -18,5 +18,11 @@ void Neuron::fire(->target){
     target -> activate();
 }
 
-void Neuron::detach_dendrite()
-
+ProteinDensity& Neuron::getProteinDensityStructure(){
+    return mProteinDensityStructure;
+}
+void Neuron::growBranch() {
+    Branch * b=new Branch(this);
+    child_branches.push_back(b);
+    
+}
