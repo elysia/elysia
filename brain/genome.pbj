@@ -2,15 +2,19 @@
 package Elysia.Genome;
 enum Effect {
    CUSTOM=0;
-   GROW_LEAF=1;
-   GROW_NEURON0=2;
-   GROW_NEURON1=3;
-   GROW_NEURON2=4;
-   GROW_NEURON3=5;
-   GROW_NEURON4=6;
-   GROW_NEURON5=7;
-   GROW_NEURON6=8;
-   GROW_NEURON7=9;
+   GROW_LEAF=1;            // to remind us that we live in a biological land and that one day proteins may cause complex structures to grow on the life form itself
+   GROW_NEURON=2;          //makes a neuron (if negative density, kills them)
+   BASE_BRANCHINESS=3;     //change how branchy is the dendrite tree close to the cell body from default
+   TIP_BRANCHINESS=4;      //change how branchy is the dendrite tree close to the synapses from default
+   BASE_THRESHOLD=5;       //change how much of the branches near the bottom of the tree have to fire to pass signal through from default
+   TIP_THRESHOLD=6;        //change how much of the branches near the tip of the tree have to fire to pass signal through from default
+   TREE_DEPTH=7;
+   FIRING_TIME=8;          //change how long the neuron fires for after a stimulus
+   RECEPTIVITY_TIME=9;     //change how long the branches of the neuron retain signal
+ the base
+   LEARNING_RESPONSIVENESS=12;
+   INHIBITION=13;           //change whether the neurons are excitatory or inhbitory
+   AGGRESSIVE_DEVELOPMENT=14;  // change how aggressively the neuron regrows connections
 }
 
 message Protein {
@@ -22,14 +26,14 @@ message Proteins {
   repeated Protein proteins=1;
 }
 message TemporalBoundingBox {
-   float minx=1;
-   float maxx=2;
-   float miny=3;
-   float maxy=4;
-   float minx=5;
-   float maxz=6;
-   float mint=7;
-   float maxt=8;
+   required float minx=1;
+   required float maxx=2;
+   required float miny=3;
+   required float maxy=4;
+   optional float minz=5;//if not present, is a 2d bounding box on plane z=0
+   optional float maxz=6;//if not present, is a 2d bounding box on plan z=minz (this sounds stupid though)
+   optional float mint=7;//if not present lasts from the moment the creature is born
+   optional float maxt=8;//if not present lasts till the day the creature dies
 }
 
 message Condition {
@@ -48,12 +52,18 @@ message ConditionClause {
   repeated Condition disjunction=1;
 }
 
+message Protein {
+  optional Effect protein_code=1;//the protein produced by this gene
+  optional float density=2;
+}
+
 message Gene {
   required float position=1;//in centimorgans with 0 at the start of the chromosome
-  optional uint64 protein=2;//the protein produced by this gene
-  repeated TemporalBoundingBox bounds=3;
-  repeated ConditionClause conjunction=4;
-  repeated TemporalBoundingBox target_region=5;
+  repeated Protein external_protein=2;
+  repeated Protein internal_proteins=3;
+  repeated TemporalBoundingBox bounds=4;
+  repeated ConditionClause conjunction=5;
+  repeated TemporalBoundingBox target_region=6;
 }
 
 message Chromosome {

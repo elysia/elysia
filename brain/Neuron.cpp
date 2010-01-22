@@ -1,18 +1,27 @@
+Neuron::Neuron(float BaseBranchiness, float TipBranchiness, int currentdepth, float TreeDepth){
 
-Neuron::Neuron(int threshold,Lobe *lobe,float location,int emitters,int receptors, tree_branchiness, tree_thresholds, signal_duration, tree_pruning){
-    neuron_number = number;
-    cell_threshold = threshold;
-    parent_lobe = lobe;
-    cell_location = location;
+    if(currentdepth < (TreeDepth/2){
+        branchiness = BaseBranchiness;
+     }
+    else{branchiness = TipBranchiness;}
+    branches = 0;
+    while(branches < branchiness){
+        if(branches - branchiness < 1){
+            float a = rand(0,1);
+            if(a < (branchiness - branches)){
+                break;
+                }
+            }
+        this->syncBranchDensity(BaseBranchiness, TipBranchiness, currentdepth + 1, TreeDepth);
+        branches++;
+        }
+        
 }
 void Neuron::fire() {
     for (std::vector<Dendrite_Tip>::iterator i=attached_dendrites.begin(),ie=attached_dendrites.end();
          i!=ie;
 	 ++i) {
       this->fire(*i);
-}
-void Neuron::fire(->target){
-    target -> activate();
 }
 
 ProteinDensity& Neuron::getProteinDensityStructure(){
@@ -25,9 +34,11 @@ void Neuron::growBranch() {
 }
 void Neuron::removeSynapse(Synapse*synapse){
   std::vector<Synapse* >::iterator where=std::find(mConnectedDendrites.begin(),mConnectedDendrites.end(),synapse);
-  if (where!=mConnectedDendrites.end()) {
-    mConnectedDendrites.erase(where);
+  if (where!=mConnectedSynapses.end()) {
+    mConnectedSynapses.erase(where);
   }else {
     std::cerr<< "Could not find synapse\n";
   }
+}
+void Neuron::tick(){
 }

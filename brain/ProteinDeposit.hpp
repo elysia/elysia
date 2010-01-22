@@ -1,5 +1,7 @@
 class ProteinDeposit {
-    Elysia::Genome::Gene mGene;
+    std::vector<Elysia::Genome::Gene> mGenes;
+    BoundingBox3f3f mBounds;
+    std::vector<std::pair<Elysia::Genome::Effect,float> > mSoup;
 public:
     float currentDensity;
     Elysia::Genome::ProteinEffect getEffect();
