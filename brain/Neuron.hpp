@@ -28,7 +28,8 @@ private:
     float InhibitionSignal;
     float LearningResponsiveness;
     bool fire(Synapse *target);
-    
+    virtual Neuron*getParentNeuron(){return this;}
+
 public:
     Neuron(int number, int threshold, Lobe *lobe/*parent?*/, Vector3f location);
     void fire();

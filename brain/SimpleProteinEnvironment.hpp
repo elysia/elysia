@@ -1,33 +1,37 @@
 
-class ProteinDeposit;
-
-/** Define the protein soup that components interact with
+/** Class defines the protein soup that components interact with
  */
 class SimpleProteinEnvironment{
-  std::vector<ProteinDeposit> mProteins;//these two things
-
-  //Define the list of bounding regions and respective identifiers
-  struct SingleBox{
+  //Define the data that each zone carries with it
+  struct ProteinZone{
+    //Soup activates genes so you need to know which soup is active
+    std::vector< std::pair<Elysia::Genome::Effect,float> > mSoup;
     std::vector<Elysia::Genome::Gene> mGenes;
     BoundingBox3f3f mBounds;
-    std::vector<std::pair<Elysia::Genome::Effect,float> > mSoup;  
+
+    //"Complicated" function to update the soup for the next time iteration
+    void updateSoupToNextSoup(const float age);
   };
-  std::vector<SingleBox> mMainBoxList;
-  std::vector<SingleBox> mSubBoxList;
+  std::vector<ProteinZone> mMainZoneList;
+  
 private:
+
 public:
   float getProteinDensity(const Vector3 &location, const Elysia::Genome::ProteinEffect&);
   std::vector<std::pair<Elysia::Genome::ProteinEffect, float> > getCompleteProteinDensity(const Vector3& location);
 
-  //Define bounding box interaction functions
-  //find box geometry and dice it up at initilization
-  std::vector<SingleBox> boxIntersection(const SingleBox& box1, 
-                                         const SingleBox& box2);
-  //add boxes to main list
-  void addBoxes(std::vector<SingleBox> mSubBoxList,
-                std::vector<SingleBox> mMainBoxList);
-  void removeBox(std::vector<SingleBox> mSubBoxList,
-                 std::vector<SingleBox> mMainBoxList);
+  //Split large zone definitions into smaller component zones for calculations
+  std::vector<ProteinZone> ZoneIntersection(const ProteinZone &zone1, 
+                                            const ProteinZone &zone2);
+  //Zone management functions to add and remove zones from the main list
+  void addZone(std::vector<ProteinZone> mSubZoneList,
+               std::vector<ProteinZone> mMainZoneList);
+  void removeZone(std::vector<ProteinZone> mSubZoneList,
+                  std::vector<ProteinZone> mMainZoneList);
+
+  //Function to find the zone that a single point reside in
+  ProteinZone &resideInZones(const Vector3f queryPoint, 
+                             std::vector<ProteinZone> mMainZoneList);
 };
 
 /**TEMPORARY NOTES TO SELF (NIA)
@@ -39,15 +43,10 @@ public:
             removeBoxFromList(box)
         box operations
             list{boxIDs} = resideInBoxes(point)
-            readBoxInfo(boxID)
 
     Externals Functions I need:
         Spatial Library
             isInBox(point,box)
-
-    Later functions:
-        Temporal Tracker
-            list{boxIDs} = findActiveBoxes(timestamp)
 
     Sample Problem:
     (Algorithm 1)
@@ -72,4 +71,14 @@ public:
                     --> Restart
             Start check...
                 Eventually... there will be no overlaps
+
+    Function to update protein:
+        @t=0
+            Soup=A
+            Genes=abcd --> do some processing to figure out what soup comes next
+            --> update soup to B
+        @t=1
+            Soup=B
+            Genes=abcd --> do some processing to figure out what soup comes next
+            --> update soup to C
 */

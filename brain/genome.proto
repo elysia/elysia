@@ -1,5 +1,5 @@
-"pbj-0.0.3"
 package Elysia.Genome;
+
 enum Effect {
    CUSTOM=0;
    GROW_LEAF=1;            // to remind us that we live in a biological land and that one day proteins may cause complex structures to grow on the life form itself
@@ -10,16 +10,15 @@ enum Effect {
    TIP_THRESHOLD=6;        //change how much of the branches near the tip of the tree have to fire to pass signal through from default
    TREE_DEPTH=7;
    FIRING_TIME=8;          //change how long the neuron fires for after a stimulus
-   RECEPTIVITY_TIME=9;     //change how long the branches of the neuron retain signal
- the base
+   RECEPTIVITY_TIME=9;     //change how long the branches of the neuron retain signal the base
    LEARNING_RESPONSIVENESS=12;
    INHIBITION=13;           //change whether the neurons are excitatory or inhbitory
    AGGRESSIVE_DEVELOPMENT=14;  // change how aggressively the neuron regrows connections
 }
 
 message Protein {
-  required uint64 id=1;
-  optional Effect effect=2;
+  optional Effect protein_code=1;//the protein produced by this gene
+  optional float density=2;
 }
 
 message Proteins {
@@ -50,11 +49,6 @@ message Condition {
 
 message ConditionClause {
   repeated Condition disjunction=1;
-}
-
-message Protein {
-  optional Effect protein_code=1;//the protein produced by this gene
-  optional float density=2;
 }
 
 message Gene {
