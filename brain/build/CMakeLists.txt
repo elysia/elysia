@@ -10,7 +10,7 @@
 #    * Redistributions in binary form must reproduce the above copyright notice,
 #      this list of conditions and the following disclaimer in the documentation
 #      and/or other materials provided with the distribution.
-#    * Neither the name of cbr nor the names of its contributors
+#    * Neither the name of brain nor the names of its contributors
 #      may be used to endorse or promote products derived from this software
 #      without specific prior written permission.
 #
@@ -35,15 +35,16 @@ IF(NOT CMAKE_BUILD_TYPE)
       "Build types include: Default Debug Release None RelWithDebInfo Profile Coverage." FORCE
       )
 ENDIF()
-
-SET(CBR_DEFAULT_COMPILE_FLAGS "-Wall -Wno-unused-function -Wno-unused-variable -fvisibility=hidden")
-SET(CMAKE_CXX_FLAGS ${CBR_DEFAULT_COMPILE_FLAGS})
+IF(NOT WIN32)
+SET(BRAIN_DEFAULT_COMPILE_FLAGS "-Wall -Wno-unused-function -Wno-unused-variable -fvisibility=hidden")
+ENDIF()
+SET(CMAKE_CXX_FLAGS ${BRAIN_DEFAULT_COMPILE_FLAGS})
 
 # Default build target
-SET(CMAKE_CXX_FLAGS_DEFAULT "-O0 -g2 ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET(CMAKE_CXX_FLAGS_DEFAULT "-O0 -g2 ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cxxflags with default settings."
     FORCE )
-SET( CMAKE_C_FLAGS_DEFAULT "-g2 ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET( CMAKE_C_FLAGS_DEFAULT "-g2 ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cflags with default settings."
     FORCE )
 SET( CMAKE_EXE_LINKER_FLAGS_DEFAULT
@@ -61,10 +62,10 @@ MARK_AS_ADVANCED(
     CMAKE_SHARED_LINKER_FLAGS_DEFAULT )
 
 # Profile build target
-SET(CMAKE_CXX_FLAGS_PROFILE "-g2 -O3 -pg ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET(CMAKE_CXX_FLAGS_PROFILE "-g2 -O3 -pg ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cxxflags with default settings."
     FORCE )
-SET( CMAKE_C_FLAGS_PROFILE "-g2 -O3 -pg ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET( CMAKE_C_FLAGS_PROFILE "-g2 -O3 -pg ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cflags with default settings."
     FORCE )
 SET( CMAKE_EXE_LINKER_FLAGS_PROFILE
@@ -82,10 +83,10 @@ MARK_AS_ADVANCED(
     CMAKE_SHARED_LINKER_FLAGS_PROFILE )
 
 # Coverage build target
-SET(CMAKE_CXX_FLAGS_COVERAGE "-g2 -fprofile-arcs -ftest-coverage ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET(CMAKE_CXX_FLAGS_COVERAGE "-g2 -fprofile-arcs -ftest-coverage ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cxxflags with default settings."
     FORCE )
-SET( CMAKE_C_FLAGS_COVERAGE "-g2 -fprofile-arcs -ftest-coverage ${CBR_DEFAULT_COMPILE_FLAGS}" CACHE STRING
+SET( CMAKE_C_FLAGS_COVERAGE "-g2 -fprofile-arcs -ftest-coverage ${BRAIN_DEFAULT_COMPILE_FLAGS}" CACHE STRING
     "Built cflags with default settings."
     FORCE )
 SET( CMAKE_EXE_LINKER_FLAGS_COVERAGE
@@ -104,7 +105,7 @@ MARK_AS_ADVANCED(
 
 #project global flags
 
-PROJECT(cbr C CXX)
+PROJECT(brain C CXX)
 
 IF(NOT TOP_LEVEL)
   SET(TOP_LEVEL ${CMAKE_CURRENT_SOURCE_DIR}/..)
@@ -211,6 +212,13 @@ INCLUDE_DIRECTORIES(BEFORE
 SET(BRAIN_CORE_SOURCES
 )
 
+ADD_CUSTOM_TARGET(genome
+                  DEPENDS ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/genome.pb.h)
+ADD_CUSTOM_COMMAND(OUTPUT ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/genome.pb.h
+                   COMMAND ${PROTOCOLBUFFERS_COMPILER} ${BRAIN_SOURCE_DIR}/genome.proto -I${BRAIN_SOURCE_DIR} --cpp_out=${BRAIN_SOURCE_DIR}
+                   DEPENDS ${BRAIN_SOURCE_DIR}/genome.proto)
+
+
 SET(BRAIN_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
@@ -228,6 +236,7 @@ LINK_DIRECTORIES(
 
 #binaries
 ADD_EXECUTABLE(brain ${BRAIN_SOURCES})
+ADD_DEPENDENCIES(brain genome)
 TARGET_LINK_LIBRARIES(brain
 #  cbr-core
         ${PROTOCOLBUFFERS_LIBRARIES}
