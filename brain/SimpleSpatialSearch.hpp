@@ -1,5 +1,13 @@
-
+#include "SpatialSearch.hpp"
+namespace Elysia {
 class Neuron;
+
+
+///placeholder class
+class Neuron {
+public:
+  Vector3f mNeuronLocation;
+};
 
 /** Find nearest neighbor from a scatter set of locations
  *  --"Simple" implementation of nearest neighbor
@@ -13,3 +21,4 @@ public:
     void removeNeighbor(Neuron* neuron);
     void updateNeighbor(Neuron*);
 };
+}

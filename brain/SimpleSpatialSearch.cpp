@@ -1,4 +1,6 @@
-
+#include "Platform.hpp"
+#include "SimpleSpatialSearch.hpp"
+namespace Elysia {
 /* function to find Nearest Neighbor from local copy of list
  */
 Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint){
@@ -19,18 +21,19 @@ Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint){
 /* function to *add* neighbor/point to local copy of list
  */
 void SimpleSpatialSearch::addNeighbor(Neuron* neuron){
-    mNeuron.insert(neuron);
+    mNeurons.insert(neuron);
 }
 
 
 /* function to *remove* neighbor/point to local copy of list
  */
 void SimpleSpatialSearch::removeNeighbor(Neuron* neuron){
-    mNeuron.erase(neuron);
+    mNeurons.erase(neuron);
 }
 
 
 /* function to *update* neighbor/point to local copy of list
  */
 void SimpleSpatialSearch::updateNeighbor(Neuron*){
+}
 }
