@@ -257,9 +257,15 @@ ENDIF()
 SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
+  ${BRAIN_SOURCE_DIR}/SpatialSearch.cpp
+  ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
 )
 
-
+#Andrew's brain directory
+SET(BRAINSANDBOX_SOURCES
+  ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/genome.pb.cc
+)
 
 
 
@@ -275,5 +281,16 @@ TARGET_LINK_LIBRARIES(nearestneighbor
         )
 IF(NOT WIN32)
 SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS -lpthread)
+ENDIF()
+
+#binaries
+ADD_EXECUTABLE(brainsandbox ${BRAINSANDBOX_SOURCES})
+ADD_DEPENDENCIES(brainsandbox genome)
+TARGET_LINK_LIBRARIES(brainsandbox
+#  cbr-core
+        ${PROTOCOLBUFFERS_LIBRARIES}
+        )
+IF(NOT WIN32)
+SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS -lpthread)
 ENDIF()
 
