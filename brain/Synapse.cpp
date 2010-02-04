@@ -50,7 +50,8 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     Vector3f coord = Vector3f(delta.x*rand()/(float)RAND_MAX,
                               delta.y*rand()/(float)RAND_MAX,
                               delta.z*rand()/(float)RAND_MAX)+desiredregion.min();
-                              
+    retval=coord;
+    return true;
 }    
     
     
