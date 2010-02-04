@@ -1,39 +1,28 @@
-Neuron::Neuron(float BaseBranchiness, float TipBranchiness, int currentdepth, float TreeDepth){
+#include "Platform.hpp"
+#include "Neuron.hpp"
+namespace Elysia {
+Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
 
-    if(currentdepth < (TreeDepth/2){
-        branchiness = BaseBranchiness;
-     }
-    else{branchiness = TipBranchiness;}
-    branches = 0;
-    while(branches < branchiness){
-        if(branches - branchiness < 1){
-            float a = rand(0,1);
-            if(a < (branchiness - branches)){
-                break;
-                }
-            }
-        this->syncBranchDensity(BaseBranchiness, TipBranchiness, currentdepth + 1, TreeDepth);
-        branches++;
-        }
-        
+    mRandomDepthDeterminer=rand()/(float)RAND_MAX;
+    mRandomBranchDeterminer=rand()/(float)RAND_MAX;
+    this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
 }
 void Neuron::fire() {
-    for (std::vector<Dendrite_Tip>::iterator i=attached_dendrites.begin(),ie=attached_dendrites.end();
+    for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
-	 ++i) {
-      this->fire(*i);
+         ++i) {
+        this->fire(*i);
+    }
 }
-
-ProteinDensity& Neuron::getProteinDensityStructure(){
-    return mProteinDensityStructure;
-}
+/* is this used anywhere? what does it do? -DRH
 void Neuron::growBranch() {
     Branch * b=new Branch(this);
     mChildBranches.push_back(b);
     
 }
+*/
 void Neuron::removeSynapse(Synapse*synapse){
-  std::vector<Synapse* >::iterator where=std::find(mConnectedDendrites.begin(),mConnectedDendrites.end(),synapse);
+  std::vector<Synapse* >::iterator where=std::find(mConnectedSynapses.begin(),mConnectedSynapses.end(),synapse);
   if (where!=mConnectedSynapses.end()) {
     mConnectedSynapses.erase(where);
   }else {
@@ -41,4 +30,5 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 void Neuron::tick(){
+}
 }

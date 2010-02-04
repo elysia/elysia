@@ -264,8 +264,13 @@ SET(NEAREST_NEIGHBOR_SOURCES
 #Andrew's brain directory
 SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/CellComponent.cpp  
+  ${BRAIN_SOURCE_DIR}/Neuron.cpp  
+  ${BRAIN_SOURCE_DIR}/Synapse.cpp  
+  ${BRAIN_SOURCE_DIR}/Branch.cpp  
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
 )
+
 
 
 
