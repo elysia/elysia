@@ -14,6 +14,11 @@ void Neuron::fire() {
         this->fire(*i);
     }
 }
+
+void Neuron::activateComponent(float signal){
+    mActivity += signal;
+    }
+
 /* is this used anywhere? what does it do? -DRH
 void Neuron::growBranch() {
     Branch * b=new Branch(this);

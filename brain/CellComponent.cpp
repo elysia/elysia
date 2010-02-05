@@ -8,7 +8,6 @@ CellComponent::CellComponent() {
     mThreshold = 1;
     mDevelopmentStage = 0;
     mSignalStrength = 1;
-    mRandomBranchDeterminer = rand()/(double)RAND_MAX;
 }
 
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {
@@ -52,5 +51,12 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
         mChildBranches[i]->syncBranchDensity(parentRandomBranchDeterminer, parentRandomDepthDeterminer, baseBranchiness, tipBranchiness, treeDepth, depth + 1);
     }
 }
-    
+
+/* separate implementations in the base classes
+void CellComponent::activateComponent(float signal){
+    //if(mActivity > mThreshold){
+    // this stuff goes in tick?    mParentComponent
+    mActivity+=signal;
+}   
+*/
 }

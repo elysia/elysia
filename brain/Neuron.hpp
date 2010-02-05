@@ -41,7 +41,7 @@ public:
     ProteinDensity& getProteinDensityStructure();
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
-    void activateComponent(float strength);
+    void activateComponent(float signal);
 };
 }
 #endif

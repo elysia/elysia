@@ -9,12 +9,16 @@ class Neuron;
 
 class Synapse{
 public:
+    float mSignalWeight;
+    int mFiringWindow;
+    int mFireCounter;
     CellComponent* mParentBranch;
     Neuron *mRecipientNeuron;
     float mConnectionStrength;
     //Detach dendrite tip from target neuron return 1 for success
     bool detach();
     void connect();     //need to get the location bound from neuron
+    void fireSynapse(float signal);
 };
 
 }

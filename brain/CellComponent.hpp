@@ -6,11 +6,12 @@ class ProteinDensity;
 class Branch;
 
 class CellComponent{
+protected:
     float mActivity;                   
     float mThreshold;                  //How much activity is required to fire
     float mSignalStrength;
     int   mDevelopmentStage;                        //0 = development, 1=mature
-    float mRandomBranchDeterminer;     //Remembers the random number used to grow the branch
+
 protected:
     //Array of child branches
     std::vector<Branch *>mChildBranches;

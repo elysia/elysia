@@ -1,4 +1,4 @@
-
+#include "genome.pb.h"
 namespace Elysia {
 
 /** Class defines the protein soup that components interact with
@@ -6,11 +6,13 @@ namespace Elysia {
 class SimpleProteinEnvironment{
   //Define the data that each zone carries with it
   struct ProteinZone{
+    typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
     //Soup activates genes so you need to know which soup is active
-    std::vector< std::pair<Elysia::Genome::Effect,float> > mSoup;
+    std::vector< EffectAndDensityPair > mSoup;
     std::vector<Elysia::Genome::Gene> mGenes;
     BoundingBox3f3f mBounds;
-
+    const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
+    float getSpecificProteinDensity(Elysia::Genome::Effect); 
     //"Complicated" function to update the soup for the next time iteration
     void updateSoupToNextSoup(const float age);
   };
@@ -19,8 +21,8 @@ class SimpleProteinEnvironment{
 private:
 
 public:
-  float getProteinDensity(const Vector3 &location, const Elysia::Genome::ProteinEffect&);
-  std::vector<std::pair<Elysia::Genome::ProteinEffect, float> > getCompleteProteinDensity(const Vector3& location);
+  float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
+  std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
 
   //Split large zone definitions into smaller component zones for calculations
   std::vector<ProteinZone> ZoneIntersection(const ProteinZone &zone1, 

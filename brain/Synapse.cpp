@@ -52,12 +52,16 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
                               delta.z*rand()/(float)RAND_MAX)+desiredregion.min();
     retval=coord;
     return true;
-}    
-    
-    
-
-    
-
-     
-     
 }
+
+void Synapse::fireSynapse(float signal){
+    //Tick function determines when to fire the synapses from the neurons
+    mParentBranch->activateComponent(signal);
+}
+
+
+
+}
+    
+
+    

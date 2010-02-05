@@ -14,7 +14,8 @@ class Branch:  public CellComponent{
     std::vector<Synapse *>mChildSynapses;
     //Which dendrite tips come from this branch
 	std::vector<Branch *>mChildBranches;
-
+    float mSignalWeight;
+    
    public:
    virtual Neuron*getParentNeuron(){return mParentComponent->getParentNeuron();}
 
@@ -22,7 +23,7 @@ class Branch:  public CellComponent{
     virtual ProteinDensity&getProteinDensityStructure();
     //Pointers to branches that come off of this branch
     void growSynapse();
-    void activateComponent(float strength);
+    void activateComponent(float signal);
 };
 
 }

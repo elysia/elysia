@@ -259,6 +259,7 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
   ${BRAIN_SOURCE_DIR}/SpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
+  ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
 )
 
 #Andrew's brain directory
