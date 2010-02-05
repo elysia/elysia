@@ -52,11 +52,4 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
     }
 }
 
-/* separate implementations in the base classes
-void CellComponent::activateComponent(float signal){
-    //if(mActivity > mThreshold){
-    // this stuff goes in tick?    mParentComponent
-    mActivity+=signal;
-}   
-*/
 }
