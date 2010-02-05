@@ -30,7 +30,7 @@ private:
     float InhibitionSignal;
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
-    bool fire(Synapse *target);
+    bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}
 
 public:

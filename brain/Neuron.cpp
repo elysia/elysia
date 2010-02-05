@@ -11,7 +11,7 @@ void Neuron::fire() {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
-        this->fire(*i);
+        this->fireSynapse(*i);
     }
 }
 
