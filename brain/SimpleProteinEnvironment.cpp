@@ -1,3 +1,6 @@
+#include "Platform.hpp"
+#include "SimpleProteinEnvironment.hpp"
+namespace Elysia {
 float SimpleProteinEnvironment::getProteinDensity(const Vector3 &location, const Elysia::Genome::ProteinEffect&effect) {
   float density=0;
   for (std::vector<ProteinDeposit>::iterator i=mProteins.begin(),ie=mProteins.end();i!=ie;++i) {
@@ -37,5 +40,7 @@ void SimpleProteinEnvironment::removeZone(  std::vector<ProteinZone> mSubZoneLis
 }
 
 //Function to find the zone that a single point reside in
-ProteinZone &SimpleProteinEnvironment::resideInZones(const Vector3f queryPoint, std::vector<ProteinZone> mMainZoneList){
+ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
+                                                        std::vector<ProteinZone> mMainZoneList){
+}
 }

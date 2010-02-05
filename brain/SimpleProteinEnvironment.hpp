@@ -1,4 +1,6 @@
 
+namespace Elysia {
+
 /** Class defines the protein soup that components interact with
  */
 class SimpleProteinEnvironment{
@@ -33,7 +35,7 @@ public:
   ProteinZone &resideInZones(const Vector3f queryPoint, 
                              std::vector<ProteinZone> mMainZoneList);
 };
-
+}
 /**TEMPORARY NOTES TO SELF (NIA)
     Need:
         find box
