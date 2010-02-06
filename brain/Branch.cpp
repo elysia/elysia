@@ -17,4 +17,9 @@ void Branch::activateComponent(float signal){
     }
 }
 
+void Branch::growSynapse(void){
+	Synapse *s;
+    mChildSynapses.push_back(s = new Synapse(this));
+}
+
 }

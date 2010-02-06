@@ -30,6 +30,8 @@ private:
     float InhibitionSignal;
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
+	float mNeuronSignalWeight;
+
     bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}
 
@@ -42,6 +44,7 @@ public:
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
     void activateComponent(float signal);
+	void fireNeuron(Synapse*target);
 };
 }
 #endif

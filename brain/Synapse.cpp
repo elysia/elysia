@@ -5,6 +5,11 @@
 //Takes care of disconnecting DendriteTip. Should be called in destructor
 
 namespace Elysia {
+	class Neuron;
+
+Synapse::Synapse(CellComponent * parent){
+		mParentBranch = parent;
+	}
 
 bool Synapse::detach(){
     if (mRecipientNeuron) {
@@ -55,6 +60,8 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
 }
 
 void Synapse::fireSynapse(float signal){
+	signal += mSignalWeight;
+	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons
     mParentBranch->activateComponent(signal);
 }
