@@ -132,12 +132,11 @@
     var divMaxZIndex=100;
     ///this is the number of lobe property panes that have been brought up. Since we want to assure each has a unique id we will need a unique value for each one
     var lobeDivCount=0;
-    var PerGeneValueEntryBox=function(editor,newValueName,geneUpdateFunctionName) {
+    var PerGeneValueEntryBox=function(editor,getGeneValue,setGeneValue,geneUpdateFunctionName) {
         var perGeneValueEntryBox={};
-        perGeneValueEntryBox.genes=[]
+        perGeneValueEntryBox.genes=[];
         perGeneValueEntryBox.initializeGene=function(gene) {
-            var newValue=gene[newValueName];
-            perGeneValueEntryBox.valueName=newValueName;
+            var newValue=getGeneValue(gene);
             perGeneValueEntryBox.genes[perGeneValueEntryBox.genes.length]=gene;
             if (perGeneValueEntryBox.hasOwnProperty('minValue')) {
                 if( newValue<perGeneValueEntryBox.minValue) {
@@ -184,39 +183,38 @@
             }
             var leng=perGeneValueEntryBox.genes.length;
             var first=true;
-            var valueName=perGeneValueEntryBox.valueName;
             for (var i=0;i<leng;++i) {
                 var gene=perGeneValueEntryBox.genes[i];
-                if (gene[valueName]<minValue||gene[valueName]>maxValue) {
+                if (getGeneValue(gene)<minValue||getGeneValue(gene)>maxValue) {
                     //perform undo
                     var undoFunctor=function (myGene) {
                         var gene=myGene;
-                        var oldValue=myGene[valueName];
+                        var oldValue=getGeneValue(myGene);
                         return function() {
-                            gene[valueName]=oldValue;
+                            setGeneValue(gene,oldValue);
                             if (gene.hasOwnProperty(geneUpdateFunctionName)) {
                                 gene[geneUpdateFunctionName](oldValue);
                             }
 
-                        }
+                        };
                     };
                     var redoFunctor=function (myGene) {
                         var gene=myGene;
-                        var oldValue=myGene[valueName];
+                        var oldValue=getGeneValue(myGene);
                         return function() {
                             if (oldValue<minValue) {
-                                gene[valueName]=minValue;
+                                setGeneValue(gene,minValue);
                                 if (gene.hasOwnProperty(geneUpdateFunctionName)) {
                                     gene[geneUpdateFunctionName](minValue);
                                 }
                             }
                             if (oldValue>maxValue) {
-                                gene[valueName]=maxValue;
+                                setGeneValue(gene,maxValue);
                                 if (gene.hasOwnProperty(geneUpdateFunctionName)) {
                                     gene[geneUpdateFunctionName](maxValue);
                                 }
                             }
-                        }
+                        };
                     };
                     editor.context.performedAction(redoFunctor(gene),undoFunctor(gene));
                     redoFunctor(gene)();
@@ -226,7 +224,7 @@
                     first=false;
                 }
             }
-        }
+        };
         return perGeneValueEntryBox;
     };
     ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
@@ -239,8 +237,8 @@
         div.style.width="288px";
         div.style.height="512px";
         div.style.padding="0.5em";
-        div.style.position="absolute"
-        div.style.border="solid 10px #10107c"
+        div.style.position="absolute";
+        div.style.border="solid 10px #10107c";
         div.style.backgroundColor="#000008";
 
         lobeDivCount+=1;
@@ -254,10 +252,16 @@
         div.genes=[];
         var first=true;
         var lobeNames='';
-        var minAge=PerGeneValueEntryBox(editor,'minAge','setChildrenAgeIndicator');
-        var maxAge=PerGeneValueEntryBox(editor,'maxAge','setChildrenAgeIndicator');
+        var minAge=PerGeneValueEntryBox(editor,
+                                        function(gene){return gene.minAge;},
+                                        function(gene,newMinAge){gene.minAge=newMinAge;},
+                                        'setChildrenAgeIndicator');
+        var maxAge=PerGeneValueEntryBox(editor,
+                                        function(gene){return gene.maxAge;},
+                                        function(gene,newMaxAge){gene.maxAge=newMaxAge;},
+                                        'setChildrenAgeIndicator');
         
-        var geneuids={}
+        var geneuids={};
         for (var uid in context.selection) {
             var lobe=context.selection[uid];    
             if (!geneuids[lobe.gene.uid]) {
@@ -595,7 +599,7 @@ var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
     var Selectable = Klass (CanvasNode, {
         initialize: function(editor) {
             CanvasNode.initialize.call(this);
-            this.uid=getUID()
+            this.uid=getUID();
             this.mSelected=false;
             this.mEditor=editor;
             {
