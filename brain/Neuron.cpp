@@ -38,7 +38,13 @@ void Neuron::attachSynapse(Synapse*target){
 	mConnectedSynapses.push_back(target);
 }
 
+void Neuron::passdevelopmentsignal(float signal){
+	mDevelopmentSignal += signal;
+}
+ActivityStats Neuron::getActivityStats(){
+	return ActivityStats;
 
 void Neuron::tick(){
 }
 }
+

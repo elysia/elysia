@@ -17,6 +17,13 @@ void Branch::activateComponent(float signal){
     }
 }
 
+void Branch::passdevelopmentsignal(float signal){
+    if(mActivity > mThreshold){
+		signal += mSignalWeight;
+    }
+	mParentComponent->passdevelopmentsignal(signal);
+}
+
 void Branch::growSynapse(void){
 	Synapse *s;
     mChildSynapses.push_back(s = new Synapse(this));

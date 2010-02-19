@@ -11,8 +11,8 @@ class Branch;
 class Synapse{
 public:
     float mSignalWeight;
-    int mFiringWindow;
-    int mFiringCounter;
+    int mFiringWindow;		//How long this synapse stays active for
+    int mFiringCounter;     //Starts at mFiringWindow and counts down to 0 (then synapse deactivates)
     CellComponent* mParentBranch;
     Neuron *mRecipientNeuron;
     float mConnectionStrength;
@@ -21,6 +21,7 @@ public:
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
 	void fireSynapse(float signal);
+	void developSynapse();
 };
 
 }

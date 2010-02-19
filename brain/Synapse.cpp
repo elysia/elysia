@@ -66,7 +66,14 @@ void Synapse::fireSynapse(float signal){
     mParentBranch->activateComponent(signal);
 }
 
+void Synapse::developSynapse(){
+	Neuron *parent;
+	int neuronactivity[2];  //[1] is present activity, [2] is best
+	parent = mParentBranch->getParentNeuron();
+	neuronactivity = parent->getactivityNeuron();
 
+	//different logic for active and inactive
+}
 
 }
     

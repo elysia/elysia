@@ -7,7 +7,7 @@ class Synapse;
 /**
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
-class Neuron : public CellComponent{
+class Neuron : public CellComponent, ActivityStats{
 private:
     ///Neuron location
     Vector3f mNeuronLocation;
@@ -31,6 +31,7 @@ private:
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
+	float mDevelopmentSignal;
 
     bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}
@@ -47,6 +48,8 @@ public:
     void attachSynapse(Synapse*synapse);
     void activateComponent(float signal);
 	void fireNeuron(Synapse*target);
+	void passdevelopmentsignal(float signal);
+	ActivityStats getActivityStats();
 };
 }
 #endif
