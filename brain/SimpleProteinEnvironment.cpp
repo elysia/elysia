@@ -36,14 +36,17 @@ std::vector<std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment:
   }
   return proteins;
 }
-/* These functions are not ready yet--- we should get LNK errors for them so we know when we're done
+// These functions are not ready yet--- we should get LNK errors for them so we know when we're done
 //"Complicated" function to update the soup for the next time iteration
 void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age){
+	//Will write this function last
 }
 
 //Split large zone definitions into smaller component zones for calculations
 std::vector<SimpleProteinEnvironment::ProteinZone> SimpleProteinEnvironment::ZoneIntersection(const ProteinZone &zone1, 
                                                                     const ProteinZone &zone2){
+	std::vector<ProteinZone> myZoneListReturn;
+	return myZoneListReturn;
 }
 
 //Zone management functions to add and remove zones from the main list
@@ -56,8 +59,19 @@ void SimpleProteinEnvironment::removeZone(  std::vector<ProteinZone> mSubZoneLis
 }
 
 //Function to find the zone that a single point reside in
-ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
+SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
                                                         std::vector<ProteinZone> mMainZoneList){
+	int i;
+	static ProteinZone myFail;
+	size_t numMainZones=mMainZoneList.size();
+
+	for(size_t i=0;i<mMainZoneList.size();++i){
+		if (mMainZoneList[i].mBounds.contains(queryPoint)) {
+			return mMainZoneList[i];
+		}
+	}
+
+	return myFail;
 }
-*/
+
 }
