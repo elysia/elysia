@@ -40,7 +40,9 @@ public:
     void fire();
     ///Simulates one millisecond of neural time
     void tick();
-    ProteinDensity& getProteinDensityStructure();
+    /* Removed to wait for tie in to protein soup
+	ProteinDensity& getProteinDensityStructure();
+	*/
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
     void activateComponent(float signal);
