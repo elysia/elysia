@@ -19,18 +19,18 @@
 
       http://www.gnu.org/copyleft/gpl.html
     */
-    windowWidth=1024;
-    windowHeight=768;
-    zMin=-99999999999999.;
-    DEFAULT_CURSOR = 'default'
-    MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move'
-    TARGET_CURSOR = 'crosshair'
-    SELECT_CURSOR = 'pointer'
-    function stringWhitespaceOnly(st){ // NOT USED IN FORM VALIDATION
+    var windowWidth=1024;
+    var windowHeight=768;
+    var zMin=-99999999999999.;
+    var DEFAULT_CURSOR = 'default';
+    var MOVE_TO_CURSOR = 'url(moveto.png) 9 9, move';
+    var TARGET_CURSOR = 'crosshair';
+    var SELECT_CURSOR = 'pointer';
+    var stringWhitespaceOnly=function (st){ // NOT USED IN FORM VALIDATION
         return /^\s*$/.test(st);
-    }
+    };
     ///debugPrint prints to the console if there is a console, but does not error if the console is unavailable
-    function debugPrint(x) {
+    var debugPrint=function (x) {
         if(typeof(console)!='undefined') {
             if (console) {
                 if (console.hasOwnProperty('log')) {
@@ -40,15 +40,15 @@
         }else {
             debugPrint=function(x){};
         }
-    } 
-    function mapEmpty(a) {
+    };
+    var mapEmpty=function (a) {
         for (var i in a) {
             return false;
         }
         return true;
-    }
+    };
     ///This function checks if the number of items in a {} hashtable numbers exactly 1.
-    function onlyOneElement(a) {
+    var onlyOneElement=function (a) {
         var onlyOneElement=false;
         for (var i in a) {
             if (onlyOneElement) {
@@ -59,9 +59,9 @@
             }
         }
         return onlyOneElement;
-    }
+    };
     ///This function tells if a point is near a corner of a bounding box. Returns the corner number in clockwise order starting from 0. -1 means it is not near a corner
-    function nearCorner(point, boundingBox) {
+    var nearCorner=function(point, boundingBox) {
         var testConstant=3;
         testConstant*=testConstant;
         if (point[0]-testConstant<boundingBox[0]&&point[1]-testConstant<boundingBox[1]) {
@@ -80,9 +80,9 @@
             return 3;
         }
         return -1;
-    }
+    };
     ///This function tells if a point is near a edge of a bounding box. Returns the edge number in clockwise order starting from 0. -1 means it is not near a corner
-    function nearEdge(point, boundingBox) {
+    var nearEdge=function(point, boundingBox) {
         var testConstant=3;
         testConstant*=testConstant;
         if (point[0]-testConstant<boundingBox[0]) {
@@ -98,41 +98,41 @@
             return 3;
         }
         return -1;
-    }
+    };
 
-    M = {
+    var M = {
       rotation : function(rotation) {
-        return CanvasSupport.tRotationMatrix(rotation)
+        return CanvasSupport.tRotationMatrix(rotation);
       },
 
       scaling : function(x, y) {
-        return CanvasSupport.tScalingMatrix(x, y)
+        return CanvasSupport.tScalingMatrix(x, y);
       },
 
       translation : function(x, y) {
-        return CanvasSupport.tTranslationMatrix(x, y)
+        return CanvasSupport.tTranslationMatrix(x, y);
       }
-    }
+    };
 
-    V = {
+    var V = {
       rotate : function(v, rotation) {
-        return V.multiply(v, M.rotation(rotation))
+        return V.multiply(v, M.rotation(rotation));
       },
 
       add : function(v, u) {
-        return [u[0] + v[0], u[1] + v[1]]
+        return [u[0] + v[0], u[1] + v[1]];
       },
 
       multiply : function(v, matrix) {
-        return CanvasSupport.tMatrixMultiplyPoint(matrix, v[0], v[1])
+        return CanvasSupport.tMatrixMultiplyPoint(matrix, v[0], v[1]);
       }
-    }
+    };
 
     ///global variable indicating what the zindex of the current frontmost div is--this allows clicking to put one in front of the other
     var divMaxZIndex=100;
     ///this is the number of lobe property panes that have been brought up. Since we want to assure each has a unique id we will need a unique value for each one
-    lobeDivCount=0;
-    PerGeneValueEntryBox=function(editor,newValueName,geneUpdateFunctionName) {
+    var lobeDivCount=0;
+    var PerGeneValueEntryBox=function(editor,newValueName,geneUpdateFunctionName) {
         var perGeneValueEntryBox={};
         perGeneValueEntryBox.genes=[]
         perGeneValueEntryBox.initializeGene=function(gene) {
@@ -150,7 +150,7 @@
                 perGeneValueEntryBox.minValue=newValue;
                 perGeneValueEntryBox.maxValue=newValue;
             }
-        }
+        };
         perGeneValueEntryBox.getDescriptionString=function(){ 
             if (perGeneValueEntryBox.hasOwnProperty('minValue')) {
                 if (perGeneValueEntryBox.minValue<perGeneValueEntryBox.maxValue) {
@@ -158,7 +158,7 @@
                 }
                 return ""+perGeneValueEntryBox.minValue;
             }else return "";
-        }
+        };
         perGeneValueEntryBox.update=function(newValue) {
             bracket="[".charAt(0);
             rbracket="]".charAt(0);                        
@@ -228,9 +228,9 @@
             }
         }
         return perGeneValueEntryBox;
-    }
+    };
     ///this function brings up a lobe property pane for the hashtable (id->lobe) of selected lobes passed in
-    LobeDiv = function(editor) {
+    var LobeDiv = function(editor) {
         var context=editor.context;
         var div = document.createElement("div");
         document.body.appendChild(div);
@@ -250,7 +250,7 @@
             div.style.zIndex=divMaxZIndex++;
         };
         jQuery("#"+div.id).draggable().resizable();
-        div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>'
+        div.innerHTML='<p class="alignleft">Lobe Properties</p><p class="alignright"><a href="javascript:LobeDiv.close('+"'"+div.id+"'"+')">X</a></p><div style="clear:both;"/><br/><br/>';
         div.genes=[];
         var first=true;
         var lobeNames='';
@@ -259,7 +259,7 @@
         
         var geneuids={}
         for (var uid in context.selection) {
-            lobe=context.selection[uid];    
+            var lobe=context.selection[uid];    
             if (!geneuids[lobe.gene.uid]) {
                 geneuids[lobe.gene.uid]=lobe.gene;
                 div.genes[div.genes.length]=lobe.gene;
@@ -286,10 +286,10 @@
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
             ['minAge','string',{value:minAge.getDescriptionString(),size:13,onblur:true,reverse:true}],
-            ['maxAge','string',{value:maxAge.getDescriptionString(),size:13,onblur:true,reverse:true}],
+            ['maxAge','string',{value:maxAge.getDescriptionString(),size:13,onblur:true,reverse:true}]
           ]
-        })
-        div.controlPanel.show()
+        });
+        div.controlPanel.show();
         div.createLobesOn=function(str, lobeCreator, compatPredicate){
             if (stringWhitespaceOnly(str)) {
                 var ycount=0;
@@ -305,7 +305,7 @@
                         return lobe.gene.name==str;
                     }
                     return false;
-                }
+                };
                 var divlen=div.genes.length;
                 for (var i =0; i< divlen;i+=1) {
                     editor.createLobesOnPredicate(regexMatch,function(bbox) {
@@ -320,15 +320,15 @@
                 var lobe= new LobeOutput(editor,gene);
                 lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
-            }
+            };
             div.createLobesOn(string,lobeOutputCreator,function(l){return !l.isAxon;});                     
-        }
+        };
         div.createLobeInputFrom=function(string) {
             var lobeInputCreator=function(gene,bbox) {
                 var lobe= new LobeInput(editor,gene);
                 lobe.setBoundingBox(bbox);
                 return editor.makeNewSelectable(lobe);
-            }   
+            };   
             div.createLobesOn(string,lobeInputCreator,function(l){return l.isAxon;});         
         };
         div.selectOutputLobes=function() {
@@ -358,22 +358,22 @@
                     context.coalesceUndos();
                 }
             }
-        }
+        };
         return div;
-    }
+    };
     ///this function disposes of a lobe with unique id passed in. It removes the draggable property then destroys the div
     LobeDiv.close=function(name) {
         div=document.getElementById(name);
         jQuery("#"+div.id).draggable("destroy");
         div.parentNode.removeChild(div);
-    }
+    };
     /// This function makes a new context. Context holds transient editor state such as the currently held selection and the undo list. This state will not be serialized to disk when the save function is invoked.
-    Context = function(genomeEditor) {
-        context={};
+    var Context = function(genomeEditor) {
+        var context={};
         context.mGenomeEditor=genomeEditor;
         context.selection={};
-        context.groupUndoIndexStack=[]
-        context.groupRedoIndexStack=[]
+        context.groupUndoIndexStack=[];
+        context.groupRedoIndexStack=[];
         context.mUndoList=[];
         context.mRedoList=[];
         context.mCurUndoCounter=0;
@@ -465,8 +465,8 @@
         context.deselect = function(s) {
             if (s.uid in this.selection) {
                 if (s.hasOwnProperty('uid')) {
-                    s.root.dispatchEvent({type : 'deselect', canvasTarget: s})
-                    delete this.selection[s.uid]
+                    s.root.dispatchEvent({type : 'deselect', canvasTarget: s});
+                    delete this.selection[s.uid];
                 }
             }
             s.deselect();
@@ -501,38 +501,56 @@
             this.mUndoList.push(undoFunction);
             this.mRedoList.push(redoFunction);
             this.mCurUndoCounter=this.mUndoList.length;
-        }
+        };
         ///this finds the last function that is on the undo list and executes it, effectively undoing an action
         context.undo= function () {      
             if (this.mCurUndoCounter>0) {
                 this.mCurUndoCounter--;
                 this.mUndoList[this.mCurUndoCounter]();
             }
-        }
+        };
         ///this finds the next function to be redone if there are any and executes it.
         context.redo = function() {
             if (this.mCurUndoCounter<this.mUndoList.length) {
                 this.mRedoList[this.mCurUndoCounter]();
                 this.mCurUndoCounter++;
             }
-        }
+        };
         return context;
-    }
+    };
     ///this keeps track of the maximum lobe z value of the lobes so that new lobes come out in front of other lobes
-    currentMaxZ = 2;
+    var currentMaxZ = 2;
     ///this function gets a unique lobe identifier for this session so that two lobes are not given the same name
-    getUID= (function() {
+    var getUID= (function() {
             var start=0;
             return function() {
                 start+=1;
                 return start;
             };
         })();
-Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
+var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
         this.name="gene_"+getUID();
         this.uid=getUID();       
         this.minAge=0.0;
         this.maxAge=1.0;
+        var newProtein=function(geneName,density){
+            var prot=new Elysia.Genome.Protein();
+            prot.density=density;
+            prot.protein_code=geneName;
+            return prot;
+
+        };
+        this.external_proteins.push(newProtein(Elysia.Genome.GROW_NEURON,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.BASE_BRANCHINESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.TIP_BRANCHINESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.BASE_THRESHOLD,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.TIP_THRESHOLD,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.TREE_DEPTH,5.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.RECEPTIVITY_TIME,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.LEARNING_RESPONSIVENESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.INHIBITION,0.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.AGGRESSIVE_DEVELOPMENT,0.0));
+        
         var th=this;
         this.findLobesWithThisGene=function() {
             return editor.childNodes.filter(function(s) {
@@ -544,37 +562,37 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                     }
                 }catch (e) {return false;}
                 return false;
-            })
-        }
+            });
+        };
         this.selectOutputs=function() {
             this.findLobesWithThisGene().forEach(function(s) {
                 if(s.isAxon) {
                     editor.context.select(s);
                 }
             });
-        }
+        };
         this.selectInputs=function() {
             this.findLobesWithThisGene().forEach(function(s) {
                 if(!s.isAxon) {
                     editor.context.select(s);
                 }
             });
-        }
+        };
         this.setChildrenName=function(newName) {
             this.name=newName;
             this.findLobesWithThisGene().forEach(function(s) {
                 s.name.text=newName;
             });
-        }
+        };
         this.setChildrenAgeIndicator=function(newAge) {
             this.findLobesWithThisGene().forEach(function(s) {
                s.recomputeAgeIndicator();
             });
-        }
+        };
       }
     });
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
-    Selectable = Klass (CanvasNode, {
+    var Selectable = Klass (CanvasNode, {
         initialize: function(editor) {
             CanvasNode.initialize.call(this);
             this.uid=getUID()
@@ -638,7 +656,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
         }
     });
     ///Lobe is a Selectable that represents a gene area on the map of the creature. Each lobe has a number of propreties that will affect the development of a given creature
-    Lobe = Klass(Selectable, {
+    var Lobe = Klass(Selectable, {
         initialize: function(editor,gene) {
                 //call the Selectable initialize function which sets whether this is selected to false, etc
                 Selectable.initialize.bind(this)(editor);
@@ -702,7 +720,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                 var col=[full[0]*pctGood+empty[0]*pctBad,
                          full[1]*pctGood+empty[1]*pctBad,
                          full[2]*pctGood+empty[2]*pctBad,
-                         full[3]*pctGood+empty[3]*pctBad]
+                         full[3]*pctGood+empty[3]*pctBad];
                 if (!this.isSelected()) {
                     col[3]*=.25;
                     if (pctBad!=0) {
@@ -811,10 +829,10 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             },
             ///sets the bounding box of the entire gene--this specifies the top left corner and bottom right corner. This function can effectively move a lobe by moving its topleft and bottom right corners.
             setBoundingBox:function(bb) {
-                var x1 = Math.min(bb[0], bb[2])
-                var x2 = Math.max(bb[0], bb[2])
-                var y1 = Math.min(bb[1], bb[3])
-                var y2 = Math.max(bb[1], bb[3])
+                var x1 = Math.min(bb[0], bb[2]);
+                var x2 = Math.max(bb[0], bb[2]);
+                var y1 = Math.min(bb[1], bb[3]);
+                var y2 = Math.max(bb[1], bb[3]);
 
                 this.lobe.x=x1;
                 this.lobe.y=y1;
@@ -827,7 +845,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                 this.ageSpan.maxWidth=this.lobe.width;
             }
         });
-        LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
+        var LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
             Lobe.initialize.bind(this)(editor,gene);
             this.isAxon=true;
         },
@@ -838,7 +856,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
            return [128,0,0,.0625];
         }
                               });
-        LobeInput=Klass(Lobe,{initialize:function(editor,gene) {
+        var LobeInput=Klass(Lobe,{initialize:function(editor,gene) {
             Lobe.initialize.bind(this)(editor,gene);
             this.isAxon=false;
         },
@@ -850,46 +868,47 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
         }
                               });
     ///The editor holds the state of the canvas, the context, and all active lobes as well as current transient mouse state and selection boxes
-    Editor = Klass(CanvasNode, {
+    var Editor = Klass(CanvasNode, {
       bgColor : 'rgb(0,0,0)',
       bgOpacity : 0.15,
 
       ///this sets the state of the editor and binds all the mouse functions, etc
       initialize : function(genomeEditor) {
-        CanvasNode.initialize.call(this)
+        CanvasNode.initialize.call(this);
         this.x=-windowWidth/2;
         this.y=-windowHeight/2;
         this.context=Context(genomeEditor);
+        var context=this.context;
         var sizeMultiplier=16;
         this.bg = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
           //this.bg.x=-this.width*sizeMultiplier/2;
           //this.bg.y=-this.height*sizeMultiplier/2;
-        this.bg.fill = this.bgColor
-        this.bg.fillOpacity = this.bgOpacity
+        this.bg.fill = this.bgColor;
+        this.bg.fillOpacity = this.bgOpacity;
 
         this.bgleft = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier*2);
         this.bgleft.x=-this.width*sizeMultiplier;
         this.bgleft.y=-this.height*sizeMultiplier;
         this.bgleft.fill = [35,38,44,1.0];
-        this.bgleft.fillOpacity = this.bgOpacity
+        this.bgleft.fillOpacity = this.bgOpacity;
 
         this.bgup = new Rectangle(this.width*sizeMultiplier,this.height*sizeMultiplier);
-        this.bgup.x=0
+        this.bgup.x=0;
         this.bgup.y=-this.height*sizeMultiplier;
         this.bgup.fill = [35,38,44,1.0];
-        this.bgup.fillOpacity = this.bgOpacity
+        this.bgup.fillOpacity = this.bgOpacity;
         this.append(this.bgup);        
         this.append(this.bgleft);
 
         this.ignoreNextClick=false;
         var selectionStart, startX, startY, selectionDragPlace, nearWhichEdge=-1, nearWhichCorner=-1;
-        var th = this
+        var th = this;
         ///returns the list of objects that are inside the selection box or mouse click (depending on whether isSelectionBox is set).  MouseUpPoint is also used to better guess the end of the selection rectangle
         var objectsInside = function(rect, mouseUpPoint, isSelectionBox) {
-          var x1 = Math.min(rect.cx, rect.x2)
-          var x2 = Math.max(rect.cx, rect.x2)
-          var y1 = Math.min(rect.cy, rect.y2)
-          var y2 = Math.max(rect.cy, rect.y2)
+          var x1 = Math.min(rect.cx, rect.x2);
+          var x2 = Math.max(rect.cx, rect.x2);
+          var y1 = Math.min(rect.cy, rect.y2);
+          var y2 = Math.max(rect.cy, rect.y2);
           if (isSelectionBox) {
               if (mouseUpPoint[0]==0&&mouseUpPoint[1]==0) {
                   var delta=20;
@@ -930,7 +949,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                       }catch(e){return false;}
                   });
           }
-        }
+        };
         //actually make the visible selection rectangle, which is an actual CAKE object.
         this.selectRect = new Rectangle(0,0, {
           stroke : 1,
@@ -940,8 +959,8 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           fill : '#00ff00',
           visible : false,
           zIndex : 999
-        })
-        this.append(this.selectRect)
+        });
+        this.append(this.selectRect);
         this.clickedSelected=function(ev) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
@@ -954,7 +973,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
-          )
+          );
           nearWhichEdge=-1;
           nearWhichCorner=-1;
           var resizePossibility=onlyOneElement(context.selection);
@@ -967,7 +986,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
               }              
           }
           selectionStart = point;
-          selectionDragPlace = point
+          selectionDragPlace = point;
         };
         ///hash map of keyCodes which are currently pressed--this is used on firefox to reinject key events while the key is down
         this.keyPressed={};
@@ -991,7 +1010,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                 }
                 th.after(5,function(){th.keyDownRepeat(keyCode)});
             }
-        }
+        };
         ///mark that a key is no longer down in the keyPressed hash table
         this.keyUp=function(evt) {
             th.keyPressed[evt.keyCode]=false;
@@ -1009,7 +1028,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
-          )
+          );
           var delta=[point[0]-selectionDragPlace[0],point[1]-selectionDragPlace[1]];
           for (uid in context.selection) {
               var origin=context.selection[uid].getOrigin();
@@ -1039,7 +1058,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
               }
           }
           selectionDragPlace=point;
-        }
+        };
         ///This function gets called when a click is made on the background canvas in preparation for either a select or a drag
         this.mouseDownHandler=function(ev) {
           th.performedDrag=false;
@@ -1047,14 +1066,14 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
-          )
+          );
           nearWhichEdge=-1;
           nearWhichCorner=-1;
-          startX = this.root.mouseX
-          startY = this.root.mouseY
-          selectionStart = point
-          th.selectRect.x2 = th.selectRect.cx = point[0]
-          th.selectRect.y2 = th.selectRect.cy = point[1]
+          startX = this.root.mouseX;
+          startY = this.root.mouseY;
+          selectionStart = point;
+          th.selectRect.x2 = th.selectRect.cx = point[0];
+          th.selectRect.y2 = th.selectRect.cy = point[1];
         };
         ///This function gets called when a drag happens that started on a blank canvas area
         this.mouseDragHandler=function(ev) {
@@ -1062,22 +1081,22 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(this.currentMatrix),
             this.root.mouseX, this.root.mouseY
-          )
+          );
           if (selectionStart && !th.selectRect.visible) {
-            var dx = startX - this.root.mouseX
-            var dy = startY - this.root.mouseY
-            var sqd = dx * dx + dy * dy
-            th.selectRect.visible = sqd > 81
+            var dx = startX - this.root.mouseX;
+            var dy = startY - this.root.mouseY;
+            var sqd = dx * dx + dy * dy;
+            th.selectRect.visible = sqd > 81;
           }
           if (th.selectRect.visible) {
-            th.selectRect.x2 = point[0]
-            th.selectRect.y2 = point[1]
+            th.selectRect.x2 = point[0];
+            th.selectRect.y2 = point[1];
           }
         };
         this.bg.addEventListener('mousedown', this.mouseDownHandler, false);
         this.bg.addEventListener('drag', this.mouseDragHandler, false);
-        this.bg.addEventListener('keydown',this.keyDown)
-        this.bg.addEventListener('keyup',this.keyUp)
+        this.bg.addEventListener('keydown',this.keyDown);
+        this.bg.addEventListener('keyup',this.keyUp);
         ///commit a move command that moved one or more items to a final location (i.e. mouse released) and coalesce all the movements into a single undo command
         this.makeSelectionMoveUndo=function(delta) {
             var firstItem=true;
@@ -1113,10 +1132,10 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                       var heapNewBb=nBb.slice(0);
                       var heapOldBb=oBb.slice(0);
                       var heapItem=cItem;
-                      undoFunction=function() {
+                      var undoFunction=function() {
                           heapItem.setBoundingBox(heapOldBb);
                       };
-                      redoFunction=function() {
+                      var redoFunction=function() {
                           heapItem.setBoundingBox(heapNewBb);
                       };
                       th.context.performedAction(redoFunction,undoFunction);                    
@@ -1145,10 +1164,10 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                     var heapNewOrigin=nOrigin.slice(0);
                     var heapOldOrigin=oOrigin.slice(0);
                     var heapItem=cItem;
-                    undoFunction=function() {
+                    var undoFunction=function() {
                         heapItem.setOrigin(heapOldOrigin);
                     };
-                    redoFunction=function() {
+                    var redoFunction=function() {
                         heapItem.setOrigin(heapNewOrigin);
                     };
                     th.context.performedAction(redoFunction,undoFunction);                    
@@ -1159,7 +1178,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                 firstItem=false;
               }
             }
-        }
+        };
         ///Handle the mouse being released which causes moves on items to be committed or items to be selected
         this.mouseupHandler = function(ev) {
 
@@ -1167,7 +1186,7 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           var point = CanvasSupport.tMatrixMultiplyPoint(
             CanvasSupport.tInvertMatrix(th.currentMatrix),
             th.root.mouseX, th.root.mouseY
-          )
+          );
           if(th.enableMoveOnMouseUp&&th.performedDrag) {
               if (selectionStart) {
                   th.mouseDragMoveHandler(ev);
@@ -1179,9 +1198,9 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             if (selectionStart||(th.root.mouseX>0&&th.root.mouseY>0&&!th.ignoreNextClick)) {
               var selectionBox=th.performedDrag;
               doIgnoreNext=true;//somehow we get 2 events for every legitimate event. This mitigates that factor.
-              th.selectRect.visible = false
-              selectionStart = null
-              var selection = objectsInside(th.selectRect,point,selectionBox)
+              th.selectRect.visible = false;
+              selectionStart = null;
+              var selection = objectsInside(th.selectRect,point,selectionBox);
               if (ev.shiftKey) {
                 if (!selectionBox) {
                     selection=context.frontNonselected(selection);
@@ -1200,32 +1219,32 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                   selection.forEach(context.select.bind(context));
               }
             } else if (selectionStart && (ev.canvasTarget == th.selectRect || ev.canvasTarget == th.bg)) {
-                context.setLobeTarget(point)
-              th.selectRect.visible = false
-              selectionStart = null
+                context.setLobeTarget(point);
+              th.selectRect.visible = false;
+              selectionStart = null;
             }
             th.ignoreNextClick=doIgnoreNext; 
           }
-        }
+        };
         this.addEventListener('rootChanged', function(ev) {
           if (ev.canvasTarget == this) {
             if (this.root)
-              this.root.removeEventListener('mouseup', this.mouseupHandler, false)
-            ev.relatedTarget.addEventListener('mouseup', this.mouseupHandler, false)
+              this.root.removeEventListener('mouseup', this.mouseupHandler, false);
+            ev.relatedTarget.addEventListener('mouseup', this.mouseupHandler, false);
           }
-        }, false)
-        this.bg.zIndex = -100
+        }, false);
+        this.bg.zIndex = -100;
         this.messageLayer = new CanvasNode({
           zIndex : 1000,
           scale : 1 / this.scale
-        })
-        this.append(this.bg, this.messageLayer)
+        });
+        this.append(this.bg, this.messageLayer);
         this.addFrameListener(function() {
           if (false)
-            this.cursor = MOVE_TO_CURSOR
+            this.cursor = MOVE_TO_CURSOR;
           else
-            this.cursor = DEFAULT_CURSOR
-        })
+            this.cursor = DEFAULT_CURSOR;
+        });
       },
       deleteLobe : function () {
          var thus=this;
@@ -1236,11 +1255,11 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
              var doIt=function (lobe) {
                  //need a separate isSelected variable per item in the loop to track selection of the objects individually
                  var isSelected=lobe.selected;
-                 var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}}
-                 var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);}
+                 var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
+                 var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
                  redoFunction();
                  this.context.performedAction(redoFunction,undoFunction);
-             }
+             };
              doIt(lb);
              if (!first){
                  this.context.coalesceUndos();
@@ -1267,13 +1286,13 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
               var redo=function (lobe) {
                   return function() {
                       lobe.setMinAge(age);
-                  }
+                  };
               }(this.context.selection[uid]);
               var undo=function (lobe) {
                   var oldAge=lobe.minAge;
                   return function() {
                       lobe.setMinAge(oldAge);
-                  }
+                  };
               }(this.context.selection[uid]);
               redo();
               this.context.performedAction(redo,undo);
@@ -1289,13 +1308,13 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
               var redo=function (lobe) {
                   return function() {
                       lobe.setMaxAge(age);
-                  }
+                  };
               }(this.context.selection[uid]);
               var undo=function (lobe) {
                   var oldAge=lobe.maxAge;
                   return function() {
                       lobe.setMaxAge(oldAge);
-                  }
+                  };
               }(this.context.selection[uid]);
               redo();
               this.context.performedAction(redo,undo);
@@ -1311,8 +1330,8 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
-         redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}}
-         undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);}
+         redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
+         undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
          return lobe;
@@ -1347,84 +1366,84 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
           this.context.redo();
       },
       beginEditing : function() {
-          this.root.dispatchEvent({type: 'started', canvasTarget : this })
+          this.root.dispatchEvent({type: 'started', canvasTarget : this });
       },
       ///make some html that describes the current action appear ontop of the canvas
       showDescription : function() {
         var desc = E('div')
-        desc.appendChild(E('h1', this.name))
-        desc.appendChild(E('div', this.description))
+        desc.appendChild(E('h1', this.name));
+        desc.appendChild(E('div', this.description));
         this.query(desc,
           'Begin editing', this.beginEditing,
           'Back to main menu', function() { this.parentNode.returnToMenu() }
-        )
+        );
       },
       ///make some HTML appear ontop of the Canvase
       query : function(header) {
-        var div = E('div', {className : 'message'})
+        var div = E('div', {className : 'message'});
         var msg = new ElementNode(div,
-          { x : windowWidth/4, y : windowHeight/8, align : 'center' })
-        var msgDiv = E('div', header)
-        div.appendChild(msgDiv)
-        var options = E('div')
-        var th = this
+          { x : windowWidth/4, y : windowHeight/8, align : 'center' });
+        var msgDiv = E('div', header);
+        div.appendChild(msgDiv);
+        var options = E('div');
+        var th = this;
         for (var i=1; i<arguments.length; i+=2) {
-          var name = arguments[i]
-          var callback = arguments[i+1]
+          var name = arguments[i];
+          var callback = arguments[i+1];
           options.appendChild(E('h2', name, {
             onclick : (function(callback){ return function() {
               if (!this.clicked) {
-                callback.call(th)
-                this.clicked = true
-                msg.after(500, msg.removeSelf)
-                msg.animateTo('opacity', 0, 500, 'sine')
+                callback.call(th);
+                this.clicked = true;
+                msg.after(500, msg.removeSelf);
+                msg.animateTo('opacity', 0, 500, 'sine');
               }
-            }})(callback),
+            };})(callback),
             style: { cursor : 'pointer' }
-          }))
+          }));
         }
-        div.appendChild(options)
-        msg.opacity = 0
-        msg.animateTo('opacity', 1, 500, 'sine')
-        this.messageLayer.append(msg)
+        div.appendChild(options);
+        msg.opacity = 0;
+        msg.animateTo('opacity', 1, 500, 'sine');
+        this.messageLayer.append(msg);
       },
       ///Unknown
       notify : function(message, after, duration) {
         if (!after) after = 0
         this.after(after, function(){
           var msg = new ElementNode(E('h3', message),
-            { x : windowWidth/4, y : windowHeight/20, align : 'center' })
-          if (!duration) duration = 3500 + msg.element.textContent.length * 10
-          msg.opacity = 0
-          msg.animateTo('opacity', 1, 500, 'sine')
+            { x : windowWidth/4, y : windowHeight/20, align : 'center' });
+          if (!duration) duration = 3500 + msg.element.textContent.length * 10;
+          msg.opacity = 0;
+          msg.animateTo('opacity', 1, 500, 'sine');
           msg.after(duration, function() {
-            this.animateTo('opacity', 0, 500, 'sine')
-          })
-          msg.after(duration+500, msg.removeSelf)
-          this.messageLayer.append(msg)
-        })
+            this.animateTo('opacity', 0, 500, 'sine');
+          });
+          msg.after(duration+500, msg.removeSelf);
+          this.messageLayer.append(msg);
+        });
       },
 
       ///Return to the menu that will eventually allow load/save of items
       returnToMenu : function() {
-        if (this.completed) return
-        this.failed = true
+        if (this.completed) return;
+        this.failed = true;
         this.after(1000, function() {
           this.query(E('h1', "Do you wish to return to menu?"),
-            "Return to editing", function() { this.parentNode.tryAgain() },
-            "Back to main menu", function() { this.parentNode.returnToMenu() }
-          )
-        })
-      },
+            "Return to editing", function() { this.parentNode.tryAgain(); },
+            "Back to main menu", function() { this.parentNode.returnToMenu(); }
+          );
+        });
+      }
 
 
 
-    })
+    });
 
 
 
     /// This editor function makes a new blank brain
-    NewBrain = Klass(Editor, {
+    var NewBrain = Klass(Editor, {
       width : windowWidth,
       height : windowHeight,
       scale : 1,
@@ -1433,28 +1452,28 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
       description : "Make basic lobes that control reactions to food when hungry.",
 
       initialize : function(genomeEditor) {
-        Editor.initialize.call(this,genomeEditor)
+        Editor.initialize.call(this,genomeEditor);
         this.when('started', function() {
 
-        })
+        });
       }
 
-    })
+    });
 
     ///This editor function gives a menu whether to make new, load, or get editor help
-    Menu = Klass(Editor, {
+    var Menu = Klass(Editor, {
       width : windowWidth,
       height : windowHeight,
       scale : 1,
 
       initialize : function(genomeEditor) {
-        Editor.initialize.call(this,genomeEditor)
-        this.menu = new CanvasNode()
-        this.menu.scale = 1
-        this.menu.zIndex = 1002
-        this.append(this.menu)
-        this.setupMenu()
-        this.selectRect.opacity = 0
+        Editor.initialize.call(this,genomeEditor);
+        this.menu = new CanvasNode();
+        this.menu.scale = 1;
+        this.menu.zIndex = 1002;
+        this.append(this.menu);
+        this.setupMenu();
+        this.selectRect.opacity = 0;
       },
       setAge: function (age) {},
       showDescription : function() {},
@@ -1475,14 +1494,14 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
       },
       ///This is the fancy splash screen
       setupMenu : function() {
-        var elem = E('h1')
-        elem.appendChild(T('ELYSIA GENOME EDITOR'))
+        var elem = E('h1');
+        elem.appendChild(T('ELYSIA GENOME EDITOR'));
 
         var title = new ElementNode(elem, {
           x: windowWidth/4, y: windowHeight/16, zIndex: 1002, align: 'center', cursor: 'default'
-        })
-        var th = this
-        var controls = new CanvasNode()
+        });
+        var th = this;
+        var controls = new CanvasNode();
         var bg = new ElementNode(E('div', {
           style: {
             width : windowWidth+'px',
@@ -1490,117 +1509,117 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             backgroundColor: this.bgColor,
             opacity: 1.0
           }
-        }), {zIndex : 1001})
-        controls.append(bg)
-        controls.display = 'none'
-        controls.opacity = 0
-        var editorList = E('ol')
+        }), {zIndex : 1001});
+        controls.append(bg);
+        controls.display = 'none';
+        controls.opacity = 0;
+        var editorList = E('ol');
         GenomeEditor.editors.slice(1).forEach(function(lvl, i) {
-          var li = E('li', E('h3', (i+1) + '. ' + lvl.prototype.name))
+          var li = E('li', E('h3', (i+1) + '. ' + lvl.prototype.name));
           li.onclick = function(){
-            if (th.clicked) return
-            th.clicked = true
-            th.menu.controls.animateTo('opacity', 0, 300, 'sine')
+            if (th.clicked) return;
+            th.clicked = true;
+            th.menu.controls.animateTo('opacity', 0, 300, 'sine');
             th.after(300, function() {
-              this.parentNode.newEditorState(GenomeEditor.editors.indexOf(lvl))
-            })
-          }
-          li.style.cursor = 'pointer'
-          editorList.appendChild(li)
-        })
-        var editorHeader = E('h2', 'Actions')
+              this.parentNode.newEditorState(GenomeEditor.editors.indexOf(lvl));
+            });
+          };
+          li.style.cursor = 'pointer';
+          editorList.appendChild(li);
+        });
+        var editorHeader = E('h2', 'Actions');
         var jump = new ElementNode(editorHeader, {
           zIndex : 1002,
           x : windowWidth/4, y : windowHeight/8,
           align : 'center'
-        })
+        });
         var editors = new ElementNode(editorList, {
           zIndex : 1002,
           x : windowWidth/4, y : windowHeight/4,
           align : 'center'
-        })
+        });
         var divider = new Rectangle(windowWidth*.5, 1, {
           centered: true, x: windowWidth/2, y: 128, fill: 'red'
-        })
-        controls.append(jump, editors, divider)
-        this.menu.title = title
-        this.menu.controls = controls
-        this.menu.append(title)
-        this.menu.append(controls)
+        });
+        controls.append(jump, editors, divider);
+        this.menu.title = title;
+        this.menu.controls = controls;
+        this.menu.append(title);
+        this.menu.append(controls);
         this.bg.addEventListener('click', function() {
           if (!th.menuVisible) {
-            th.showMenu()
+            th.showMenu();
           }
-        }, false)
+        }, false);
       },
 
       showMenu : function() {
-        if (this.menuVisible) return
-        this.menuVisible = true
-        var th = this
-        this.menu.controls.display = 'block'
-        this.menu.controls.animateTo('opacity', 1, 500, 'sine')
+        if (this.menuVisible) return;
+        this.menuVisible = true;
+        var th = this;
+        this.menu.controls.display = 'block';
+        this.menu.controls.animateTo('opacity', 1, 500, 'sine');
         this.menu.after(10000, function() {
-          this.controls.animateTo('opacity', 0, 500, 'sine')
+          this.controls.animateTo('opacity', 0, 500, 'sine');
           this.after(500, function() {
-            this.controls.display = 'none'
-            th.menuVisible = false
-          })
-        })
+            this.controls.display = 'none';
+            th.menuVisible = false;
+          });
+        });
       }
-    })
+    });
 
 
     ///This is the singleton object that represents the whole of the editor and the control dialog that is always visible (to make new lobes, etc)
-    GenomeEditor = Klass(CanvasNode, {
+    var GenomeEditor = Klass(CanvasNode, {
       editorIndex : 0,
       editors : [Menu, NewBrain],
 
       initialize : function(canvasElem, devMode) {
-        CanvasNode.initialize.call(this)
-        this.canvas = new Canvas(canvasElem)
-        this.canvas.frameDuration = 30
-        this.canvas.append(this)
+        CanvasNode.initialize.call(this);
+        this.canvas = new Canvas(canvasElem);
+        this.canvas.frameDuration = 30;
+        this.canvas.append(this);
         this.x=windowWidth/2;
         this.y=windowHeight/2;
-        this.canvas.fixedTimestep = true
-        this.canvas.clear = false
-        this.returnToMenu()
-        this.setupEtc()
+        this.canvas.fixedTimestep = true;
+        this.canvas.clear = false;
+        this.returnToMenu();
+        this.setupEtc();
         if (devMode) {
             this.newEditorState(1);
         }
       },
 
       returnToMenu : function() {
-        this.editorIndex = 0
-        this.changeEditor(this.editors[this.editorIndex])
+        this.editorIndex = 0;
+        this.changeEditor(this.editors[this.editorIndex]);
       },
 
       nextEditor : function() {
-        this.editorIndex++
-        var editor = this.editors[this.editorIndex % this.editors.length]
-        this.changeEditor(editor)
+        this.editorIndex++;
+        var editor = this.editors[this.editorIndex % this.editors.length];
+        this.changeEditor(editor);
       },
 
       newEditorState : function(idx) {
-        this.editorIndex = idx
-        var editor = this.editors[this.editorIndex % this.editors.length]
-        this.changeEditor(editor)
+        this.editorIndex = idx;
+        var editor = this.editors[this.editorIndex % this.editors.length];
+        this.changeEditor(editor);
       },
 
       tryAgain : function() {
-        this.changeEditor(this.editors[this.editorIndex])
+        this.changeEditor(this.editors[this.editorIndex]);
       },
       currentEditor : function () {
          return this.editor;
       },
       changeEditor : function(editor) {
-        if (this.editor) this.editor.removeSelf()
+        if (this.editor) this.editor.removeSelf();
         if (editor) {
-          this.editor = new editor(this)
+          this.editor = new editor(this);
           this.setAge(this.Age);
-          this.append(this.editor)
+          this.append(this.editor);
         }
       },
 
@@ -1648,39 +1667,39 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
       },
       ///This makes the global control panel that allows users to make new lobes, etc
       setupEtc : function() {
-        this.canvas.updateFps = true
-        var debug = E('div')
-        var t0 = -1
-        var frames = []
-        var fc = E.canvas(200, 10)
-        var fpsE = T('')
-        var elapsedE = T('')
-        var realFpsE = T('')
-        var elapsedRealE = T('')
+        this.canvas.updateFps = true;
+        var debug = E('div');
+        var t0 = -1;
+        var frames = [];
+        var fc = E.canvas(200, 10);
+        var fpsE = T('');
+        var elapsedE = T('');
+        var realFpsE = T('');
+        var elapsedRealE = T('');
         debug.append(fpsE, ' fps (', elapsedE, ' ms to draw scene)', E('br'),
           realFpsE, ' real fps (', elapsedRealE, ' ms between frames)',
-          E('br'), fc)
-        var fctx = fc.getContext('2d')
-        fctx.globalCompositeOperation = 'copy'
-        fctx.fillStyle = '#828292'
+          E('br'), fc);
+        var fctx = fc.getContext('2d');
+        fctx.globalCompositeOperation = 'copy';
+        fctx.fillStyle = '#828292';
         this.canvas.addFrameListener(function(t) {
           if (this.updateFps) {
-            fctx.drawImage(fc, -1, 0)
-            fctx.clearRect(199, 0, 1, 10)
-            fctx.fillRect(199, 0, 1, Math.min(100, this.currentRealFps) / 3.3)
+            fctx.drawImage(fc, -1, 0);
+            fctx.clearRect(199, 0, 1, 10);
+            fctx.fillRect(199, 0, 1, Math.min(100, this.currentRealFps) / 3.3);
             if (Math.floor(t / 500) != t0) {
-              t0 = Math.floor(t / 500)
-              var fps = (Math.floor(this.fps * 10)/10)
-              var elapsed = Math.floor(1000 / this.fps)
-              var realFps = (Math.floor(this.realFps * 10)/10)
-              var elapsedReal = Math.floor(1000 / this.realFps)
-              fpsE.textContent = fps
-              elapsedE.textContent = elapsed
-              realFpsE.textContent = realFps
-              elapsedRealE.textContent = elapsedReal
+              t0 = Math.floor(t / 500);
+              var fps = (Math.floor(this.fps * 10)/10);
+              var elapsed = Math.floor(1000 / this.fps);
+              var realFps = (Math.floor(this.realFps * 10)/10);
+              var elapsedReal = Math.floor(1000 / this.realFps);
+              fpsE.textContent = fps;
+              elapsedE.textContent = elapsed;
+              realFpsE.textContent = realFps;
+              elapsedRealE.textContent = elapsedReal;
             }
           }
-        })
+        });
         this.canvasControlPanel = new GuiConfig({
           object : this.canvas,
           container : $('debug'),
@@ -1691,8 +1710,8 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             'drawBoundingBoxes',
             ['useMockContext', 'boolean', {title: "Turn off drawing. Useful for benchmarking the AI."}]
           ]
-        })
-        this.canvasControlPanel.show()
+        });
+        this.canvasControlPanel.show();
         this.controlPanel = new GuiConfig({
           object : this,
           container : $('debug'),
@@ -1707,21 +1726,21 @@ Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             ['makeSelectedAppearAtThisAge','function'],
             ['makeSelectedVanishAtThisAge','function'],
             ['redo','function'],
-            ['undo','function'],
+            ['undo','function']
           ]
         })
-        this.controlPanel.show()
+        this.controlPanel.show();
       }
 
-    })
+    });
 
 
     ///Called when the page is onload()ed
     function init() {
-      var c = E.canvas(windowWidth, windowHeight)
-      var d = E('div', { id: 'screen' })
-      d.appendChild(c)
-      document.body.appendChild(d)
+      var c = E.canvas(windowWidth, windowHeight);
+      var d = E('div', { id: 'screen' });
+      d.appendChild(c);
+      document.body.appendChild(d);
       var devmode=(window.location.search.split("devmode=true").length>1);
-      GE = new GenomeEditor(c,devmode)
+      var GE = new GenomeEditor(c,devmode);
     }

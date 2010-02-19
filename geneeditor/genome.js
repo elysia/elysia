@@ -122,7 +122,7 @@ Elysia.Genome.Gene = PROTO.Message("Elysia.Genome.Gene",{
 		type: function(){return PROTO.Float;},
 		id: 1
 	},
-	external_protein: {
+	external_proteins: {
 		options: {},
 		multiplicity: PROTO.repeated,
 		type: function(){return Elysia.Genome.Protein;},
