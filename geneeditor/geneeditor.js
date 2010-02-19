@@ -528,7 +528,7 @@
                 return start;
             };
         })();
-    Gene = Klass({initialize:function(editor) {
+Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
         this.name="gene_"+getUID();
         this.uid=getUID();       
         this.minAge=0.0;

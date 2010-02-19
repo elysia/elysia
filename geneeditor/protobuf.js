@@ -1,8 +1,9 @@
 var PROTO = {};
 
 PROTO.DefineProperty = (function () {
+        var DefineProperty;
         if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) {
-            function DefineProperty(prototype, property, getter, setter) {
+            DefineProperty = function DefProp(prototype, property, getter, setter) {
                 if (typeof getter !== 'undefined') {
                     prototype.__defineGetter__(property, getter);
                 }
@@ -11,28 +12,48 @@ PROTO.DefineProperty = (function () {
                 }
             }
             return DefineProperty;
-        } else if (Object.defineProperty) {
-            function DefineProperty(prototype, property, getter, setter) {
+        } else if (typeof(Object.defineProperty) != "undefined") {
+            DefineProperty = function DefProp(prototype, property, getter, setter) {
                 Object.defineProperty(prototype, property, {'get': getter, 'set': setter});
             }
             return DefineProperty;
         }
+	alert("hi");
+        return undefined;
 })();
+
+/** Clones a PROTO type object. Does not work on arbitrary javascript objects.
+For example, can be used to copy the "bytes" class and make a custom toString method.
+*/
+PROTO.cloneType = function(f) {
+    var ret = {};
+    for (var x in f) {
+        ret[x] = f[x];
+    }
+    return ret;
+}
 
 PROTO.wiretypes = {
     varint: 0,
     fixed64: 1,
     lengthdelim: 2,
-    fixed32: 5,
+    fixed32: 5
 };
 
 PROTO.optional = 'optional';
 PROTO.repeated = 'repeated';
 PROTO.required = 'required';
 
+/**
+ * @constructor
+ */
 PROTO.I64 = function (msw, lsw, sign) {
     this.msw = msw;
     this.lsw = lsw;
+    if (typeof lsw === undefined) {
+        console.error("Too few arguments passed to I64 constructor: perhaps you meant PROTO.I64.fromNumber()");
+        throw ("Too few arguments passed to I64 constructor: perhaps you meant PROTO.I64.fromNumber()");
+    }
     if (sign === true) sign = -1;
     if (!sign) sign = 1;
     this.sign = sign;
@@ -145,7 +166,7 @@ PROTO.I64.prototype = {
         if (other.sign!=this.sign) {
             return this.unsigned_add(other);
         }
-        if (other.msw>this.msw || (other.msw==this.msw&&other.lsw>this.msw)) {
+        if (other.msw>this.msw || (other.msw==this.msw&&other.lsw>this.lsw)) {
             var retval=other.sub(this);
             retval.sign=-this.sign;
             return retval;
@@ -228,122 +249,130 @@ PROTO.I64.parseLEBase256 = function (stream) {
     return new PROTO.I64(msw,lsw,1);
 };
 
-//+ Jonas Raoni Soares Silva
-//@ http://jsfromhell.com/classes/binary-parser [rev. #1]
-
+/**
+ * + Jonas Raoni Soares Silva
+ * http://jsfromhell.com/classes/binary-parser [rev. #1]
+ * @constructor
+ */ 
 PROTO.BinaryParser = function(bigEndian, allowExceptions){
     this.bigEndian = bigEndian, this.allowExceptions = allowExceptions;
 };
-with({p: PROTO.BinaryParser.prototype}){
-    p.encodeFloat = function(number, precisionBits, exponentBits){
+    PROTO.BinaryParser.prototype.encodeFloat = function(number, precisionBits, exponentBits){
+        var n;
         var bias = Math.pow(2, exponentBits - 1) - 1, minExp = -bias + 1, maxExp = bias, minUnnormExp = minExp - precisionBits,
         status = isNaN(n = parseFloat(number)) || n == -Infinity || n == +Infinity ? n : 0,
         exp = 0, len = 2 * bias + 1 + precisionBits + 3, bin = new Array(len),
-        signal = (n = status !== 0 ? 0 : n) < 0, n = Math.abs(n), intPart = Math.floor(n), floatPart = n - intPart,
-        i, lastBit, rounded, j, result;
-        for(i = len; i; bin[--i] = 0);
-        for(i = bias + 2; intPart && i; bin[--i] = intPart % 2, intPart = Math.floor(intPart / 2));
-        for(i = bias + 1; floatPart > 0 && i; (bin[++i] = ((floatPart *= 2) >= 1) - 0) && --floatPart);
-        for(i = -1; ++i < len && !bin[i];);
+        signal = (n = status !== 0 ? 0 : n) < 0;
+        n = Math.abs(n);
+        var intPart = Math.floor(n), floatPart = n - intPart, i, lastBit, rounded, j, result, r;
+        for(i = len; i; bin[--i] = 0){}
+        for(i = bias + 2; intPart && i; bin[--i] = intPart % 2, intPart = Math.floor(intPart / 2)){}
+        for(i = bias + 1; floatPart > 0 && i; (bin[++i] = ((floatPart *= 2) >= 1) - 0) && --floatPart){}
+        for(i = -1; ++i < len && !bin[i];){}
         if(bin[(lastBit = precisionBits - 1 + (i = (exp = bias + 1 - i) >= minExp && exp <= maxExp ? i + 1 : bias + 1 - (exp = minExp - 1))) + 1]){
             if(!(rounded = bin[lastBit]))
-                for(j = lastBit + 2; !rounded && j < len; rounded = bin[j++]);
-            for(j = lastBit + 1; rounded && --j >= 0; (bin[j] = !bin[j] - 0) && (rounded = 0));
+                for(j = lastBit + 2; !rounded && j < len; rounded = bin[j++]){}
+            for(j = lastBit + 1; rounded && --j >= 0; (bin[j] = !bin[j] - 0) && (rounded = 0)){}
         }
-        for(i = i - 2 < 0 ? -1 : i - 3; ++i < len && !bin[i];);
+        for(i = i - 2 < 0 ? -1 : i - 3; ++i < len && !bin[i];){}
 
         (exp = bias + 1 - i) >= minExp && exp <= maxExp ? ++i : exp < minExp &&
             (exp != bias + 1 - len && exp < minUnnormExp && this.warn("encodeFloat::float underflow"), i = bias + 1 - (exp = minExp - 1));
         (intPart || status !== 0) && (this.warn(intPart ? "encodeFloat::float overflow" : "encodeFloat::" + status),
             exp = maxExp + 1, i = bias + 2, status == -Infinity ? signal = 1 : isNaN(status) && (bin[i] = 1));
-        for(n = Math.abs(exp + bias), j = exponentBits + 1, result = ""; --j; result = (n % 2) + result, n = n >>= 1);
+        for(n = Math.abs(exp + bias), j = exponentBits + 1, result = ""; --j; result = (n % 2) + result, n = n >>= 1){}
         for(n = 0, j = 0, i = (result = (signal ? "1" : "0") + result + bin.slice(i, i + precisionBits).join("")).length, r = [];
-            i; n += (1 << j) * result.charAt(--i), j == 7 && (r[r.length] = n, n = 0), j = (j + 1) % 8);
+            i; n += (1 << j) * result.charAt(--i), j == 7 && (r[r.length] = n, n = 0), j = (j + 1) % 8){}
         
         return (this.bigEndian ? r.reverse() : r);
     };
-    p.encodeInt = function(number, bits, signed){
+    PROTO.BinaryParser.prototype.encodeInt = function(number, bits, signed){
         var max = Math.pow(2, bits), r = [];
         (number >= max || number < -(max >> 1)) && this.warn("encodeInt::overflow") && (number = 0);
         number < 0 && (number += max);
-        for(; number; r[r.length] = number % 256, number = Math.floor(number / 256));
-        for(bits = -(-bits >> 3) - r.length; bits--;);
+        for(; number; r[r.length] = number % 256, number = Math.floor(number / 256)){}
+        for(bits = -(-bits >> 3) - r.length; bits--;){}
         return (this.bigEndian ? r.reverse() : r);
     };
-    p.decodeFloat = function(data, precisionBits, exponentBits){
-        var b = ((b = new this.Buffer(this.bigEndian, data)).checkBuffer(precisionBits + exponentBits + 1), b),
-            bias = Math.pow(2, exponentBits - 1) - 1, signal = b.readBits(precisionBits + exponentBits, 1),
-            exponent = b.readBits(precisionBits, exponentBits), significand = 0,
-            divisor = 2, curByte = b.buffer.length + (-precisionBits >> 3) - 1,
-            byteValue, startBit, mask;
+    PROTO.BinaryParser.prototype.decodeFloat = function(data, precisionBits, exponentBits){
+        var b = new this.Buffer(this.bigEndian, data);
+        PROTO.BinaryParser.prototype.checkBuffer.call(b, precisionBits + exponentBits + 1);
+        var bias = Math.pow(2, exponentBits - 1) - 1, signal = PROTO.BinaryParser.prototype.readBits.call(b,precisionBits + exponentBits, 1);
+        var exponent = PROTO.BinaryParser.prototype.readBits.call(b,precisionBits, exponentBits), significand = 0;
+        var divisor = 2;
+        var curByte = b.buffer.length + (-precisionBits >> 3) - 1;
+        var byteValue, startBit, mask;
         do
             for(byteValue = b.buffer[ ++curByte ], startBit = precisionBits % 8 || 8, mask = 1 << startBit;
-                mask >>= 1; (byteValue & mask) && (significand += 1 / divisor), divisor *= 2);
-        while(precisionBits -= startBit);
+                mask >>= 1; (byteValue & mask) && (significand += 1 / divisor), divisor *= 2){}
+        while((precisionBits -= startBit));
         return exponent == (bias << 1) + 1 ? significand ? NaN : signal ? -Infinity : +Infinity
             : (1 + signal * -2) * (exponent || significand ? !exponent ? Math.pow(2, -bias + 1) * significand
             : Math.pow(2, exponent - bias) * (1 + significand) : 0);
     };
-    p.decodeInt = function(data, bits, signed){
+    PROTO.BinaryParser.prototype.decodeInt = function(data, bits, signed){
         var b = new this.Buffer(this.bigEndian, data), x = b.readBits(0, bits), max = Math.pow(2, bits);
         return signed && x >= max / 2 ? x - max : x;
     };
-    with({p: (p.Buffer = function(bigEndian, buffer){
-        this.bigEndian = bigEndian || 0, this.buffer = [], this.setBuffer(buffer);
-    }).prototype}){
-        p.readBits = function(start, length){
+    PROTO.BinaryParser.prototype.Buffer = function(bigEndian, buffer){
+        this.bigEndian = bigEndian || 0;
+        this.buffer = [];
+        PROTO.BinaryParser.prototype.setBuffer.call(this,buffer);
+    };
+
+        PROTO.BinaryParser.prototype.readBits = function(start, length){
             //shl fix: Henri Torgemane ~1996 (compressed by Jonas Raoni)
             function shl(a, b){
-                for(++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1);
+                for(++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1){}
                 return a;
             }
             if(start < 0 || length <= 0)
                 return 0;
-            this.checkBuffer(start + length);
+            PROTO.BinaryParser.prototype.checkBuffer.call(this, start + length);
             for(var offsetLeft, offsetRight = start % 8, curByte = this.buffer.length - (start >> 3) - 1,
                 lastByte = this.buffer.length + (-(start + length) >> 3), diff = curByte - lastByte,
                 sum = ((this.buffer[ curByte ] >> offsetRight) & ((1 << (diff ? 8 - offsetRight : length)) - 1))
                 + (diff && (offsetLeft = (start + length) % 8) ? (this.buffer[ lastByte++ ] & ((1 << offsetLeft) - 1))
                 << (diff-- << 3) - offsetRight : 0); diff; sum += shl(this.buffer[ lastByte++ ], (diff-- << 3) - offsetRight)
-            );
+                ){}
             return sum;
         };
-        p.setBuffer = function(data){
+        PROTO.BinaryParser.prototype.setBuffer = function(data){
             if(data){
-                for(var l, i = l = data.length, b = this.buffer = new Array(l); i; b[l - i] = data[--i]);
+                for(var l, i = l = data.length, b = this.buffer = new Array(l); i; b[l - i] = data[--i]){}
                 this.bigEndian && b.reverse();
             }
         };
-        p.hasNeededBits = function(neededBits){
+        PROTO.BinaryParser.prototype.hasNeededBits = function(neededBits){
             return this.buffer.length >= -(-neededBits >> 3);
         };
-        p.checkBuffer = function(neededBits){
-            if(!this.hasNeededBits(neededBits))
+        PROTO.BinaryParser.prototype.checkBuffer = function(neededBits){
+            if(!PROTO.BinaryParser.prototype.hasNeededBits.call(this,neededBits))
                 throw new Error("checkBuffer::missing bytes");
         };
-    }
-    p.warn = function(msg){
+    
+    PROTO.BinaryParser.prototype.warn = function(msg){
         if(this.allowExceptions)
             throw new Error(msg);
         return 1;
     };
-    p.toSmall = function(data){return this.decodeInt(data, 8, true);};
-    p.fromSmall = function(number){return this.encodeInt(number, 8, true);};
-    p.toByte = function(data){return this.decodeInt(data, 8, false);};
-    p.fromByte = function(number){return this.encodeInt(number, 8, false);};
-    p.toShort = function(data){return this.decodeInt(data, 16, true);};
-    p.fromShort = function(number){return this.encodeInt(number, 16, true);};
-    p.toWord = function(data){return this.decodeInt(data, 16, false);};
-    p.fromWord = function(number){return this.encodeInt(number, 16, false);};
-    p.toInt = function(data){return this.decodeInt(data, 32, true);};
-    p.fromInt = function(number){return this.encodeInt(number, 32, true);};
-    p.toDWord = function(data){return this.decodeInt(data, 32, false);};
-    p.fromDWord = function(number){return this.encodeInt(number, 32, false);};
-    p.toFloat = function(data){return this.decodeFloat(data, 23, 8);};
-    p.fromFloat = function(number){return this.encodeFloat(number, 23, 8);};
-    p.toDouble = function(data){return this.decodeFloat(data, 52, 11);};
-    p.fromDouble = function(number){return this.encodeFloat(number, 52, 11);};
-}
+    PROTO.BinaryParser.prototype.toSmall = function(data){return this.decodeInt(data, 8, true);};
+    PROTO.BinaryParser.prototype.fromSmall = function(number){return this.encodeInt(number, 8, true);};
+    PROTO.BinaryParser.prototype.toByte = function(data){return this.decodeInt(data, 8, false);};
+    PROTO.BinaryParser.prototype.fromByte = function(number){return this.encodeInt(number, 8, false);};
+    PROTO.BinaryParser.prototype.toShort = function(data){return this.decodeInt(data, 16, true);};
+    PROTO.BinaryParser.prototype.fromShort = function(number){return this.encodeInt(number, 16, true);};
+    PROTO.BinaryParser.prototype.toWord = function(data){return this.decodeInt(data, 16, false);};
+    PROTO.BinaryParser.prototype.fromWord = function(number){return this.encodeInt(number, 16, false);};
+    PROTO.BinaryParser.prototype.toInt = function(data){return this.decodeInt(data, 32, true);};
+    PROTO.BinaryParser.prototype.fromInt = function(number){return this.encodeInt(number, 32, true);};
+    PROTO.BinaryParser.prototype.toDWord = function(data){return this.decodeInt(data, 32, false);};
+    PROTO.BinaryParser.prototype.fromDWord = function(number){return this.encodeInt(number, 32, false);};
+    PROTO.BinaryParser.prototype.toFloat = function(data){return this.decodeFloat(data, 23, 8);};
+    PROTO.BinaryParser.prototype.fromFloat = function(number){return this.encodeFloat(number, 23, 8);};
+    PROTO.BinaryParser.prototype.toDouble = function(data){return this.decodeFloat(data, 52, 11);};
+    PROTO.BinaryParser.prototype.fromDouble = function(number){return this.encodeFloat(number, 52, 11);};
+
 PROTO.binaryParser = new PROTO.BinaryParser(false,false);
 
 
@@ -385,7 +414,7 @@ PROTO.Utf8 = {
 	decode : function (utftext) {
 		var string = "";
 		var i = 0;
-		var c = c1 = c2 = 0;
+		var c = 0, c1 = 0, c2 = 0, c3 = 0;
 		while ( i < utftext.length ) {
 			c = utftext[i];
 			if (c < 128) {
@@ -408,6 +437,9 @@ PROTO.Utf8 = {
 	}
 };
 
+/**
+ * @constructor
+ */
 PROTO.Stream = function () {
     this.write_pos_ = 0;
     this.read_pos_ = 0;
@@ -416,11 +448,11 @@ PROTO.Stream.prototype = {
     read: function(amt) {
         var result = [];
         for (var i = 0; i < amt; ++i) {
-            var byte = this.readByte();
-            if (byte === null) {
+            var byt = this.readByte();
+            if (byt === null) {
                 break;
             }
-            result.push(byte);
+            result.push(byt);
         }
         return result;
     },
@@ -432,18 +464,21 @@ PROTO.Stream.prototype = {
     readByte: function() {
         return null;
     },
-    writeByte: function(byte) {
-        write_pos_ += 1;
+    writeByte: function(byt) {
+        this.write_pos_ += 1;
     },
     valid: function() {
         return false;
     }
 };
-
+/**
+ * @constructor
+ * @param {Array=} arr  Existing byte array to read from, or append to.
+ */
 PROTO.ByteArrayStream = function(arr) {
     this.array_ = arr || new Array();
     this.read_pos_ = 0;
-    this.write_pos_ = arr.length;
+    this.write_pos_ = this.array_.length;
 };
 PROTO.ByteArrayStream.prototype = new PROTO.Stream();
 PROTO.ByteArrayStream.prototype.read = function(amt) {
@@ -458,8 +493,8 @@ PROTO.ByteArrayStream.prototype.write = function(arr) {
 PROTO.ByteArrayStream.prototype.readByte = function() {
     return this.array_[this.read_pos_ ++];
 };
-PROTO.ByteArrayStream.prototype.writeByte = function(byte) {
-    this.array_.push(byte);
+PROTO.ByteArrayStream.prototype.writeByte = function(byt) {
+    this.array_.push(byt);
     this.write_pos_ = this.array_.length;
 };
 PROTO.ByteArrayStream.prototype.valid = function() {
@@ -468,7 +503,10 @@ PROTO.ByteArrayStream.prototype.valid = function() {
 PROTO.ByteArrayStream.prototype.getArray = function() {
     return this.array_;
 }
-
+/**
+ * @constructor
+ * @param {string=} b64string  String to read from, or append to.
+ */
 PROTO.Base64Stream = function(b64string) {
     this.string_ = b64string || '';
     this.read_pos_ = 0;
@@ -479,13 +517,13 @@ PROTO.Base64Stream = function(b64string) {
     this.fixString();
 }
 PROTO.Base64Stream.prototype = new PROTO.Stream();
-(function(prototype){
+(function(){
     var FromB64AlphaMinus43=[
-        62,-1,-1,-1,63,52,53,54,55,56,57,58,59,60,61,
+        62,-1,62,-1,63,52,53,54,55,56,57,58,59,60,61,
         -1,-1,-1,-1,-1,-1,-1,
         0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,
         17,18,19,20,21,22,23,24,25,
-        -1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,63,-1,
         26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
         41,42,43,44,45,46,47,48,49,50,51];
     var ToB64Alpha=[
@@ -494,28 +532,29 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         'a','b','c','d','e','f','g','h','i','j','k','l','m',
         'n','o','p','q','r','s','t','u','v','w','x','y','z',
         '0','1','2','3','4','5','6','7','8','9','+','/'];
-    prototype.fixString = function() {
+    PROTO.Base64Stream.prototype.fixString = function() {
         var len = this.string_.length;
         if (this.string_[len-1]=='=') {
             var n = 4;
             var cutoff = 2;
-            if (this.string_[len-2]=='=') {
+            if (this.string_[len-cutoff]=='=') {
                 n = 2;
                 cutoff = 3;
             }
             this.write_extra_bits_ = n;
             this.write_incomplete_value_ = FromB64AlphaMinus43[
-                this.string_.charCodeAt(len-3)-43];
+                this.string_.charCodeAt(len-cutoff)-43];
             this.write_incomplete_value_ >>= (6-n);
             this.string_ = this.string_.substring(0,len-cutoff);
         }
     }
-    prototype.readByte = function readByte() {
+    PROTO.Base64Stream.prototype.readByte = function readByte() {
         var next6bits;
-        while (next6bits == undefined || next6bits == -1) {
+        var n = this.read_needed_bits_;
+        while (next6bits === undefined || next6bits == -1) {
             if (this.read_pos_ >= this.string_.length) {
                 if (this.valid()) {
-                    next6bits = this.write_incomplete_value_;
+                    next6bits = this.write_incomplete_value_ << (6-n);
                     this.read_pos_++;
                     break;
                 } else {
@@ -525,7 +564,6 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
             next6bits = FromB64AlphaMinus43[
                 this.string_.charCodeAt(this.read_pos_++)-43];
         }
-        var n = this.read_needed_bits_;
         if (n == 8) {
             this.read_incomplete_value_ = next6bits;
             this.read_needed_bits_ = 2;
@@ -538,12 +576,12 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         return ret;
     }
 
-    prototype.writeByte = function writeByte(byte) {
+    PROTO.Base64Stream.prototype.writeByte = function writeByte(byt) {
         this.write_extra_bits_ += 2;
         var n = this.write_extra_bits_;
         this.string_ += ToB64Alpha[
-                byte>>n | this.write_incomplete_value_<<(8-n)];
-        this.write_incomplete_value_ = (byte&((1<<n)-1));
+                byt>>n | this.write_incomplete_value_<<(8-n)];
+        this.write_incomplete_value_ = (byt&((1<<n)-1));
         if (n == 6) {
             this.string_ += ToB64Alpha[this.write_incomplete_value_];
             this.write_extra_bits_ = 0;
@@ -554,7 +592,7 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         }
     }
 
-    prototype.getString = function getString() {
+    PROTO.Base64Stream.prototype.getString = function getString() {
         var len = this.string_.length;
         var retstr = this.string_;
         var n = this.write_extra_bits_;
@@ -568,17 +606,17 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         }
         return retstr;
     }
-    prototype.valid = function valid() {
+    PROTO.Base64Stream.prototype.valid = function valid() {
         return (this.read_pos_ < this.string_.length) ||
                (this.read_pos_==this.string_.length && this.write_extra_bits_);
     }
-})(PROTO.Base64Stream.prototype);
+})();
 
 PROTO.array =
     (function() {
+        /** @constructor */
         function ProtoArray(datatype, input) {
             this.datatype_ = datatype.type();
-            this.array_ = new Array;
             this.length = 0;
             if (input instanceof Array) {
                 for (var i=0;i<input.length;++i) {
@@ -590,13 +628,11 @@ PROTO.array =
             return val.length > 0;
         }
         ProtoArray.prototype = {};
-        ProtoArray.prototype.push = function add() {
+        ProtoArray.prototype.push = function (var_args) {
             if (arguments.length === 0) {
                 if (this.datatype_.composite) {
                     var newval = new this.datatype_;
-                    this.array_.push(newval);
-                    this[this.length] = newval;
-                    this.length += 1;
+                    this[this.length++] = newval;
                     return newval;
                 } else {
                     throw "Called add(undefined) for a non-composite";
@@ -604,12 +640,30 @@ PROTO.array =
             } else {
                 for (var i = 0; i < arguments.length; i++) {
                     var newval = this.datatype_.Convert(arguments[i]);
-                    this.array_.push(newval);
-                    this[this.length] = newval;
+                    if (this.datatype_.FromProto) {
+                        newval = this.datatype_.FromProto(newval);
+                    }
+                    this[this.length++] = newval;
                 }
-                this.length = this.array_.length;
             }
             return arguments[0];
+        }
+        ProtoArray.prototype.set = function (index, newval) {
+            newval = this.datatype_.Convert(newval);
+            if (this.datatype_.FromProto) {
+                newval = this.datatype_.FromProto(newval);
+            }
+            if (index < this.length && index >= 0) {
+                this[index] = newval;
+            } else if (index == this.length) {
+                this[this.length++] = newval;
+            } else {
+                throw "Called ProtoArray.set with index "+index+" higher than length "+this.length;
+            }
+            return newval;
+        }
+        ProtoArray.prototype.clear = function (index, newval) {
+            this.length = 0;
         }
         return ProtoArray;
     })();
@@ -634,6 +688,16 @@ PROTO.bytes = {
     Convert: function(arr) {
         if (arr instanceof Array) {
             return arr;
+        } else if (arr instanceof PROTO.ByteArrayStream) {
+            return arr.getArray();
+        } else if (arr.SerializeToStream) {
+            /* This is useful for messages (e.g. RPC calls) that embed
+             * other messages inside them using the bytes type.
+             */
+            // FIXME: should we always allow this? Can this cause mistakes?
+            var tempStream = new PROTO.ByteArrayStream;
+            arr.SerializeToStream(tempStream);
+            return tempStream.getArray();
         } else {
             throw "Not a Byte Array: "+arr;
         }
@@ -663,7 +727,7 @@ PROTO.bytes = {
     };
     function convertU32(n) { //unsigned
         if (n == NaN) {
-            throw "not a number: "+str;
+            throw "not a number: "+n;
         }
         n = Math.round(n);
         if (n < 0) {
@@ -676,7 +740,7 @@ PROTO.bytes = {
     };
     function convertS32(n) { // signed
         if (n == NaN) {
-            throw "not a number: "+str;
+            throw "not a number: "+n;
         }
         n = Math.round(n);
         if (n > 2147483647 || n < -2147483648) {
@@ -838,10 +902,10 @@ PROTO.bytes = {
         var arr = stream.read(8);
         return PROTO.binaryParser.toDouble(arr);
     };
-    PROTO.float = makeclass(convertFloatingPoint, writeFloat, readFloat);
-    PROTO.double = makeclass(convertFloatingPoint, writeDouble, readDouble);
-    PROTO.float.wiretype = PROTO.wiretypes.fixed32;
-    PROTO.double.wiretype = PROTO.wiretypes.fixed64;
+    PROTO.Float = makeclass(convertFloatingPoint, writeFloat, readFloat);
+    PROTO.Double = makeclass(convertFloatingPoint, writeDouble, readDouble);
+    PROTO.Float.wiretype = PROTO.wiretypes.fixed32;
+    PROTO.Double.wiretype = PROTO.wiretypes.fixed64;
 })();
 
 
@@ -850,7 +914,7 @@ PROTO.mergeProperties = function(properties, stream, values) {
     for (var key in properties) {
         fidToProp[properties[key].id] = key;
     }
-    var nextfid, nexttype, nextprop, nextval, nextpropname;
+    var nextfid, nexttype, nextprop, nextproptype, nextval, nextpropname;
     var incompleteTuples = {};
     while (stream.valid()) {
         nextfid = PROTO.int32.ParseFromStream(stream);
@@ -859,12 +923,13 @@ PROTO.mergeProperties = function(properties, stream, values) {
         nextfid >>>= 3;
         nextpropname = fidToProp[nextfid];
         nextprop = nextpropname && properties[nextpropname];
+        nextproptype = nextprop && nextprop.type();
         nextval = undefined;
         switch (nexttype) {
         case PROTO.wiretypes.varint:
 //        console.log("read varint field is "+nextfid);
             if (nextprop) {
-                nextval = nextprop.type().ParseFromStream(stream);
+                nextval = nextproptype.ParseFromStream(stream);
             } else {
                 PROTO.int64.ParseFromStream(stream);
             }
@@ -873,7 +938,7 @@ PROTO.mergeProperties = function(properties, stream, values) {
 //        console.log("read fixed64 field is "+nextfid);
             if (nextprop) {
                 //console.log(nextprop.type);
-                nextval = nextprop.type().ParseFromStream(stream);
+                nextval = nextproptype.ParseFromStream(stream);
             } else {
                 PROTO.fixed64.ParseFromStream(stream);
             }
@@ -883,7 +948,7 @@ PROTO.mergeProperties = function(properties, stream, values) {
             if (nextprop) {
                 if (nextprop.options.packed) {
                     var tup;
-                    if (nextprop.type().cardinality>1) {
+                    if (nextproptype.cardinality>1) {
                         if (incompleteTuples[nextpropname]===undefined) {
                             incompleteTuples[nextpropname]=new Array();
                         }
@@ -892,16 +957,16 @@ PROTO.mergeProperties = function(properties, stream, values) {
                     var bytearr = PROTO.bytes.ParseFromStream(stream);
                     var bas = new PROTO.ByteArrayStream(bytearr);
                     for (var j = 0; j < bytearr.length && bas.valid(); j++) {
-                        var toappend = nextprop.type().ParseFromStream(bas);
+                        var toappend = nextproptype.ParseFromStream(bas);
 
-                        if (nextprop.type().cardinality>1) {
+                        if (nextproptype.cardinality>1) {
                             tup.push(toappend);
-                            if (tup.length==nextprop.type().cardinality) {
+                            if (tup.length==nextproptype.cardinality) {
                                 if (nextprop.multiplicity == PROTO.repeated) {
                                     values[nextpropname].push(tup);
                                 } else {
                                     values[nextpropname] =
-                                        nextprop.type().Convert(tup);
+                                        nextproptype.Convert(tup);
                                 }
                                 incompleteTuples[nextpropname]=new Array();
                                 tup = incompleteTuples[nextpropname];
@@ -911,7 +976,7 @@ PROTO.mergeProperties = function(properties, stream, values) {
                         }
                     }
                 } else {
-                    nextval = nextprop.type().ParseFromStream(stream);
+                    nextval = nextproptype.ParseFromStream(stream);
                 }
             } else {
                 PROTO.bytes.ParseFromStream(stream);
@@ -920,7 +985,7 @@ PROTO.mergeProperties = function(properties, stream, values) {
         case PROTO.wiretypes.fixed32:
 //        console.log("read fixed32 field is "+nextfid);
             if (nextprop) {
-                nextval = nextprop.type().ParseFromStream(stream);
+                nextval = nextproptype.ParseFromStream(stream);
             } else {
                 PROTO.fixed32.ParseFromStream(stream);
             }
@@ -930,28 +995,36 @@ PROTO.mergeProperties = function(properties, stream, values) {
             break;
         }
         if (nextval !== undefined) {
-            if (values[nextpropname] === undefined && nextprop.type().cardinality>1) {
+            if (values[nextpropname] === undefined && nextproptype.cardinality>1) {
                 values[nextpropname] = {};
             }
-            if (nextprop.type().cardinality>1) {
+            if (nextproptype.cardinality>1) {
                 var tup;
                 if (incompleteTuples[nextpropname]===undefined) {
                     incompleteTuples[nextpropname]=new Array();
                     tup = incompleteTuples[nextpropname];
                 }
                 tup.push(nextval);
-                if (tup.length==nextprop.type().cardinality) {
+                if (tup.length==nextproptype.cardinality) {
                     if (nextprop.multiplicity == PROTO.repeated) {
                         values[nextpropname].push(tup);
                     } else {
-                        values[nextpropname] = nextprop.type().Convert(tup);
+                        tup = nextproptype.Convert(tup);
+                        if (!PROTO.DefineProperty && nextproptype.FromProto) {
+                            tup = nextproptype.FromProto(tup);
+                        }
+                        values[nextpropname] = tup;
                     }
                     incompleteTuples[nextpropname] = undefined;
                 }
             } else if (nextprop.multiplicity === PROTO.repeated) {
                 values[nextpropname].push(nextval);
             } else {
-                values[nextpropname] = nextprop.type().Convert(nextval);
+                nextval = nextproptype.Convert(nextval);
+                if (!PROTO.DefineProperty && nextproptype.FromProto) {
+                    nextval = nextproptype.FromProto(nextval);
+                }
+                values[nextpropname] = nextval;
             }
         }
     }
@@ -1050,6 +1123,7 @@ PROTO.serializeProperty = function(property, stream, value) {
 
 
 PROTO.Message = function(name, properties) {
+    /** @constructor */
     var Composite = function() {
         this.properties_ = Composite.properties_;
         if (!PROTO.DefineProperty) {
@@ -1057,7 +1131,6 @@ PROTO.Message = function(name, properties) {
         } else {
             this.values_ = {};
         }
-        this.has_fields_ = {};
         this.Clear();
         this.message_type_ = name;
     };
@@ -1096,13 +1169,13 @@ PROTO.Message = function(name, properties) {
     };
     Composite.prototype = {
         computeHasFields: function computeHasFields() {
+            var has_fields = {};
             for (var key in this.properties_) {
                 if (this.HasField(key)) {
-                    this.has_fields_[key] = true;
-                } else {
-                    delete this.has_fields_[key];
+                    has_fields[key] = true;
                 }
             }
+            return has_fields;
         },
         Clear: function Clear() {
             for (var prop in this.properties_) {
@@ -1137,8 +1210,8 @@ PROTO.Message = function(name, properties) {
             PROTO.mergeProperties(this.properties_, stream, this.values_);
         },
         SerializeToStream: function Serialize(outstream) {
-            this.computeHasFields();
-            for (var key in this.has_fields_) {
+            var hasfields = this.computeHasFields();
+            for (var key in hasfields) {
                 var val = this.values_[key];
                 PROTO.serializeProperty(this.properties_[key], outstream, val);
             }
@@ -1148,7 +1221,6 @@ PROTO.Message = function(name, properties) {
         // RegisterExtension, Extensions, ClearExtension
         ClearField: function ClearField(propname) {
             var descriptor = this.properties_[propname];
-            delete this.has_fields_[propname];
             if (descriptor.multiplicity == PROTO.repeated) {
                 this.values_[propname] = new PROTO.array(descriptor);
             } else {
@@ -1161,34 +1233,36 @@ PROTO.Message = function(name, properties) {
             }
         },
         ListFields: function ListFields() {
-            ret = [];
-            for (var f in this.has_fields_) {
+            var ret = [];
+            var hasfields = this.computeHasFields();
+            for (var f in hasfields) {
                 ret.push(f);
             }
             return ret;
         },
         GetField: function GetField(propname) {
             //console.log(propname);
-            if (this.values_[propname] === undefined) {
-                this.ClearField(propname);
+            var ret = this.values_[propname];
+            var type = this.properties_[propname].type();
+            if (ret && type.FromProto) {
+                return type.FromProto(ret);
             }
-            return this.values_[propname];
+            return ret;
         },
         SetField: function SetField(propname, value) {
             //console.log(propname+"="+value);
-            if (value === undefined) {
+            if (value === undefined || value === null) {
                 this.ClearField(propname);
             } else {
                 var prop = this.properties_[propname];
                 if (prop.multiplicity == PROTO.repeated) {
                     this.ClearField(propname);
                     for (var i = 0; i < value.length; i++) {
-                        this.values_[propname].append(i);
+                        this.values_[propname].push(i);
                     }
                 } else {
                     this.values_[propname] = prop.type().Convert(value);
                 }
-                this.has_fields_[propname] = true;
             }
         },
         HasField: function HasField(propname) {
@@ -1221,11 +1295,16 @@ PROTO.Message = function(name, properties) {
                              .replace("\n", "\\n")
                              .replace("\r","\\r");
                 str += ": \"" + myval + "\"\n";
-            } else if (type.toString) {
-                var myval = type.toString(val);
-                str += ": " + myval + "\n";
             } else {
-                str += ": " + val + "\n";
+                if (type.FromProto) {
+                    val = type.FromProto(val);
+                }
+                if (type.toString) {
+                    var myval = type.toString(val);
+                    str += ": " + myval + "\n";
+                } else {
+                    str += ": " + val + "\n";
+                }
             }
             return str;
         },
@@ -1261,7 +1340,7 @@ PROTO.Message = function(name, properties) {
                 str += "}\n";
             }
             return str;
-        },
+        }
     };
     if (PROTO.DefineProperty !== undefined) {
         for (var prop in Composite.properties_) {
@@ -1275,12 +1354,14 @@ PROTO.Message = function(name, properties) {
     return Composite;
 };
 
+/** Builds an enumeration type with a mapping of values.
+@param {number=} bits  Preferred size of the enum (unused at the moment). */
 PROTO.Enum = function (name, values, bits) {
     if (!bits) {
         bits = 32;
     }
     var reverseValues = {};
-     enumobj = {};
+    var enumobj = {};
     enumobj.isType = true;
     for (var key in values) {
         reverseValues[values[key] ] = key;
