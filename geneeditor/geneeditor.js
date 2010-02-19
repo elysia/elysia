@@ -260,7 +260,8 @@
                                         function(gene){return gene.maxAge;},
                                         function(gene,newMaxAge){gene.maxAge=newMaxAge;},
                                         'setChildrenAgeIndicator');
-        
+        var internalProteins={};
+        var externalProteins={};
         var geneuids={};
         for (var uid in context.selection) {
             var lobe=context.selection[uid];    
@@ -269,6 +270,26 @@
                 div.genes[div.genes.length]=lobe.gene;
                 minAge.initializeGene(lobe.gene);
                 maxAge.initializeGene(lobe.gene);
+                var numInternalProteins=lobe.gene.internal_proteins.length;
+                var i;
+                for (i=0;i<numInternalProteins;i+=1){
+                    var code=lobe.gene.internal_proteins[i].protein_code;
+                    if (code in Elysia.Genome.Effect) {
+                        internalProteins[Elysia.Genome.Effect[code]]=code;
+                    }else {
+                        internalProteins["Unknown"+code]=code;
+                    }
+                }
+
+                var numExternalProteins=lobe.gene.external_proteins.length;
+                for (i=0;i<numExternalProteins;i+=1){
+                    var code=lobe.gene.external_proteins[i].protein_code;
+                    if (code in Elysia.Genome.Effect) {
+                        externalProteins[Elysia.Genome.Effect[code]]=code;
+                    }else {
+                        externalProteins["Unknown"+code]=code;
+                    }
+                }
 
                 if (!first) {
                     lobeNames+=',';
@@ -277,21 +298,89 @@
                 first=false;
             }
         }
+        var proteinGet=function(proteinCode,geneproteins) {
+            var leng=geneproteins.length;
+            var retval=0.0;
+            for (var i=0;i<leng;i+=1) {
+                if (geneproteins[i].protein_code==proteinCode && geneproteins[i].density)
+                    retval+=geneproteins[i].density;
+            }
+            return retval;
+        };
+        var proteinSet=function(proteinCode,geneproteins,input) {
+            var leng=geneproteins.length;
+            for (var i=0;i<leng;i+=1) {
+                if (geneproteins[i].protein_code==proteinCode)
+                    geneproteins[i].density=input;
+            }
+        };
+        for (var internal in internalProteins) {
+            internalProteins[internal]=PerGeneValueEntryBox(editor,
+                                                            function() {
+                                                                var code=internalProteins[internal];
+                                                                return function(gene) {
+                                                                    return proteinGet(code,gene.internal_proteins);};
+                                                            }(),
+                                                            function() {
+                                                                var code=internalProteins[internal];
+                                                                return function(gene,value) {
+                                                                    
+                                                                    proteinSet(code,gene.internal_proteins,value);
+                                                                };
+                                                            }(),
+                                                            "");
+            div[internal]=internalProteins[internal].update;
+        }
+        for (var external in externalProteins) {
+            externalProteins[external]=PerGeneValueEntryBox(editor,
+                                                            function() {
+                                                                var code=externalProteins[internal];
+                                                                return function(gene) {
+                                                                    return proteinGet(code,gene.external_proteins);};
+                                                            }(),
+                                                            function() {
+                                                                var code=externalProteins[internal];
+                                                                return function(gene,value) {
+                                                                    
+                                                                    proteinSet(code,gene.external_proteins,value);
+                                                                };
+                                                            }(),
+                                                            "");
+            div[external]=externalProteins[external].update;
+        }
         div.minAge=minAge.update;
         div.maxAge=maxAge.update;
-        div.controlPanel = new GuiConfig({
-          object : div,
-          container : div,
-          controls : [
+        var defaultControls=[
 //          ['makeNewLobe','function'],
             ['name','string',{value:lobeNames,size:26,reverse:false}],
             ['createLobeInputFrom','string',{size:13,reverse:true}],
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function'],
-            ['minAge','string',{value:minAge.getDescriptionString(),size:13,onblur:true,reverse:true}],
-            ['maxAge','string',{value:maxAge.getDescriptionString(),size:13,onblur:true,reverse:true}]
-          ]
+            ['minAge','string',{value:minAge.getDescriptionString(),onblur:true,reverse:true}],
+            ['maxAge','string',{value:maxAge.getDescriptionString(),onblur:true,reverse:true}]
+           ];
+
+        for (internal in internalProteins) {
+            var tmp=internalProteins[internal];
+            for (var i=0;i<div.genes.length;i+=1) {
+                tmp.initializeGene(div.genes[i]);
+            }
+            defaultControls[defaultControls.length]=[internal,'string',{value:tmp.getDescriptionString(),size:13,onblur:true,reverse:true}];
+        }
+        for (external in externalProteins) {
+            var tmp=externalProteins[external];
+            for (var i=0;i<div.genes.length;i+=1) {
+                tmp.initializeGene(div.genes[i]);
+            }            
+            defaultControls[defaultControls.length]=[internal,'string',{value:tmp.getDescriptionString(),size:13,onblur:true,reverse:true}];            
+        }
+
+
+        div.controlPanel = new GuiConfig({
+          object : div,
+          container : div,
+          controls : defaultControls
         });
         div.controlPanel.show();
         div.createLobesOn=function(str, lobeCreator, compatPredicate){
@@ -544,16 +633,16 @@ var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             return prot;
 
         };
-        this.external_proteins.push(newProtein(Elysia.Genome.GROW_NEURON,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.BASE_BRANCHINESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.TIP_BRANCHINESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.BASE_THRESHOLD,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.TIP_THRESHOLD,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.TREE_DEPTH,5.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.RECEPTIVITY_TIME,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.LEARNING_RESPONSIVENESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.INHIBITION,0.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.AGGRESSIVE_DEVELOPMENT,0.0));
+        this.external_proteins.push(newProtein(Elysia.Genome.Effect.GROW_NEURON,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_BRANCHINESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_BRANCHINESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_THRESHOLD,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_THRESHOLD,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TREE_DEPTH,5.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.RECEPTIVITY_TIME,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.LEARNING_RESPONSIVENESS,1.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.INHIBITION,0.0));
+        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.AGGRESSIVE_DEVELOPMENT,0.0));
         
         var th=this;
         this.findLobesWithThisGene=function() {
