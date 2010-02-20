@@ -262,6 +262,7 @@
                                         'setChildrenAgeIndicator');
         var internalProteins={};
         var externalProteins={};
+        var proteinCodes={}
         var geneuids={};
         for (var uid in context.selection) {
             var lobe=context.selection[uid];    
@@ -276,8 +277,10 @@
                     var code=lobe.gene.internal_proteins[i].protein_code;
                     if (code in Elysia.Genome.Effect) {
                         internalProteins[Elysia.Genome.Effect[code]]=code;
+                        proteinCodes[Elysia.Genome.Effect[code]]=code;
                     }else {
                         internalProteins["Unknown"+code]=code;
+                        proteinCodes["Unknown"+code]=code;
                     }
                 }
 
@@ -286,8 +289,10 @@
                     var code=lobe.gene.external_proteins[i].protein_code;
                     if (code in Elysia.Genome.Effect) {
                         externalProteins[Elysia.Genome.Effect[code]]=code;
+                        proteinCodes[Elysia.Genome.Effect[code]]=code;
                     }else {
                         externalProteins["Unknown"+code]=code;
+                        proteinCodes["Unknown"+code]=code;
                     }
                 }
 
@@ -307,11 +312,49 @@
             }
             return retval;
         };
+        var proteinGetAll=function(proteinCode,geneproteins) {
+            var leng=geneproteins.length;
+            var retval=[];
+            for (var i=0;i<leng;i+=1) {
+                if (geneproteins[i].protein_code==proteinCode)
+                    retval[retval.length]=geneproteins[i];
+            }
+            return retval;
+        };
         var proteinSet=function(proteinCode,geneproteins,input) {
             var leng=geneproteins.length;
             for (var i=0;i<leng;i+=1) {
                 if (geneproteins[i].protein_code==proteinCode)
                     geneproteins[i].density=input;
+            }
+        };
+        var proteinFind=function(proteinCode,geneproteins) {
+            var found=false;
+            var leng=geneproteins.length;
+            for (var i=0;i<leng;i+=1) {
+                if (geneproteins[i].protein_code==proteinCode)
+                    found=true;
+            }
+            return found;            
+        };
+        var proteinEnable=function(proteinCode,geneproteins,input) {
+            var leng=geneproteins.length;
+            if (!proteinFind(proteinCode,geneproteins)) {
+                var prot=new Elysia.Genome.Protein();
+                prot.protein_code=proteinCode;
+                prot.density=input;
+                geneproteins.push(prot);
+            }
+        };
+        var proteinDisable=function(proteinCode,geneproteins) {
+            var leng=geneproteins.length;
+            for (var i=leng-1;i>=0;i-=1) {
+                if (geneproteins[i].protein_code==proteinCode) {
+                    if (i!=geneproteins.length-1) {
+                        geneproteins[i]=geneproteins[geneproteins.length-1];                        
+                    }
+                    geneproteins.length=geneproteins.length-1;
+                }
             }
         };
         for (var internal in internalProteins) {
@@ -334,12 +377,12 @@
         for (var external in externalProteins) {
             externalProteins[external]=PerGeneValueEntryBox(editor,
                                                             function() {
-                                                                var code=externalProteins[internal];
+                                                                var code=externalProteins[external];
                                                                 return function(gene) {
                                                                     return proteinGet(code,gene.external_proteins);};
                                                             }(),
                                                             function() {
-                                                                var code=externalProteins[internal];
+                                                                var code=externalProteins[external];
                                                                 return function(gene,value) {
                                                                     
                                                                     proteinSet(code,gene.external_proteins,value);
@@ -360,22 +403,130 @@
             //,['minAge','string',{value:minAge.getDescriptionString(),onblur:true,reverse:true}]
             //,['maxAge','string',{value:maxAge.getDescriptionString(),onblur:true,reverse:true}]
            ];
-
+        var geneAddCount=0;
         for (internal in internalProteins) {
             var tmp=internalProteins[internal];
+            var allHaveGene=true;
             for (var i=0;i<div.genes.length;i+=1) {
                 tmp.initializeGene(div.genes[i]);
+                if (!proteinFind(proteinCodes[internal],div.genes[i].internal_proteins)) {
+                    allHaveGene=false;
+                }
             }
-            defaultControls[defaultControls.length]=[internal,'string',{value:tmp.getDescriptionString(),size:13,onblur:true,reverse:true}];
-        }
+            defaultControls[defaultControls.length]=[internal,'string',{value:tmp.getDescriptionString(),size:4,onblur:true,reverse:true,newline:true}];
+            geneAddCount+=1;
+            var makeProduceName='makeAllProduce';
+            if (allHaveGene)
+                makeProduceName='deleteProtein';
+            if (geneAddCount>1) {
+                makeProduceName+=geneAddCount;
+            }
+            //defaultControls[defaultControls.length]=[makeProduceName,'function',{varName:makeProduceName,newline:false,br:true}];
+            div[makeProduceName]=function(ahg) {
+                var code=proteinCodes[internal];
+                var allHaveIt=ahg;
+                return function() {
+                    var listsToDelete=[];
+                    var itemsWithNothing={};
+                    for (var i=0;i<div.genes.length;i+=1) {
+                        var proteins=proteinGetAll(code,div.genes[i]);
+                        if (proteins.length==0) {
+                            var prot=new Elysia.Genome.Protein;
+                            prot.density=0;
+                            prot.protein_code=code;
+                            proteins[0]=prot;
+                            itemsWithNothing[i]=true;
+                        }else {
+                            itemsWithNothing[i]=false;
+                        }
+                        listsToDelete[listsToDelete.length]=proteins;
+                    }
+                    var undo=function() {
+                        for (var i=0;i<div.genes.length;i+=1) {   
+                            proteinDisable(code,div.genes[i].internal_proteins);
+                            for (var j=0;j<listsToDelete[i].length;j+=1){
+                                div.genes[i].internal_proteins[div.genes[i].internal_proteins.length]=listsToDelete[i][j];
+                            }
+                        }
+                    };
+                    var redo=function() {
+                        for (var i=0;i<div.genes.length;i+=1) {                        
+                            if (itemsWithNothing[i]||allHaveIt)
+                                proteinDisable(code,div.genes[i].internal_proteins);
+                            
+                        }
+                    };
+                    if (allHaveIt) {
+                        context.performedAction(undo,redo);
+                        redo();
+                    }else {
+                        context.performedAction(redo,undo);
+                        undo();                            
+                    }
+                };
+            }(allHaveGene);
+        }            
         for (external in externalProteins) {
             var tmp=externalProteins[external];
+            var allHaveGene=true;
             for (var i=0;i<div.genes.length;i+=1) {
                 tmp.initializeGene(div.genes[i]);
+                if (!proteinFind(proteinCodes[external],div.genes[i].external_proteins)) {
+                    allHaveGene=false;
+                }
             }            
-            defaultControls[defaultControls.length]=[internal,'string',{value:tmp.getDescriptionString(),size:13,onblur:true,reverse:true}];            
+            defaultControls[defaultControls.length]=[external,'string',{value:tmp.getDescriptionString(),size:4,onblur:true,reverse:true}];            
+            geneAddCount+=1;
+            var makeProduceName='makeAllProduce';
+            if (!allHaveGene)
+                makeProduceName='deleteProtein';
+            if (geneAddCount>1) {
+                makeProduceName+=geneAddCount;
+            }
+            div[makeProduceName]=function(ahg) {
+                var code=proteinCodes[external];
+                var allHaveIt=ahg;
+                return function() {
+                    var listsToDelete=[];
+                    var itemsWithNothing={};
+                    for (var i=0;i<div.genes.length;i+=1) {
+                        var proteins=proteinGetAll(code,div.genes[i]);
+                        if (proteins.length==0) {
+                            var prot=new Elysia.Genome.Protein;
+                            prot.density=0;
+                            prot.protein_code=code;
+                            proteins[0]=prot;
+                            itemsWithNothing[i]=true;
+                        }else {
+                            itemsWithNothing[i]=false;
+                        }
+                        listsToDelete[listsToDelete.length]=proteins;
+                    }
+                    var undo=function() {
+                        for (var i=0;i<div.genes.length;i+=1) {   
+                            proteinDisable(code,div.genes[i].external_proteins);
+                            div.genes[i].external_proteins=div.genes[i].external_proteins.concat(listsToDelete[i]);
+                        }
+                    };
+                    var redo=function() {
+                        for (var i=0;i<div.genes.length;i+=1) {                        
+                            if (itemsWithNothing[i]||allHaveIt)
+                                proteinDisable(code,div.genes[i].external_proteins);
+                            
+                        }
+                    };
+                    if (allHaveIt) {
+                        context.performedAction(undo,redo);
+                        redo();
+                    }else {
+                        context.performedAction(redo,undo);
+                        undo();                            
+                    }
+                };
+            }(allHaveGene);
+    
+            //defaultControls[defaultControls.length]=[makeProduceName,'function',{varName:makeProduceName,newline:false,br:true}];
         }
-
 
         div.controlPanel = new GuiConfig({
           object : div,
@@ -621,8 +772,8 @@
                 return start;
             };
         })();
-var Gene = function(editor) {
-        var th=new Elysia.Genome.Gene();
+var Gene = function(editor,baseElysiaGenomeGene) {
+        var th=baseElysiaGenomeGene;
         th.name="gene_"+getUID();
         th.uid=getUID();       
         th.minAge=0.0;
@@ -1371,7 +1522,7 @@ var Gene = function(editor) {
       },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
-          return this.makeNewSelectable(new LobeOutput(this,new Gene(this)));
+          return this.makeNewSelectable(new LobeOutput(this,new Gene(this,new Elysia.Genome.Gene())));
       },
       makeSelectedAppearAt : function (age) {
           var first=true;

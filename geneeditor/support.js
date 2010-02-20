@@ -298,14 +298,23 @@ GuiConfig.widgets = {
     var obj = config.object
     var varName = config.varName
     var title = config.title
-    var p = E('p')
     var e = E('input', {type:'submit', value: title})
-    p.appendChild(e)
+    var p = e;
+    if ((config.hasOwnProperty('newline')&&config.newline)||(!config.hasOwnProperty('newline'))) { 
+        p = E('p');            
+        p.appendChild(e)
+    }
     e.onclick = function(ev) {
       if (ev.preventDefault)
         ev.preventDefault()
       obj.object[varName]()
       return false
+    }
+    if (config.hasOwnProperty('br')&&config.br) {
+        var br=E('font');
+        br.appendChild(p);
+        br.appendChild(E('br'));
+        p=br;
     }
     return p
   },
@@ -344,7 +353,7 @@ GuiConfig.widgets = {
     if (config.hasOwnProperty('value')) {
         defaultValue=config.value;
     }
-    var p = E('p')
+    
     var textProperties={type:'text', value: defaultValue}
     if (config.hasOwnProperty('size')) {
         textProperties.size=config.size;
@@ -360,20 +369,32 @@ GuiConfig.widgets = {
         e = E('input', {type:'submit', value: title});
     }
     var t = E('input', textProperties);
-    if (config.hasOwnProperty('reverse')&&config.reverse) {
-        p.appendChild(e);
-        p.appendChild(t);
+    var p =e;
+    if ((config.hasOwnProperty('newline')&&config.newline)||(!config.hasOwnProperty('newline'))) { 
+        p = E('p');
+        if (config.hasOwnProperty('reverse')&&config.reverse) {
+            p.appendChild(e);
+            p.appendChild(t);
+        }else {
+            p.appendChild(t);
+            p.appendChild(e);
+        }
     }else {
-        p.appendChild(t);
-        p.appendChild(e);
+        if (config.hasOwnProperty('reverse')&&config.reverse) {
+            p=e;
+            p.appendChild(t);
+        }else {
+            p=t;
+            p.appendChild(e);
+        }
     }
     e.onclick = onclickfn;
     t.onkeydown = function(ev) {
         if (ev.keyCode==13) {
             e.onclick();
         }
-    }
-    return p
+    };
+    return p;
   },
   boolean : function(config) {
     var obj = config.object
