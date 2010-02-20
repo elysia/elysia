@@ -24,6 +24,17 @@ void Branch::passdevelopmentsignal(float signal){
 	mParentComponent->passdevelopmentsignal(signal);
 }
 
+void Branch::developSynapse(ActivityStats stats){
+	for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
+         i!=ie;
+         ++i)
+	*i -> develop(stats);
+	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i)
+	*i -> developSynapse(stats);
+}
+
 void Branch::growSynapse(void){
 	Synapse *s;
     mChildSynapses.push_back(s = new Synapse(this));

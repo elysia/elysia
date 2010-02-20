@@ -31,7 +31,7 @@ void Neuron::removeSynapse(Synapse*synapse){
 }
 
 void Neuron::fireNeuron(Synapse*target){
-	target->fireSynapse(mNeuronSignalWeight);			//This causes compile error, why? AWC
+	target->fireSynapse(mNeuronSignalWeight);			
 }
 
 void Neuron::attachSynapse(Synapse*target){
@@ -41,10 +41,23 @@ void Neuron::attachSynapse(Synapse*target){
 void Neuron::passdevelopmentsignal(float signal){
 	mDevelopmentSignal += signal;
 }
-ActivityStats Neuron::getActivityStats(){
-	return ActivityStats;
 
+void Neuron::developSynapse(ActivityStats stats){
+for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i)
+	i.developSynapse(stats);
+}
 void Neuron::tick(){
-}
-}
 
+	if(mDevelopmentStage == 0){
+		if(mDevelopmentCounter == 0){
+			ActivityStats& stats = getActivityStats();
+			developSynapse(stats);
+			mDevelopmentCounter	= 30;					//number of timesteps before next development re-evaluation
+
+		}
+		else{ mDevelopmentCounter--;}
+	}
+}
+}

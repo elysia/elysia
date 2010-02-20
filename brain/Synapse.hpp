@@ -5,6 +5,8 @@ namespace Elysia {
 class CellComponent;
 class Neuron;
 class Branch;
+class ActivityStats;
+
 ///The dendrite_tip represents connections from the dendrite tree onto other neurons. Neurons pass activity onto
 ///dendrite_tips and dendrite_tips pass that activity onto branches
 
@@ -21,7 +23,7 @@ public:
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
 	void fireSynapse(float signal);
-	void developSynapse();
+	void develop(ActivityStats stats);
 };
 
 }

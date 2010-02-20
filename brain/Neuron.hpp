@@ -1,6 +1,7 @@
 #ifndef _ELYSIA_NEURON_HPP_
 #define _ELYSIA_NEURON_HPP_
 #include "CellComponent.hpp"
+#include "ActivityStats.hpp"
 #include <vector>
 namespace Elysia {
 class Synapse;
@@ -31,7 +32,7 @@ private:
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
-	float mDevelopmentSignal;
+	int mDevelopmentCounter;
 
     bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}
@@ -49,7 +50,8 @@ public:
     void activateComponent(float signal);
 	void fireNeuron(Synapse*target);
 	void passdevelopmentsignal(float signal);
-	ActivityStats getActivityStats();
+	ActivityStats& getActivityStats(){ return *this; }
+	void developSynapse(ActivityStats stats);
 };
 }
 #endif

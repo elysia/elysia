@@ -25,6 +25,7 @@ class Branch:  public CellComponent{
     void growSynapse();
     void activateComponent(float signal);
     void passdevelopmentsignal(float signal);
+	void developSynapse(ActivityStats stats);
 };
 
 }

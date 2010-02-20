@@ -66,14 +66,35 @@ void Synapse::fireSynapse(float signal){
     mParentBranch->activateComponent(signal);
 }
 
-void Synapse::developSynapse(){
-	Neuron *parent;
-	int neuronactivity[2];  //[1] is present activity, [2] is best
-	parent = mParentBranch->getParentNeuron();
-	neuronactivity = parent->getactivityNeuron();
-
-	//different logic for active and inactive
+void Synapse::develop(ActivityStats stats){
+	Neuron *parent;  
+	float strengthenamount=0;
+	if(stats.mBestDevelopmentSignal < 20){		//Neuron still in early state
+		if(mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
+			mConnectionStrength +=0.04;					//Strengthen weakly in beginning
+		}
+		else{
+			mConnectionStrength -= 0.01;
+		}
+	}
+	else{
+		if(stats.mBestDevelopmentSignal >= 20 ){
+			if(mFiringCounter > 0){
+				strengthenamount = (2*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(10*stats.mDevelopmentSignal+0.001);
+				if(strengthenamount > 0.1){strengthenamount = 0.1;}
+				if(strengthenamount < -0.02){strengthenamount = -0.02;}
+				mConnectionStrength += strengthenamount;
+			}
+			else{
+				strengthenamount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
+				if(strengthenamount < -0.02){strengthenamount = -0.02;}
+				mConnectionStrength += strengthenamount;
+			}
+		}
+	}
 }
+	
+
 
 }
     
