@@ -356,9 +356,9 @@
             ['createLobeInputFrom','string',{size:13,reverse:true}],
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
-            ['selectInputLobes','function'],
-            ['minAge','string',{value:minAge.getDescriptionString(),onblur:true,reverse:true}],
-            ['maxAge','string',{value:maxAge.getDescriptionString(),onblur:true,reverse:true}]
+            ['selectInputLobes','function']
+            //,['minAge','string',{value:minAge.getDescriptionString(),onblur:true,reverse:true}]
+            //,['maxAge','string',{value:maxAge.getDescriptionString(),onblur:true,reverse:true}]
            ];
 
         for (internal in internalProteins) {
@@ -445,8 +445,8 @@
                 }
                 divgene.setChildrenName(nName);
                 
-                context.performedAction(function(){var lnName=nName;var gene=divgene;return function(){gene.setChildrenName(lnName)}}(),
-                                        function(){var oName=oldName;var gene=divgene;return function(){gene.setChildrenName(oName)}}());
+                context.performedAction(function(){var lnName=nName;var gene=divgene;return function(){gene.setChildrenName(lnName);};}(),
+                                        function(){var oName=oldName;var gene=divgene;return function(){gene.setChildrenName(oName);};}());
                 if (index!=0) {
                     context.coalesceUndos();
                 }
@@ -621,11 +621,12 @@
                 return start;
             };
         })();
-var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
-        this.name="gene_"+getUID();
-        this.uid=getUID();       
-        this.minAge=0.0;
-        this.maxAge=1.0;
+var Gene = function(editor) {
+        var th=new Elysia.Genome.Gene();
+        th.name="gene_"+getUID();
+        th.uid=getUID();       
+        th.minAge=0.0;
+        th.maxAge=1.0;
         var newProtein=function(geneName,density){
             var prot=new Elysia.Genome.Protein();
             prot.density=density;
@@ -633,19 +634,18 @@ var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
             return prot;
 
         };
-        this.external_proteins.push(newProtein(Elysia.Genome.Effect.GROW_NEURON,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_BRANCHINESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_BRANCHINESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_THRESHOLD,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_THRESHOLD,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.TREE_DEPTH,5.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.RECEPTIVITY_TIME,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.LEARNING_RESPONSIVENESS,1.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.INHIBITION,0.0));
-        this.internal_proteins.push(newProtein(Elysia.Genome.Effect.AGGRESSIVE_DEVELOPMENT,0.0));
+        th.external_proteins.push(newProtein(Elysia.Genome.Effect.GROW_NEURON,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_BRANCHINESS,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_BRANCHINESS,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.BASE_THRESHOLD,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.TIP_THRESHOLD,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.TREE_DEPTH,5.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.RECEPTIVITY_TIME,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.LEARNING_RESPONSIVENESS,1.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.INHIBITION,0.0));
+        th.internal_proteins.push(newProtein(Elysia.Genome.Effect.AGGRESSIVE_DEVELOPMENT,0.0));
         
-        var th=this;
-        this.findLobesWithThisGene=function() {
+        th.findLobesWithThisGene=function() {
             return editor.childNodes.filter(function(s) {
                 try {
                     if(s.hasOwnProperty('gene')) {
@@ -657,33 +657,33 @@ var Gene = Klass(new Elysia.Genome.Gene(),{initialize:function(editor) {
                 return false;
             });
         };
-        this.selectOutputs=function() {
+        th.selectOutputs=function() {
             this.findLobesWithThisGene().forEach(function(s) {
                 if(s.isAxon) {
                     editor.context.select(s);
                 }
             });
         };
-        this.selectInputs=function() {
+        th.selectInputs=function() {
             this.findLobesWithThisGene().forEach(function(s) {
                 if(!s.isAxon) {
                     editor.context.select(s);
                 }
             });
         };
-        this.setChildrenName=function(newName) {
+        th.setChildrenName=function(newName) {
             this.name=newName;
             this.findLobesWithThisGene().forEach(function(s) {
                 s.name.text=newName;
             });
         };
-        this.setChildrenAgeIndicator=function(newAge) {
+        th.setChildrenAgeIndicator=function(newAge) {
             this.findLobesWithThisGene().forEach(function(s) {
                s.recomputeAgeIndicator();
             });
         };
-      }
-    });
+    return th;
+};
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     var Selectable = Klass (CanvasNode, {
         initialize: function(editor) {

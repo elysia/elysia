@@ -257,12 +257,18 @@ GuiConfig = Klass({
   },
 
   parseTitle : function(varName) {
+    var isYelling=(varName==varName.capitalize());
+    varName=varName.split(/_/).join(" ");
     var a = varName.split(/(?=[A-Z])/)
     for (var i=1; i<a.length; i++) {
       a[i] = a[i].toLowerCase()
+
     }
     a[0] = a[0].capitalize()
-    return a.join(" ")
+      if(isYelling)
+          return a.join("");
+      else
+          return a.join(" ");
   },
 
   parseMethodName : function(varName) {
