@@ -1117,8 +1117,9 @@ var Gene = function(editor,baseElysiaGenomeGene) {
       bgOpacity : 0.15,
 
       ///this sets the state of the editor and binds all the mouse functions, etc
-      initialize : function(genomeEditor) {
+      initialize : function(genomeEditor,saveString,isFather) {
         CanvasNode.initialize.call(this);
+        this.saveString=saveString;
         this.x=-windowWidth/2;
         this.y=-windowHeight/2;
         this.context=Context(genomeEditor);
@@ -1546,6 +1547,36 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               first=false;
           }          
       },
+      loadGenome:function(genomeData,father){
+          alert("Loading "+genomeData)
+          var savemessage=new Elysia.Genome.Genome();
+          if (savemessage.ParseFromStream(new PROTO.Base64Stream(genomeData))) {
+              if (father) {
+                  this.loadHaploid (savemessage.fathers);
+              }
+              if (father) {
+                  this.loadHaploid (savemessage.mothers);
+              }
+              this.saveString=genomeData;
+          }
+      },
+      saveAsGenome:function(father,mother){
+          var savemessage=new Elysia.Genome.Genome();
+          if (father==false||mother==false) {
+              savemessage.ParseFromStream(new PROTO.Base64Stream(this.saveString));
+          }
+          var haploid=new Elysia.Genome.Chromosome();
+          //FIXME: save entire editor state
+          if (father) {
+              savemessage.fathers=haploid;
+          }
+          if (mother) {
+              savemessage.mothers=haploid;
+          }
+          var b64stream = new PROTO.Base64Stream();          
+          savemessage.SerializeToStream(b64stream);
+          alert(b64stream.getString().length);
+      },
       makeSelectedVanishAt: function (age) {
           var first=true;
           for (var uid in this.context.selection) {
@@ -1696,7 +1727,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
       description : "Make basic lobes that control reactions to food when hungry.",
 
       initialize : function(genomeEditor) {
-        Editor.initialize.call(this,genomeEditor);
+        Editor.initialize.call(this,genomeEditor,"",true);
         this.when('started', function() {
 
         });
@@ -1711,7 +1742,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
       scale : 1,
 
       initialize : function(genomeEditor) {
-        Editor.initialize.call(this,genomeEditor);
+        Editor.initialize.call(this,genomeEditor,"",true);
         this.menu = new CanvasNode();
         this.menu.scale = 1;
         this.menu.zIndex = 1002;
@@ -1895,19 +1926,50 @@ var Gene = function(editor,baseElysiaGenomeGene) {
          this.currentEditor().makeSelectedVanishAt(age);
       },
       makeNewLobe:function(s) {
-         this.currentEditor().makeNewLobe()
+         this.currentEditor().makeNewLobe();
       },
       deleteLobe:function(s) {
-         this.currentEditor().deleteLobe()
+         this.currentEditor().deleteLobe();
       },
       lobeProperties:function(s) {
-         this.currentEditor().lobeProperties()
+         this.currentEditor().lobeProperties();
       },
       undo:function(s) {
-         this.currentEditor().undo()
+         this.currentEditor().undo();
       },
       redo:function(s) {
-         this.currentEditor().redo()
+         this.currentEditor().redo();
+      },
+      saveAsFathersGenome:function() {
+         this.currentEditor().saveAsGenome(true,false);
+      },
+      saveAsMothersGenome:function() {
+         this.currentEditor().saveAsGenome(false,true);
+      },
+      saveAsBothSidesGenome:function() {
+         this.currentEditor().saveAsGenome(true,true);
+      },
+      loadFromHttpUrl:function(url,father){
+          var ed=this.currentEditor();
+          var fileLoad=new XMLHttpRequest();
+          fileLoad.onreadystatechange=function() {
+              if (fileLoad.readyState == 4) {
+                 
+                  if (fileLoad.status==200||fileLoad.status==0)
+                      ed.loadGenome(fileLoad.responseText,father);
+                  else 
+                      alert(url+" not found");                  
+              }
+          };
+          fileLoad.overrideMimeType("text/plain");          
+          fileLoad.open("GET",url,true);
+          fileLoad.send();
+      },
+      loadMotherFromHttpUrl:function(url) {
+          this.loadFromHttpUrl(url,false);
+      },
+      loadFatherFromHttpUrl:function(url) {
+          this.loadFromHttpUrl(url,true);
       },
       ///This makes the global control panel that allows users to make new lobes, etc
       setupEtc : function() {
@@ -1970,7 +2032,13 @@ var Gene = function(editor,baseElysiaGenomeGene) {
             ['makeSelectedAppearAtThisAge','function'],
             ['makeSelectedVanishAtThisAge','function'],
             ['redo','function'],
-            ['undo','function']
+            ['undo','function'],
+            ['saveAsFathersGenome','function'],
+            ['saveAsMothersGenome','function'],
+            ['saveAsBothSidesGenome','function'],
+            ['loadMotherFromHttpUrl','string'],
+            ['loadFatherFromHttpUrl','string']
+
           ]
         })
         this.controlPanel.show();
