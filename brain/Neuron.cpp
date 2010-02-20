@@ -1,4 +1,4 @@
-#include "Platform.hpp"
+                                                                                                                                                                                                                                                                                                                       #include "Platform.hpp"
 #include "Neuron.hpp"
 #include "Synapse.hpp"
 namespace Elysia {
@@ -46,7 +46,7 @@ void Neuron::developSynapse(ActivityStats stats){
 for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i)
-	i.developSynapse(stats);
+	(*i)->developSynapse(stats);
 }
 void Neuron::tick(){
 
