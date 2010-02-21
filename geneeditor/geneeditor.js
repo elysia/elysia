@@ -1669,8 +1669,10 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               savemessage.mothers=haploid;
           }
           var b64stream = new PROTO.Base64Stream();          
+          b64stream.setURLSafe(true);
           savemessage.SerializeToStream(b64stream);
-          window.location="data:application/base64-stream,"+b64stream.getString();
+          var savestring=b64stream.getString();
+          window.location="data:application/base64-stream,"+savestring;
       },
       makeSelectedVanishAt: function (age) {
           var first=true;

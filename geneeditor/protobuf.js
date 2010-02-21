@@ -376,66 +376,117 @@ PROTO.BinaryParser = function(bigEndian, allowExceptions){
 PROTO.binaryParser = new PROTO.BinaryParser(false,false);
 
 
-// Note: This might not work for unicode characters between 0x10000 and 0x10FFFF.
-// See http://www.codesimple.net/2006_10_01_archive.html
-// http://cogteeth.com/res/mpsupport.js
+PROTO.encodeUTF8 = function(str) {
+    var strlen = str.length;
+    var u8 = [];
+    var c, nextc;
+    var x, y, z;
+    for (var i = 0; i < strlen; i++) {
+        c = str.charCodeAt(i);
+        if ((c & 0xff80) == 0) {
+            // ASCII
+            u8.push(c);
+        } else {
+            if ((c & 0xfc00) == 0xD800) {
+                nextc = str.charCodeAt(i+1);
+                if ((nextc & 0xfc00) == 0xDC00) {
+                    // UTF-16 Surrogate pair
+                    c = (((c & 0x03ff)<<10) | (nextc & 0x3ff)) + 0x10000;
+                    i++;
+                } else {
+                    // error.
+                    console.log("Error decoding surrogate pair: "+c+"; "+nextc);
+                }
+            }
+            x = c&0xff;
+            y = c&0xff00;
+            z = c&0xff0000;
+            // Encode UCS code into UTF-8
+            if (c <= 0x0007ff) {
+                u8.push(0xc0 | (y>>6) | (x>>6));
+                u8.push(0x80 | (x&63));
+            } else if (c <= 0x00ffff) {
+                u8.push(0xe0 | (y>>12));
+                u8.push(0x80 | ((y>>6)&63) | (x>>6));
+                u8.push(0x80 | (x&63));
+            } else if (c <= 0x10ffff) {
+                u8.push(0xf0 | (z>>18));
+                u8.push(0x80 | ((z>>12)&63) | (y>>12));
+                u8.push(0x80 | ((y>>6)&63) | (x>>6));
+                u8.push(0x80 | (x&63));
+            } else {
+                // error.
+                console.log("Error encoding to utf8: "+c+" is greater than U+10ffff");
+                u8.push("?".charCodeAt(0));
+            }
+        }
+    }
+    return u8;
+}
 
-/**
-*
-*  UTF-8 data encode / decode
-*  http://www.webtoolkit.info/
-*
-*  From: http://www.webtoolkit.info/javascript-utf8.html
-*
-**/
-PROTO.Utf8 = {
-	// public method for url encoding
-	encode : function (string) {
-		var utftext = [];
-		for (var n = 0; n < string.length; n++) {
-			var c = string.charCodeAt(n);
-			if (c < 128) {
-				utftext.push(c);
-			}
-			else if((c > 127) && (c < 2048)) {
-				utftext.push((c >> 6) | 192);
-				utftext.push((c & 63) | 128);
-			}
-			else {
-				utftext.push((c >> 12) | 224);
-				utftext.push(((c >> 6) & 63) | 128);
-				utftext.push((c & 63) | 128);
-			}
-		}
-		return utftext;
-	},
+PROTO.decodeUTF8 = function(u8) {
+    var u8len = u8.length;
+    var str = "";
+    var c, b2, b3, b4;
+    for (var i = 0; i < u8len; i++) {
+        c = u8[i];
+        if ((c&0x80) == 0x00) {
+        } else if ((c&0xf8) == 0xf0) {
+            // 4 bytes: U+10000 - U+10FFFF
+            b2 = u8[i+1];
+            b3 = u8[i+2];
+            b4 = u8[i+3];
+            if ((b2&0xc0) == 0x80 && (b3&0xc0) == 0x80 && (b4&0xc0) == 0x80) {
+                c = (c&7)<<18 | (b2&63)<<12 | (b3&63)<<6 | (b4&63);
+                i+=3;
+            } else {
+                // error.
+                console.log("Error decoding from utf8: "+c+","+b2+","+b3+","+b4);
+                continue;
+            }
+        } else if ((c&0xf0)==0xe0) {
+            // 3 bytes: U+0800 - U+FFFF
+            b2 = u8[i+1];
+            b3 = u8[i+2];
+            if ((b2&0xc0) == 0x80 && (b3&0xc0) == 0x80) {
+                c = (c&15)<<12 | (b2&63)<<6 | (b3&63);
+                i+=2;
+            } else {
+                // error.
+                console.log("Error decoding from utf8: "+c+","+b2+","+b3);
+                continue;
+            }
+        } else if ((c&0xe0)==0xc0) {
+            // 2 bytes: U+0080 - U+07FF
+            b2 = u8[i+1];
+            if ((b2&0xc0) == 0x80) {
+                c = (c&31)<<6 | (b2&63);
+                i+=1;
+            } else {
+                // error.
+                console.log("Error decoding from utf8: "+c+","+b2);
+                continue;
+            }
+        } else {
+            // error.
+            // 80-BF: Second, third, or fourth byte of a multi-byte sequence
+            // F5-FF: Start of 4, 5, or 6 byte sequence
+            console.log("Error decoding from utf8: "+c+" encountered not in multi-byte sequence");
+            continue;
+        }
+        if (c <= 0xffff) {
+            str += String.fromCharCode(c);
+        } else if (c > 0xffff && c <= 0x10ffff) {
+            // Must be encoded into UTF-16 surrogate pair.
+            c -= 0x10000;
+            str += (String.fromCharCode(0xD800 | (c>>10)) + String.fromCharCode(0xDC00 | (c&1023)));
+        } else {
+            console.log("Error encoding surrogate pair: "+c+" is greater than U+10ffff");
+        }
+    }
+    return str;
+}
 
-	// public method for url decoding
-	decode : function (utftext) {
-		var string = "";
-		var i = 0;
-		var c = 0, c1 = 0, c2 = 0, c3 = 0;
-		while ( i < utftext.length ) {
-			c = utftext[i];
-			if (c < 128) {
-				string += String.fromCharCode(c);
-				i++;
-			}
-			else if((c > 191) && (c < 224)) {
-				c2 = utftext[i+1];
-				string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
-				i += 2;
-			}
-			else {
-				c2 = utftext[i+1];
-				c3 = utftext[i+2];
-				string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
-				i += 3;
-			}
-		}
-		return string;
-	}
-};
 
 /**
  * @constructor
@@ -502,21 +553,11 @@ PROTO.ByteArrayStream.prototype.valid = function() {
 };
 PROTO.ByteArrayStream.prototype.getArray = function() {
     return this.array_;
-}
+};
 /**
  * @constructor
  * @param {string=} b64string  String to read from, or append to.
  */
-PROTO.Base64Stream = function(b64string) {
-    this.string_ = b64string || '';
-    this.read_pos_ = 0;
-    this.read_incomplete_value_ = 0;
-    this.read_needed_bits_ = 8;
-    this.write_extra_bits_ = 0;
-    this.write_incomplete_value_ = 0;
-    this.fixString();
-}
-PROTO.Base64Stream.prototype = new PROTO.Stream();
 (function(){
     var FromB64AlphaMinus43=[
         62,-1,62,-1,63,52,53,54,55,56,57,58,59,60,61,
@@ -531,7 +572,29 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
         'a','b','c','d','e','f','g','h','i','j','k','l','m',
         'n','o','p','q','r','s','t','u','v','w','x','y','z',
+        '0','1','2','3','4','5','6','7','8','9','+','/'];
+    var ToB64Alpha_URLSafe=[
+        'A','B','C','D','E','F','G','H','I','J','K','L','M',
+        'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+        'a','b','c','d','e','f','g','h','i','j','k','l','m',
+        'n','o','p','q','r','s','t','u','v','w','x','y','z',
         '0','1','2','3','4','5','6','7','8','9','-','_'];
+    PROTO.Base64Stream = function(b64string) {
+        this.alphabet = ToB64Alpha;
+        this.string_ = b64string || '';
+        this.read_pos_ = 0;
+        this.read_incomplete_value_ = 0;
+        this.read_needed_bits_ = 8;
+        this.write_extra_bits_ = 0;
+        this.write_incomplete_value_ = 0;
+        this.fixString();
+    };
+    PROTO.Base64Stream.prototype = new PROTO.Stream();
+    PROTO.Base64Stream.prototype.setURLSafe = function(issafe) {
+        if (issafe) {
+            this.alphabet = ToB64Alpha_URLSafe;
+        }
+    };
     PROTO.Base64Stream.prototype.fixString = function() {
         var len = this.string_.length;
         if (this.string_[len-1]=='=') {
@@ -547,8 +610,8 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
             this.write_incomplete_value_ >>= (6-n);
             this.string_ = this.string_.substring(0,len-cutoff);
         }
-    }
-    PROTO.Base64Stream.prototype.readByte = function readByte() {
+    };
+    PROTO.Base64Stream.prototype.readByte = function() {
         var next6bits;
         var n = this.read_needed_bits_;
         while (next6bits === undefined || next6bits == -1) {
@@ -574,30 +637,30 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
         this.read_incomplete_value_ = next6bits&((1<<(6-n))-1);
         this.read_needed_bits_ += 2;
         return ret;
-    }
+    };
 
-    PROTO.Base64Stream.prototype.writeByte = function writeByte(byt) {
+    PROTO.Base64Stream.prototype.writeByte = function(byt) {
         this.write_extra_bits_ += 2;
         var n = this.write_extra_bits_;
-        this.string_ += ToB64Alpha[
+        this.string_ += this.alphabet[
                 byt>>n | this.write_incomplete_value_<<(8-n)];
         this.write_incomplete_value_ = (byt&((1<<n)-1));
         if (n == 6) {
-            this.string_ += ToB64Alpha[this.write_incomplete_value_];
+            this.string_ += this.alphabet[this.write_incomplete_value_];
             this.write_extra_bits_ = 0;
             this.write_incomplete_value_ = 0;
         }
         if (this.string_.length%77==76) {
             this.string_ += "\n";
         }
-    }
+    };
 
-    PROTO.Base64Stream.prototype.getString = function getString() {
+    PROTO.Base64Stream.prototype.getString = function() {
         var len = this.string_.length;
         var retstr = this.string_;
         var n = this.write_extra_bits_;
         if (n > 0) {
-            retstr += ToB64Alpha[this.write_incomplete_value_<<(6-n)];
+            retstr += this.alphabet[this.write_incomplete_value_<<(6-n)];
             if (n==2) {
                 retstr += "==";
             } else if (n==4) {
@@ -605,11 +668,11 @@ PROTO.Base64Stream.prototype = new PROTO.Stream();
             }
         }
         return retstr;
-    }
-    PROTO.Base64Stream.prototype.valid = function valid() {
+    };
+    PROTO.Base64Stream.prototype.valid = function() {
         return (this.read_pos_ < this.string_.length) ||
                (this.read_pos_==this.string_.length && this.write_extra_bits_);
-    }
+    };
 })();
 
 PROTO.array =
@@ -674,12 +737,12 @@ PROTO.string = {
     },
     wiretype: PROTO.wiretypes.lengthdelim,
     SerializeToStream: function(str, stream) {
-        var arr = PROTO.Utf8.encode(str);
+        var arr = PROTO.encodeUTF8(str);
         return PROTO.bytes.SerializeToStream(arr, stream);
     },
     ParseFromStream: function(stream) {
         var arr = PROTO.bytes.ParseFromStream(stream);
-        return PROTO.Utf8.decode(arr);
+        return PROTO.decodeUTF8(arr);
     },
     toString: function(str) {return str;}
 };
