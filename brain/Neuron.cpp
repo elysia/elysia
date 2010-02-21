@@ -1,6 +1,9 @@
                                                                                                                                                                                                                                                                                                                        #include "Platform.hpp"
 #include "Neuron.hpp"
 #include "Synapse.hpp"
+#include "Branch.hpp"
+#include "ActivityStats.hpp"
+
 namespace Elysia {
 
 Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
@@ -38,11 +41,11 @@ void Neuron::attachSynapse(Synapse*target){
 	mConnectedSynapses.push_back(target);
 }
 
-void Neuron::passdevelopmentsignal(float signal){
+void Neuron::passDevelopmentSignal(float signal){
 	mDevelopmentSignal += signal;
 }
 
-void Neuron::developSynapse(ActivityStats stats){
+void Neuron::developSynapse(const ActivityStats& stats){
 for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i)

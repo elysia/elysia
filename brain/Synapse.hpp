@@ -1,6 +1,7 @@
 #ifndef _ELYSIA_SYNAPSE_HPP_
 #define _ELYSIA_SYNAPSE_HPP_
 
+
 namespace Elysia {
 class CellComponent;
 class Neuron;
@@ -23,7 +24,7 @@ public:
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
 	void fireSynapse(float signal);
-	void develop(ActivityStats stats);
+	void develop(const ActivityStats& stats);
 };
 
 }

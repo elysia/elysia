@@ -24,8 +24,8 @@ class Branch:  public CellComponent{
     //Pointers to branches that come off of this branch
     void growSynapse();
     void activateComponent(float signal);
-    void passdevelopmentsignal(float signal);
-	void developSynapse(ActivityStats stats);
+	virtual void passDevelopmentSignal(float signal);
+	void developSynapse(const ActivityStats& stats);
 };
 
 }

@@ -1,6 +1,7 @@
 #include "Platform.hpp"
 #include "Branch.hpp"
 #include "Synapse.hpp"
+#include "ActivityStats.hpp"
 namespace Elysia {
 Branch::Branch(CellComponent * parent) {
     mParentComponent=parent;
@@ -17,22 +18,22 @@ void Branch::activateComponent(float signal){
     }
 }
 
-void Branch::passdevelopmentsignal(float signal){
+void Branch::passDevelopmentSignal(float signal){
     if(mActivity > mThreshold){
 		signal += mSignalWeight;
     }
-	mParentComponent->passdevelopmentsignal(signal);
+	mParentComponent->passDevelopmentSignal(signal);
 }
 
-void Branch::developSynapse(ActivityStats stats){
+void Branch::developSynapse(const ActivityStats& stats){
 	for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
          i!=ie;
          ++i)
-	*i -> develop(stats);
+	(*i)->develop(stats);
 	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i)
-	*i -> developSynapse(stats);
+	(*i)->developSynapse(stats);
 }
 
 void Branch::growSynapse(void){

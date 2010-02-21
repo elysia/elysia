@@ -1,6 +1,7 @@
 #include "Platform.hpp"
 #include "CellComponent.hpp"
 #include "Branch.hpp"
+#include "ActivityStats.hpp"
 namespace Elysia {
 CellComponent::CellComponent() {
     //These are default values for a generic neuron

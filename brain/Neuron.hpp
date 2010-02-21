@@ -5,6 +5,7 @@
 #include <vector>
 namespace Elysia {
 class Synapse;
+class ActivityStats;
 /**
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
@@ -49,9 +50,9 @@ public:
     void attachSynapse(Synapse*synapse);
     void activateComponent(float signal);
 	void fireNeuron(Synapse*target);
-	void passdevelopmentsignal(float signal);
+	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }
-	void developSynapse(ActivityStats stats);
+	void developSynapse(const ActivityStats& stats);
 };
 }
 #endif

@@ -24,8 +24,8 @@ public:
 	virtual ProteinDensity &getProteinDensityStructure()=0;
     virtual void activateComponent(float signal)=0; //negative possible for inhibition
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth);
-	virtual void passdevelopmenantsignal(float signal)=0;
-	virtual void developSynapse(ActivityStats stats)=0;
+	virtual void passDevelopmentSignal(float signal)=0;
+	virtual void developSynapse(const ActivityStats& stats)=0;
 };
 
 }
