@@ -260,9 +260,14 @@
                                         function(gene){return gene.maxAge;},
                                         function(gene,newMaxAge){gene.maxAge=newMaxAge;},
                                         'setChildrenAgeIndicator');
+
+        var chromosomePosition=PerGeneValueEntryBox(editor,
+                                        function(gene){return gene.chromosome_position;},
+                                        function(gene,newPosition){gene.chromosome_position=newPosition;},function(){});
+
         var internalProteins={};
         var externalProteins={};
-        var proteinCodes={}
+        var proteinCodes={};
         var geneuids={};
         for (var uid in context.selection) {
             var lobe=context.selection[uid];    
@@ -271,6 +276,7 @@
                 div.genes[div.genes.length]=lobe.gene;
                 minAge.initializeGene(lobe.gene);
                 maxAge.initializeGene(lobe.gene);
+                chromosomePosition.initializeGene(lobe.gene);
                 var numInternalProteins=lobe.gene.internal_proteins.length;
                 var i;
                 for (i=0;i<numInternalProteins;i+=1){
@@ -393,6 +399,7 @@
         }
         div.minAge=minAge.update;
         div.maxAge=maxAge.update;
+        div.chromosomePosition=chromosomePosition.update;
         var defaultControls=[
 //          ['makeNewLobe','function'],
             ['name','string',{value:lobeNames,size:26,reverse:false}],
@@ -400,6 +407,7 @@
             ['createLobeOutputTo','string',{size:13,reverse:true}],
             ['selectOutputLobes','function'],
             ['selectInputLobes','function']
+            ,['chromosomePosition','string',{value:chromosomePosition.getDescriptionString(),size:13,onblur:true,reverse:true}]
             //,['minAge','string',{value:minAge.getDescriptionString(),onblur:true,reverse:true}]
             //,['maxAge','string',{value:maxAge.getDescriptionString(),onblur:true,reverse:true}]
            ];
@@ -774,10 +782,13 @@
         })();
 var Gene = function(editor,baseElysiaGenomeGene) {
         var th=baseElysiaGenomeGene;
-        th.name="gene_"+getUID();
-        th.uid=getUID();       
+        var num=getUID();
+        th.name="gene_"+num;
+        th.uid=num;   
         th.minAge=0.0;
         th.maxAge=1.0;
+        if(!th.HasField("chromosome_position"))
+            th.chromosome_position=num/8192;
         var newProtein=function(geneName,density){
             var prot=new Elysia.Genome.Protein();
             prot.density=density;
@@ -1167,6 +1178,10 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                       y2=windowHeight;
               }
               return th.childNodes.filter(function(s) {
+                      if(!s.hasOwnProperty('uid'))
+                          return false;
+                      if(!s.hasOwnProperty('gene'))
+                          return false;
                       try {
                           var bb=s.getBoundingBox();
                           if (bb[0]<bb[2]&&bb[1]<bb[3]) {
@@ -1186,6 +1201,10 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               x1=x2=mouseUpPoint[0];
               y1=y2=mouseUpPoint[1];
               return th.childNodes.filter(function(s) {
+                      if(!s.hasOwnProperty('uid'))
+                          return false;
+                      if(!s.hasOwnProperty('gene'))
+                          return false;
                       try {
                           var bb=s.getBoundingBox();
                           if (bb[0]<bb[2]&&bb[1]<bb[3]) {
@@ -1503,7 +1522,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                  var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
                  var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
                  redoFunction();
-                 this.context.performedAction(redoFunction,undoFunction);
+                 context.performedAction(redoFunction,undoFunction);
              };
              doIt(lb);
              if (!first){
@@ -1547,14 +1566,52 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               first=false;
           }          
       },
+      loadHaploid:function(chromosome) {
+          var context=this.context;
+          this.context.selection={};
+          this.childNodes.filter(function(s) {
+                                     return s.hasOwnProperty('uid')&&s.hasOwnProperty("gene");
+                                 }).forEach(function (s) {
+                                                context.selection[s.uid]=s;
+                                            });
+          this.deleteLobe();
+          for (var i=0;i<chromosome.genes.length;i+=1){
+              var gene=new Gene(this,chromosome.genes[i]);
+              for( var j=0;j<gene.bounds.length;j+=1) {
+                  var bbox=gene.bounds[j];
+                  var inputRegion=new LobeInput(this,gene);
+                  inputRegion.setBoundingBox([bbox.minx,bbox.miny,bbox.maxx,bbox.maxy]);
+                  if (bbox.hasOwnProperty('mint')) {
+                      inputRegion.minAge=bbox.mint;
+                  }
+                  if (bbox.hasOwnProperty('maxt')) {
+                      inputRegion.maxAge=bbox.maxt;
+                  }                  
+                  this.append(inputRegion);
+                  this.makeNewSelectable(inputRegion);
+                  
+              }
+              for( var j=0;j<gene.target_region.length;j+=1) {
+                  var bbox=gene.target_region[j];
+                  var outputRegion=new LobeOutput(this,gene);
+                  outputRegion.setBoundingBox([bbox.minx,bbox.miny,bbox.maxx,bbox.maxy]);
+                  if (bbox.hasOwnProperty('mint')) {
+                      outputRegion.minAge=bbox.mint;
+                  }
+                  if (bbox.hasOwnProperty('maxt')) {
+                      outputRegion.maxAge=bbox.maxt;
+                  }                  
+                  this.makeNewSelectable(outputRegion);
+              }
+          }
+      },
       loadGenome:function(genomeData,father){
-          alert("Loading "+genomeData)
           var savemessage=new Elysia.Genome.Genome();
-          if (savemessage.ParseFromStream(new PROTO.Base64Stream(genomeData))) {
+          savemessage.ParseFromStream(new PROTO.Base64Stream(genomeData));
+          if (true) {//ParseFromStream does not return success
               if (father) {
                   this.loadHaploid (savemessage.fathers);
-              }
-              if (father) {
+              }else {
                   this.loadHaploid (savemessage.mothers);
               }
               this.saveString=genomeData;
@@ -1566,6 +1623,32 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               savemessage.ParseFromStream(new PROTO.Base64Stream(this.saveString));
           }
           var haploid=new Elysia.Genome.Chromosome();
+          var geneMap={};
+          this.childNodes.filter(function(s) {
+                                     return s.hasOwnProperty('uid')&&s.hasOwnProperty("gene");
+                                 }).forEach(function (s) {
+                                                if(!(s.gene.uid in geneMap)) {
+                                                    s.gene.bounds.clear();
+                                                    s.gene.target_region.clear();
+                                                    geneMap[s.gene.uid]=s.gene;
+                                                }
+                                                var bounds=new Elysia.Genome.TemporalBoundingBox();
+                                                var sbounds=s.getBoundingBox();
+                                                bounds.minx=sbounds[0];
+                                                bounds.miny=sbounds[1];
+                                                bounds.maxx=sbounds[2];
+                                                bounds.maxy=sbounds[3];
+                                                bounds.mint=s.getMinAge();
+                                                bounds.maxt=s.getMaxAge();
+                                                if (s.isAxon)
+                                                    s.gene.target_region.push(bounds);
+                                                else
+                                                    s.gene.bounds.push(bounds);
+                                                
+                                            });
+          for (var uid in geneMap) {
+              haploid.genes.push(geneMap[uid]);
+          }
           //FIXME: save entire editor state
           if (father) {
               savemessage.fathers=haploid;
@@ -1575,7 +1658,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
           }
           var b64stream = new PROTO.Base64Stream();          
           savemessage.SerializeToStream(b64stream);
-          alert(b64stream.getString().length);
+          window.location="data:application/base64-stream,"+b64stream.getString();
       },
       makeSelectedVanishAt: function (age) {
           var first=true;
@@ -1605,8 +1688,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
-         redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
-         undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
+         var redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
+         var undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
          return lobe;
