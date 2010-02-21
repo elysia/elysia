@@ -1589,7 +1589,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                   }                  
                   this.append(inputRegion);
                   this.makeNewSelectable(inputRegion);
-                  
+                  this.context.coalesceUndos();//first one is the delete...whew basecase covered                  
               }
               for( var j=0;j<gene.target_region.length;j+=1) {
                   var bbox=gene.target_region[j];
@@ -1602,6 +1602,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                       outputRegion.maxAge=bbox.maxt;
                   }                  
                   this.makeNewSelectable(outputRegion);
+                  this.context.coalesceUndos();
               }
           }
       },
@@ -1614,7 +1615,18 @@ var Gene = function(editor,baseElysiaGenomeGene) {
               }else {
                   this.loadHaploid (savemessage.mothers);
               }
-              this.saveString=genomeData;
+              var th=this;
+              var oldsavestring=this.saveString;
+              var newsavestring=genomeData;
+              var undo=function() {
+                  th.saveString=oldsavestring;
+              };
+              var redo=function() {
+                  th.saveString=newsavestring;
+              };
+              redo();
+              this.context.performedAction(redo,undo);
+              this.context.coalesceUndos();//coalesce from loadHaploid              
           }
       },
       saveAsGenome:function(father,mother){
