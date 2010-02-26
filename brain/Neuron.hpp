@@ -26,14 +26,14 @@ private:
     float TreeDepth;
     float BaseThreshold;
     float TipThreshold;
-    float FiringTime;
+    float FiringTime;			//Holding signal could be done solely on the synapse. Presently unused
     float ReceptivityTime;
     float LearningResponsiveness;
     float InhibitionSignal;
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
-	int mDevelopmentCounter;
+	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
 
     bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}

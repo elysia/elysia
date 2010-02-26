@@ -21,6 +21,10 @@ void Neuron::fire() {
 }
 
 void Neuron::activateComponent(float signal){
+	if(mLastActivity != GLOBAL_TIME){
+		mLastActivity = GLOBAL_TIME;
+		mActivity = 0;
+	}
     mActivity += signal;
     }
 
@@ -52,7 +56,9 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
 	(*i)->developSynapse(stats);
 }
 void Neuron::tick(){
-
+	if(mActivity > mThreshold){
+		fire();
+	}
 	if(mDevelopmentStage == 0){
 		if(mDevelopmentCounter == 0){
 			ActivityStats& stats = getActivityStats();
@@ -62,5 +68,6 @@ void Neuron::tick(){
 		}
 		else{ mDevelopmentCounter--;}
 	}
+	mActivity = 0;
 }
 }

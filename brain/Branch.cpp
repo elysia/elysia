@@ -12,9 +12,14 @@ ProteinDensity&Branch::getProteinDensityStructure() {
 }
 
 void Branch::activateComponent(float signal){
-    mActivity += signal;
+	if(mLastActivity != GLOBAL_TIME){
+		mLastActivity = GLOBAL_TIME;
+		mActivity = 0;
+	}
+	mActivity += signal;
     if(mActivity > mThreshold){
         mParentComponent->activateComponent(mSignalWeight);
+		mActivity = -999.9f;					//prevent branch from firing again this round
     }
 }
 

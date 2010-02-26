@@ -75,6 +75,7 @@ void Synapse::develop(const ActivityStats& stats){
 	float changeSize = 0.1f;				//Controls how quickly strengthening and weakening happen in mid-development
 	float maxStrengthen = 0.1f;			//Maximum amount to strengthen in mid-development
 	float maxWeaken = -0.04f;			//Maximum amount to weaken in mid-development
+	float strengthenRange = 2.0f;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
 		if(mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
 			mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
@@ -86,7 +87,7 @@ void Synapse::develop(const ActivityStats& stats){
 	else{
 		if(stats.mBestDevelopmentSignal >= earlyDevelopmentWindow ){
 			if(mFiringCounter > 0){
-				strengthenAmount = changeSize*(2*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
+				strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
 				if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
 				if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
 				mConnectionStrength += strengthenAmount;

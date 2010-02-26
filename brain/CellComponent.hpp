@@ -12,7 +12,7 @@ protected:
     float mThreshold;                  //How much activity is required to fire
     float mSignalStrength;
     int   mDevelopmentStage;                        //0 = development, 1=mature
-
+	int   mLastActivity;				//timestep of last signal
 protected:
     //Array of child branches
     std::vector<Branch *>mChildBranches;
