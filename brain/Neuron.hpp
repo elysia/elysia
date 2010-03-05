@@ -33,7 +33,9 @@ private:
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
+    SimTime mLastActivity;
 	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
+	
 
     bool fireSynapse(Synapse *target);
     virtual Neuron*getParentNeuron(){return this;}

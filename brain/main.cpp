@@ -11,10 +11,8 @@ int main() {
     bleh["ahoy"]=test;
     Elysia::Genome::Genome genes;
 	//std::vector<Branch *>BranchestoWipe;
-	int GLOBAL_TIME = 0;					//timestamp for sim events
 
-	std::vector<Elysia::Neuron *>neuronList;
-
+    
 
 	//Generate Neurons have to touch all neurons in development and all neurons firing
 	//Have to touch all synapses, could only touch all active synapses with a vector

@@ -1,8 +1,9 @@
-                                                                                                                                                                                                                                                                                                                       #include "Platform.hpp"
+#include "Platform.hpp"
 #include "Neuron.hpp"
 #include "Synapse.hpp"
 #include "Branch.hpp"
 #include "ActivityStats.hpp"
+#include "genome.pb.h"
 #include "Brain.hpp"
 namespace Elysia {
 
@@ -12,17 +13,17 @@ Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, con
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
 }
-void Neuron::fire(Brain&ctx) {
+void Neuron::fire(Brain&brain) {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
-        this->fireNeuron(ctx,*i);
+        this->fireNeuron(brain,*i);
     }
 }
 
-void Neuron::activateComponent(Brain&ctx, float signal){
-	if(mLastActivity != ctx.GLOBAL_TIME){
-		mLastActivity = ctx.GLOBAL_TIME;
+void Neuron::activateComponent(Brain&brain, float signal){
+	if(mLastActivity != brain.mCurTime){
+		mLastActivity = brain.mCurTime;
 		mActivity = 0;
 	}
     mActivity += signal;
@@ -37,8 +38,8 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
-void Neuron::fireNeuron(Brain&ctx,Synapse*target){
-	target->fireSynapse(ctx,mNeuronSignalWeight);			
+void Neuron::fireNeuron(Brain&brain,Synapse*target){
+	target->fireSynapse(brain,mNeuronSignalWeight);			
 }
 
 void Neuron::attachSynapse(Synapse*target){
@@ -55,9 +56,9 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
          ++i)
 	(*i)->developSynapse(stats);
 }
-void Neuron::tick(Brain&ctx){
+void Neuron::tick(Brain&brain){
 	if(mActivity > mThreshold){
-		fire(ctx);
+		fire(brain);
 	}
 	if(mDevelopmentStage == 0){
 		if(mDevelopmentCounter == 0){

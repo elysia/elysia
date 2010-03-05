@@ -60,11 +60,12 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     return true;
 }
 
-void Synapse::fireSynapse(Brain &ctx,float signal){
+void Synapse::fireSynapse(Brain &brain,float signal){
 	signal += mSignalWeight;
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons
-    mParentBranch->activateComponent(ctx, signal);
+    mParentBranch->activateComponent(brain, signal);
+
 }
 
 void Synapse::develop(const ActivityStats& stats){

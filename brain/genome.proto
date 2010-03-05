@@ -21,9 +21,6 @@ message Protein {
   optional float density=2;
 }
 
-message Proteins {
-  repeated Protein proteins=1;
-}
 message TemporalBoundingBox {
    required float minx=1;
    required float maxx=2;

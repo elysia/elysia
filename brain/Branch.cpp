@@ -2,6 +2,7 @@
 #include "Branch.hpp"
 #include "Synapse.hpp"
 #include "ActivityStats.hpp"
+#include "genome.pb.h"
 #include "Brain.hpp"
 namespace Elysia {
 Branch::Branch(CellComponent * parent) {
@@ -13,8 +14,8 @@ ProteinDensity&Branch::getProteinDensityStructure() {
 }
 
 void Branch::activateComponent(Brain&ctx, float signal){
-	if(mLastActivity != ctx.GLOBAL_TIME){
-		mLastActivity = ctx.GLOBAL_TIME;
+	if(mLastActivity != ctx.mCurTime){
+		mLastActivity = ctx.mCurTime;
 		mActivity = 0;
 	}
 	mActivity += signal;

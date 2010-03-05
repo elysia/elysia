@@ -16,29 +16,32 @@ void SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
     //Zones start out as representing 1 gene (can be overlapping)
     //Since they can represent a collection of genes,
     //They are chopped during the intersection process and overlap regions become new zones
-    Elysia::Genome::Chromosome *fatherMother[2];
-    fatherMother[0]=&genes.father();
-    fatherMother[1]=&genes.mother();
+    const Elysia::Genome::Chromosome *fatherMother[2];
+    fatherMother[0]=&genes.fathers();
+    fatherMother[1]=&genes.mothers();
     //Loop through all the genes
     for (int chromosomeNum=0;chromosomeNum<2;++chromosomeNum) {
        int num_genes=fatherMother[chromosomeNum]->genes_size();
        for (int i=0;i<num_genes;++i) {
           //Define the new zone
-          Elysia::Genome::Gene*gene=fatherMother[chromosomeNum]->genes(i);
-          ProteinZone newZone;
-          newZone.mGenes.push_back(*gene);
-          int num_proteins=gene->external_proteins_size();
-          for (int j=0;j<num_proteins;++j) {
-            Elysia::Genome::Protein *protein=gene->external_proteins(j);
-            newZone.mSoup.push_back(EffectAndDensityPair(protein->protein_code(j),protein->density(j)));
+          const Elysia::Genome::Gene*gene=&fatherMother[chromosomeNum]->genes(i);
+          int num_bounds=gene->bounds_size();
+          for (int k=0;k<num_bounds;++k) {
+              ProteinZone newZone;
+              newZone.mGenes.push_back(*gene);
+              int num_proteins=gene->external_proteins_size();
+              for (int j=0;j<num_proteins;++j) {
+                  const Elysia::Genome::Protein *protein=&gene->external_proteins(j);
+                  newZone.mSoup.push_back(ProteinZone::EffectAndDensityPair(protein->protein_code(),protein->density()));
+              }
+              newZone.mBounds =BoundingBox3f3f(Vector3f(gene->bounds(k).minx(),
+                                                        gene->bounds(k).miny(),
+                                                        gene->bounds(k).minz()),
+                                               Vector3f(gene->bounds(k).maxx(),
+                                                        gene->bounds(k).maxy(),
+                                                        gene->bounds(k).maxz()));
+              mMainZoneList.push_back(newZone);
           }
-          newZone.mBounds =BoundingBox3f3f(Vector3f(gene->bounds().minx(),
-                                                    gene->bounds().miny(),
-                                                    gene->bounds().minz()),
-                                           Vector3f(gene->bounds().maxx(),
-                                                    gene->bounds().maxy(),
-                                                    gene->bounds().maxz()));
-          mMainZoneList.push_back(newZone);
        }
     }
 }
