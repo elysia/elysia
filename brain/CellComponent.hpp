@@ -12,7 +12,7 @@ protected:
     float mThreshold;                  //How much activity is required to fire
     float mSignalStrength;
     int   mDevelopmentStage;                        //0 = development, 1=mature
-	int   mLastActivity;				//timestep of last signal
+	SimTime   mLastActivity;				//timestep of last signal
 protected:
     //Array of child branches
     std::vector<Branch *>mChildBranches;
@@ -22,7 +22,7 @@ public:
     virtual Neuron*getParentNeuron()=0;
     void strengthen(float reward); //for punishment, use negative reward
 	virtual ProteinDensity &getProteinDensityStructure()=0;
-    virtual void activateComponent(float signal)=0; //negative possible for inhibition
+    virtual void activateComponent(NeuralContext&,float signal)=0; //negative possible for inhibition
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth);
 	virtual void passDevelopmentSignal(float signal)=0;
 	virtual void developSynapse(const ActivityStats& stats)=0;

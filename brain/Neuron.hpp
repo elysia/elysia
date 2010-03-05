@@ -40,16 +40,16 @@ private:
 
 public:
     Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location);
-    void fire();
+    void fire(NeuralContext&);
     ///Simulates one millisecond of neural time
-    void tick();
+    void tick(NeuralContext&);
     /* Removed to wait for tie in to protein soup
 	ProteinDensity& getProteinDensityStructure();
 	*/
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
-    void activateComponent(float signal);
-	void fireNeuron(Synapse*target);
+    void activateComponent(NeuralContext&,float signal);
+	void fireNeuron(NeuralContext&,Synapse*target);
 	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }
 	void developSynapse(const ActivityStats& stats);

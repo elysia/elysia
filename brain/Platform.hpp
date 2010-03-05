@@ -2,5 +2,18 @@
 
 namespace Elysia {
 using namespace Sirikata;
-
+class SimTime {
+    Sirikata::int64 time;
+public:
+    bool operator !=(const SimTime&other) const{
+        return other.time!=time;
+    }
+    bool operator ==(const SimTime&other) const{
+        return other.time==time;
+    }
+};
+class NeuralContext {
+public:
+    SimTime GLOBAL_TIME;
+};
 }

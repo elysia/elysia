@@ -23,7 +23,7 @@ class Branch:  public CellComponent{
     virtual ProteinDensity&getProteinDensityStructure();
     //Pointers to branches that come off of this branch
     void growSynapse();
-    void activateComponent(float signal);
+    void activateComponent(NeuralContext&,float signal);
 	virtual void passDevelopmentSignal(float signal);
 	void developSynapse(const ActivityStats& stats);
 };

@@ -23,7 +23,7 @@ public:
     bool detach();
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
-	void fireSynapse(float signal);
+	void fireSynapse(NeuralContext&ctx,float signal);
 	void develop(const ActivityStats& stats);
 };
 

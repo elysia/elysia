@@ -260,11 +260,13 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/SpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
+  ${BRAIN_SOURCE_DIR}/Base64.cpp
 )
 
 #Andrew's brain directory
 SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+
   ${BRAIN_SOURCE_DIR}/CellComponent.cpp  
   ${BRAIN_SOURCE_DIR}/Neuron.cpp  
   ${BRAIN_SOURCE_DIR}/Synapse.cpp  

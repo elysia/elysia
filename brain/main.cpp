@@ -13,7 +13,7 @@ int main() {
 	//std::vector<Branch *>BranchestoWipe;
 	int GLOBAL_TIME = 0;					//timestamp for sim events
 
-	std::vector<Neuron *>neuronList;
+	std::vector<Elysia::Neuron *>neuronList;
 
 
 	//Generate Neurons have to touch all neurons in development and all neurons firing

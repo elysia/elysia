@@ -12,17 +12,17 @@ Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, con
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
 }
-void Neuron::fire() {
+void Neuron::fire(NeuralContext&ctx) {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
-        this->fireNeuron(*i);
+        this->fireNeuron(ctx,*i);
     }
 }
 
-void Neuron::activateComponent(float signal){
-	if(mLastActivity != GLOBAL_TIME){
-		mLastActivity = GLOBAL_TIME;
+void Neuron::activateComponent(NeuralContext&ctx, float signal){
+	if(mLastActivity != ctx.GLOBAL_TIME){
+		mLastActivity = ctx.GLOBAL_TIME;
 		mActivity = 0;
 	}
     mActivity += signal;
@@ -37,8 +37,8 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
-void Neuron::fireNeuron(Synapse*target){
-	target->fireSynapse(mNeuronSignalWeight);			
+void Neuron::fireNeuron(NeuralContext&ctx,Synapse*target){
+	target->fireSynapse(ctx,mNeuronSignalWeight);			
 }
 
 void Neuron::attachSynapse(Synapse*target){
@@ -55,9 +55,9 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
          ++i)
 	(*i)->developSynapse(stats);
 }
-void Neuron::tick(){
+void Neuron::tick(NeuralContext&ctx){
 	if(mActivity > mThreshold){
-		fire();
+		fire(ctx);
 	}
 	if(mDevelopmentStage == 0){
 		if(mDevelopmentCounter == 0){
