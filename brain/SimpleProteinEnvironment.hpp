@@ -9,7 +9,7 @@ class SimpleProteinEnvironment{
     typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
     //Soup activates genes so you need to know which soup is active
     std::vector< EffectAndDensityPair > mSoup;
-    std::vector<Elysia::Genome::Gene> mGenes;
+    std::vector< Elysia::Genome::Gene > mGenes;
     BoundingBox3f3f mBounds;
     const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
     float getSpecificProteinDensity(Elysia::Genome::Effect); 
@@ -21,6 +21,7 @@ class SimpleProteinEnvironment{
 private:
 
 public:
+  void initialize(const Elysia::Genome::Genome&genes);
   float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
   std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
 
@@ -38,7 +39,12 @@ public:
                              std::vector<ProteinZone> mMainZoneList);
 };
 }
-/**TEMPORARY NOTES TO SELF (NIA)
+
+/**TEMPORARY NOTES TO SELF (NIA) --- From genes to zone entities
+
+*/
+
+/**TEMPORARY NOTES TO SELF (NIA) --- Simple splitting algorithm
     Need:
         find box
             list{box} = boxIntersection(boxA, boxB) [spatial, 2D version] 
