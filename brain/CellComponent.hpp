@@ -5,7 +5,7 @@ class Neuron;
 class ProteinDensity; 
 class Branch;
 class ActivityStats;
-
+class Brain;
 class CellComponent{
 protected:
     float mActivity;                   
@@ -22,7 +22,7 @@ public:
     virtual Neuron*getParentNeuron()=0;
     void strengthen(float reward); //for punishment, use negative reward
 	virtual ProteinDensity &getProteinDensityStructure()=0;
-    virtual void activateComponent(NeuralContext&,float signal)=0; //negative possible for inhibition
+    virtual void activateComponent(Brain&,float signal)=0; //negative possible for inhibition
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth);
 	virtual void passDevelopmentSignal(float signal)=0;
 	virtual void developSynapse(const ActivityStats& stats)=0;

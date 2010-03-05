@@ -3,7 +3,7 @@
 #include "Synapse.hpp"
 #include "Branch.hpp"
 #include "ActivityStats.hpp"
-
+#include "Brain.hpp"
 namespace Elysia {
 
 Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
@@ -12,7 +12,7 @@ Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, con
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
 }
-void Neuron::fire(NeuralContext&ctx) {
+void Neuron::fire(Brain&ctx) {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
@@ -20,7 +20,7 @@ void Neuron::fire(NeuralContext&ctx) {
     }
 }
 
-void Neuron::activateComponent(NeuralContext&ctx, float signal){
+void Neuron::activateComponent(Brain&ctx, float signal){
 	if(mLastActivity != ctx.GLOBAL_TIME){
 		mLastActivity = ctx.GLOBAL_TIME;
 		mActivity = 0;
@@ -37,7 +37,7 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
-void Neuron::fireNeuron(NeuralContext&ctx,Synapse*target){
+void Neuron::fireNeuron(Brain&ctx,Synapse*target){
 	target->fireSynapse(ctx,mNeuronSignalWeight);			
 }
 
@@ -55,7 +55,7 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
          ++i)
 	(*i)->developSynapse(stats);
 }
-void Neuron::tick(NeuralContext&ctx){
+void Neuron::tick(Brain&ctx){
 	if(mActivity > mThreshold){
 		fire(ctx);
 	}

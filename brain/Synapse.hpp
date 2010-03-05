@@ -7,7 +7,7 @@ class CellComponent;
 class Neuron;
 class Branch;
 class ActivityStats;
-
+class Brain;
 ///The dendrite_tip represents connections from the dendrite tree onto other neurons. Neurons pass activity onto
 ///dendrite_tips and dendrite_tips pass that activity onto branches
 
@@ -23,7 +23,7 @@ public:
     bool detach();
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
-	void fireSynapse(NeuralContext&ctx,float signal);
+	void fireSynapse(Brain&ctx,float signal);
 	void develop(const ActivityStats& stats);
 };
 

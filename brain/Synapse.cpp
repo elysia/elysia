@@ -60,7 +60,7 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     return true;
 }
 
-void Synapse::fireSynapse(NeuralContext &ctx,float signal){
+void Synapse::fireSynapse(Brain &ctx,float signal){
 	signal += mSignalWeight;
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons

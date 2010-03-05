@@ -12,8 +12,4 @@ public:
         return other.time==time;
     }
 };
-class NeuralContext {
-public:
-    SimTime GLOBAL_TIME;
-};
 }
