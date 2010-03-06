@@ -1,12 +1,16 @@
+#include "Platform.hpp"
+#include "genome.pb.h"
 #include "Brain.hpp"
+#include "ProteinEnvironment.hpp"
 namespace Elysia {
-
+Brain::Brain (ProteinEnvironment *proteinMap){
+    mProteinMap=proteinMap;
+}
 void Brain::tick(){
-   mCurTime++;
+    ++mCurTime;
 }
 
-Brain::Brain(){
-    mCurTime = 0;
+Brain::~Brain() {
+    delete mProteinMap;
 }
-
 }

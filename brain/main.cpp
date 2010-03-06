@@ -6,25 +6,29 @@
 #include "Branch.hpp"
 #include "Synapse.hpp"
 #include "Base64.hpp"
-
+#include "Brain.hpp"
+#include "SimpleProteinEnvironment.hpp"
 bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     FILE * fp=fopen(fileName,"rb");
     if (!fp) return false;
     fseek(fp,0,SEEK_END);
     size_t fileSize=ftell(fp);
-    void * data = malloc(fileSize);
+    std::vector<unsigned char> data(fileSize);
     fseek(fp,0,SEEK_SET);
-    fread(data,1,fileSize,fp);
+    if (!data.empty()) {
+        fread(&*data.begin(),1,fileSize,fp);
+    }
     fclose(fp);
+    if (data.empty()) return false;
     std::vector<unsigned char> buffer;
-    if (fromBase64(buffer,Base64::MemoryReference(data,fileSize))) {
+    if (fromBase64(buffer,Base64::MemoryReference(&*data.begin(),fileSize))) {
         if (buffer.size()&&retval.ParseFromArray(&*buffer.begin(),buffer.size())) {
             return true;
         }else {
-            return retval.ParseFromArray(data,fileSize);
+            return retval.ParseFromArray(&*data.begin(),fileSize);
         }
     }else {
-        return retval.ParseFromArray(data,fileSize);
+        return retval.ParseFromArray(&*data.begin(),fileSize);
     }
 }
 
@@ -41,6 +45,7 @@ int main(int argc, char **argv) {
             printf("Success loading saved file\n");
         }
     }
+    Elysia::Brain brain(&(new Elysia::SimpleProteinEnvironment)->initialize(genes));
 	//std::vector<Branch *>BranchestoWipe;
 
     

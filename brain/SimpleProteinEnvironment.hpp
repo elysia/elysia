@@ -1,9 +1,10 @@
+#include "ProteinEnvironment.hpp"
 #include "genome.pb.h"
 namespace Elysia {
 
 /** Class defines the protein soup that components interact with
  */
-class SimpleProteinEnvironment{
+class SimpleProteinEnvironment : public ProteinEnvironment{
   //Define the data that each zone carries with it
   struct ProteinZone{
     typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
@@ -21,7 +22,7 @@ class SimpleProteinEnvironment{
 private:
 
 public:
-  void initialize(const Elysia::Genome::Genome&genes);
+  ProteinEnvironment& initialize(const Elysia::Genome::Genome&genes);
   float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
   std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
 
@@ -37,6 +38,7 @@ public:
   //Function to find the zone that a single point reside in
   ProteinZone &resideInZones(const Vector3f queryPoint, 
                              std::vector<ProteinZone> mMainZoneList);
+  ~SimpleProteinEnvironment();
 };
 }
 

@@ -1,5 +1,4 @@
 #include "Platform.hpp"
-#include "ProteinEnvironment.hpp"
 #include "SimpleProteinEnvironment.hpp"
 namespace Elysia {
 /*
@@ -12,7 +11,7 @@ template <class T, class U> class pair {public:
 */
 
 //Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome
-void SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
+ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
     //Zones start out as representing 1 gene (can be overlapping)
     //Since they can represent a collection of genes,
     //They are chopped during the intersection process and overlap regions become new zones
@@ -44,6 +43,7 @@ void SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
           }
        }
     }
+    return *this;
 }
 
 //Find the "specific protein density" total up the protein (given effect)
@@ -135,6 +135,8 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 	}
 
 	return myFail;
+}
+SimpleProteinEnvironment::~SimpleProteinEnvironment(){
 }
 
 }

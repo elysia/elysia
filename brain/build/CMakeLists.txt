@@ -232,8 +232,10 @@ ADD_CUSTOM_COMMAND(OUTPUT ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/g
 
 SET(BRAIN_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/Brain.cpp  
   ${BRAIN_SOURCE_DIR}/Base64.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
+  ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
 )
 
 
@@ -257,6 +259,7 @@ ENDIF()
 #Nghia's ANN test
 SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/Brain.cpp  
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
   ${BRAIN_SOURCE_DIR}/SpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
@@ -267,11 +270,13 @@ SET(NEAREST_NEIGHBOR_SOURCES
 #Andrew's brain directory
 SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/Brain.cpp  
   ${BRAIN_SOURCE_DIR}/Base64.cpp
   ${BRAIN_SOURCE_DIR}/CellComponent.cpp  
   ${BRAIN_SOURCE_DIR}/Neuron.cpp  
   ${BRAIN_SOURCE_DIR}/Synapse.cpp  
   ${BRAIN_SOURCE_DIR}/Branch.cpp  
+  ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
 )
 
