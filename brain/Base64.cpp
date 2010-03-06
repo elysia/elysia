@@ -152,7 +152,7 @@ static signed char URLSAFEDECODABET [] = {
 };
 
 
-void fromBase64(std::vector<unsigned char>&retval,
+bool fromBase64(std::vector<unsigned char>&retval,
                 const MemoryReference&a) {
     const uint8*begin=(const uint8*)a.data();
     const uint8*end=(const uint8*)begin+a.size();
@@ -165,6 +165,9 @@ void fromBase64(std::vector<unsigned char>&retval,
     uint8 b4Posn=0;
     for (;begin!=end;++begin) {
         uint8 cur=(*begin);
+        if (cur&0x80) {
+            return false;
+        }
         uint8 sbiCrop = (uint8)(cur & 0x7f); // Only the low seven bits
         signed char sbiDecode = URLSAFEDECODABET[ sbiCrop ];   // Special value
             
@@ -187,5 +190,6 @@ void fromBase64(std::vector<unsigned char>&retval,
     }
     assert(outBuffPosn<=(int)retval.size());
     retval.resize(outBuffPosn);
+    return true;
 }
 }

@@ -49,7 +49,7 @@ typedef DataReference<const void*> MemoryReference;
 void toBase64(std::vector<unsigned char>&retval,
               const MemoryReference&firstInput, 
               const MemoryReference&secondInput);
-void fromBase64(std::vector<unsigned char>&retval,
+bool fromBase64(std::vector<unsigned char>&retval,
                 const MemoryReference&a);
 }
 

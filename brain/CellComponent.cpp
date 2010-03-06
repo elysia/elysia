@@ -53,6 +53,4 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
     }
 }
 
-
-
 }

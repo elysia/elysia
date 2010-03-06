@@ -49,7 +49,7 @@ message ConditionClause {
 }
 
 message Gene {
-  required float position=1;//in centimorgans with 0 at the start of the chromosome
+  required float chromosome_position=1;//in centimorgans with 0 at the start of the chromosome
   repeated Protein external_proteins=2;
   repeated Protein internal_proteins=3;
   repeated TemporalBoundingBox bounds=4;

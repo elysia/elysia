@@ -232,6 +232,7 @@ ADD_CUSTOM_COMMAND(OUTPUT ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/g
 
 SET(BRAIN_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
+  ${BRAIN_SOURCE_DIR}/Base64.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
 )
 
@@ -266,7 +267,7 @@ SET(NEAREST_NEIGHBOR_SOURCES
 #Andrew's brain directory
 SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
-
+  ${BRAIN_SOURCE_DIR}/Base64.cpp
   ${BRAIN_SOURCE_DIR}/CellComponent.cpp  
   ${BRAIN_SOURCE_DIR}/Neuron.cpp  
   ${BRAIN_SOURCE_DIR}/Synapse.cpp  
