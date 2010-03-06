@@ -28,13 +28,6 @@ Elysia.Genome.Protein = PROTO.Message("Elysia.Genome.Protein",{
 		type: function(){return PROTO.Float;},
 		id: 2
 	}});
-Elysia.Genome.Proteins = PROTO.Message("Elysia.Genome.Proteins",{
-	proteins: {
-		options: {},
-		multiplicity: PROTO.repeated,
-		type: function(){return Elysia.Genome.Protein;},
-		id: 1
-	}});
 Elysia.Genome.TemporalBoundingBox = PROTO.Message("Elysia.Genome.TemporalBoundingBox",{
 	minx: {
 		options: {},
@@ -116,7 +109,7 @@ Elysia.Genome.ConditionClause = PROTO.Message("Elysia.Genome.ConditionClause",{
 		id: 1
 	}});
 Elysia.Genome.Gene = PROTO.Message("Elysia.Genome.Gene",{
-	position: {
+	chromosome_position: {
 		options: {},
 		multiplicity: PROTO.required,
 		type: function(){return PROTO.Float;},
