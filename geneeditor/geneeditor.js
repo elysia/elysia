@@ -1672,7 +1672,13 @@ var Gene = function(editor,baseElysiaGenomeGene) {
           b64stream.setURLSafe(true);
           savemessage.SerializeToStream(b64stream);
           var savestring=b64stream.getString();
-          window.location="data:application/base64-stream,"+savestring;
+          //bad in chrome window.location="data:application/base64-stream,"+savestring;
+          var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+          if (is_chrome) {
+              window.open("data:image/png,"+savestring,"save this file");   
+          }else {
+              window.open("data:text/plain,"+savestring,"save this file");   
+          }
       },
       makeSelectedVanishAt: function (age) {
           var first=true;
@@ -2150,6 +2156,6 @@ var Gene = function(editor,baseElysiaGenomeGene) {
       var d = E('div', { id: 'screen' });
       d.appendChild(c);
       document.body.appendChild(d);
-      var devmode=(window.location.search.split("devmode=true").length>1);
+      var devmode=true;//(window.location.search.split("devmode=true").length>1);
       var GE = new GenomeEditor(c,devmode);
     }
