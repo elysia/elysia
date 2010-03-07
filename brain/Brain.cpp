@@ -10,6 +10,15 @@ void Brain::tick(){
     ++mCurTime;
 }
 
+std::list<Synapse *>::iterator Brain::activeSynapse(Synapse *activeSynapse){
+    mActiveSynapses.push_front(activeSynapse);
+    return mActiveSynapses.begin();
+}
+std::list<Neuron *>::iterator Brain::activeNeuron(Neuron *activeNeuron){
+  mActiveNeurons.push_back(activeNeuron);
+  return mActiveNeurons.begin();
+}
+
 Brain::~Brain() {
     delete mProteinMap;
 }

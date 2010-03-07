@@ -21,8 +21,11 @@ public:
 
     void tick();
     ~Brain();
+    std::list<Synapse *>::iterator activeSynapse(Synapse *activeSynapse);
+    std::list<Neuron *>::iterator activeNeuron(Neuron *activeNeuron);
+    std::list<Synapse *>::iterator inactiveSynapse(){return mActiveSynapses.end();}
+    std::list<Neuron *>::iterator inactiveNeuron(){return mActiveNeurons.end();}
 };
-
 }
 
 #endif

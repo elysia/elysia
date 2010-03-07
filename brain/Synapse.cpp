@@ -3,14 +3,17 @@
 #include "Neuron.hpp"
 #include "genome.pb.h"
 #include "ActivityStats.hpp"
+#include "Brain.hpp"
 //Takes care of disconnecting DendriteTip. Should be called in destructor
 
 namespace Elysia {
 	class Neuron;
 
 Synapse::Synapse(CellComponent * parent){
-		mParentBranch = parent;
-	}
+	mParentBranch = parent;
+	mBrain=parent->getParentNeuron()->getBrain();
+    mWhere=mBrain->inactiveSynapse();
+}
 
 bool Synapse::detach(){
     if (mRecipientNeuron) {
@@ -60,13 +63,19 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     return true;
 }
 
-void Synapse::fireSynapse(Brain &brain,float signal){
+void Synapse::fireSynapse(float signal){
 	signal += mSignalWeight;
+	if(mFiringCounter == 0){
+	  assert(mWhere==mBrain->inactiveSynapse());
+	  mBrain->activeSynapse(this);
+	}
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons
-    mParentBranch->activateComponent(brain, signal);
-
+    mParentBranch->activateComponent(*mBrain, signal);
+    
 }
+
+
 
 void Synapse::develop(const ActivityStats& stats){
 	float strengthenAmount=0.0f;

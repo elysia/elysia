@@ -7,23 +7,24 @@
 #include "Brain.hpp"
 namespace Elysia {
 
-Neuron::Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
-
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
+    mBrain=brain;
+    mWhere=brain->inactiveNeuron();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
 }
-void Neuron::fire(Brain&brain) {
+void Neuron::fire() {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
-        this->fireNeuron(brain,*i);
+        this->fireNeuron(*i);
     }
 }
 
-void Neuron::activateComponent(Brain&brain, float signal){
-	if(mLastActivity != brain.mCurTime){
-		mLastActivity = brain.mCurTime;
+void Neuron::activateComponent(Brain* brain, float signal){
+	if(mLastActivity != mBrain->mCurTime){
+		mLastActivity = mBrain->mCurTime;
 		mActivity = 0;
 	}
     mActivity += signal;
@@ -38,8 +39,8 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
-void Neuron::fireNeuron(Brain&brain,Synapse*target){
-	target->fireSynapse(brain,mNeuronSignalWeight);			
+void Neuron::fireNeuron(Synapse*target){
+	target->fireSynapse(mNeuronSignalWeight);			
 }
 
 void Neuron::attachSynapse(Synapse*target){
@@ -56,9 +57,9 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
          ++i)
 	(*i)->developSynapse(stats);
 }
-void Neuron::tick(Brain&brain){
+void Neuron::tick(){
 	if(mActivity > mThreshold){
-		fire(brain);
+		fire();
 	}
 	if(mDevelopmentStage == 0){
 		if(mDevelopmentCounter == 0){

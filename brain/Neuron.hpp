@@ -10,6 +10,8 @@ class ActivityStats;
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
 class Neuron : public CellComponent, ActivityStats{
+    std::list<Neuron*>::iterator mWhere;
+    Brain*mBrain;
 private:
     ///Neuron location
     Vector3f mNeuronLocation;
@@ -37,24 +39,25 @@ private:
 	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
 	
 
-    bool fireSynapse(Synapse *target);
+    bool fireSynapse();
     virtual Neuron*getParentNeuron(){return this;}
 
 public:
-    Neuron(float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location);
-    void fire(Brain&);
+    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location);
+    void fire();
     ///Simulates one millisecond of neural time
-    void tick(Brain&);
+    void tick();
     /* Removed to wait for tie in to protein soup
 	ProteinDensity& getProteinDensityStructure();
 	*/
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
-    void activateComponent(Brain&,float signal);
-	void fireNeuron(Brain&,Synapse*target);
+    void activateComponent(Brain*, float signal);
+	void fireNeuron(Synapse*target);
 	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }
 	void developSynapse(const ActivityStats& stats);
+	Brain* getBrain() {return mBrain;}
 };
 }
 #endif

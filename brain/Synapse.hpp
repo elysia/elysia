@@ -12,6 +12,8 @@ class Brain;
 ///dendrite_tips and dendrite_tips pass that activity onto branches
 
 class Synapse{
+    std::list<Synapse*>::iterator mWhere;
+    Brain *mBrain;
 public:
     float mSignalWeight;
     int mFiringWindow;		//How long this synapse stays active for
@@ -23,7 +25,7 @@ public:
     bool detach();
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
-	void fireSynapse(Brain&ctx,float signal);
+	void fireSynapse(float signal);
 	void develop(const ActivityStats& stats);
 };
 
