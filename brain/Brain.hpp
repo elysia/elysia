@@ -20,11 +20,15 @@ public:
     std::list<Synapse *>mActiveSynapses;
 
     void tick();
+	void processSynapse();
+	void processNeuron();
     ~Brain();
-    std::list<Synapse *>::iterator activeSynapse(Synapse *activeSynapse);
-    std::list<Neuron *>::iterator activeNeuron(Neuron *activeNeuron);
-    std::list<Synapse *>::iterator inactiveSynapse(){return mActiveSynapses.end();}
-    std::list<Neuron *>::iterator inactiveNeuron(){return mActiveNeurons.end();}
+    std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);
+    std::list<Neuron *>::iterator activateNeuron(Neuron *activeNeuron);
+    void inactivateSynapse(Synapse *inactiveSynapse);
+    void inactivateNeuron(Neuron *inactiveSynapse);
+    std::list<Synapse *>::iterator activeSynapseListSentinel(){return mActiveSynapses.end();}
+    std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
 };
 }
 

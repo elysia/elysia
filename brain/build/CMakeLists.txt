@@ -246,15 +246,15 @@ SET(BRAIN_SOURCES
 #ADD_LIBRARY(cbr-core STATIC ${BRAIN_CORE_SOURCES} ${BRAIN_PROTOCOL_SOURCES})
 
 #binaries
-ADD_EXECUTABLE(brain ${BRAIN_SOURCES})
-ADD_DEPENDENCIES(brain genome)
-TARGET_LINK_LIBRARIES(brain
+#ADD_EXECUTABLE(brain ${BRAIN_SOURCES})
+#ADD_DEPENDENCIES(brain genome)
+#TARGET_LINK_LIBRARIES(brain
 #  cbr-core
-        ${PROTOCOLBUFFERS_LIBRARIES}
-        )
-IF(NOT WIN32)
-SET_TARGET_PROPERTIES(brain PROPERTIES LINK_FLAGS -lpthread)
-ENDIF()
+#        ${PROTOCOLBUFFERS_LIBRARIES}
+#        )
+#IF(NOT WIN32)
+#SET_TARGET_PROPERTIES(brain PROPERTIES LINK_FLAGS -lpthread)
+#ENDIF()
 
 #Nghia's ANN test
 SET(NEAREST_NEIGHBOR_SOURCES
@@ -265,18 +265,34 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/Base64.cpp
+  ${BRAIN_SOURCE_DIR}/CellComponent.cpp
+  ${BRAIN_SOURCE_DIR}/CellComponent.hpp  
+  ${BRAIN_SOURCE_DIR}/Neuron.cpp
+  ${BRAIN_SOURCE_DIR}/Neuron.hpp  
+  ${BRAIN_SOURCE_DIR}/Synapse.cpp
+  ${BRAIN_SOURCE_DIR}/Synapse.hpp  
+  ${BRAIN_SOURCE_DIR}/Branch.cpp
+  ${BRAIN_SOURCE_DIR}/Branch.hpp  
+
 )
 
 #Andrew's brain directory
 SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
-  ${BRAIN_SOURCE_DIR}/Brain.cpp  
+  ${BRAIN_SOURCE_DIR}/Brain.cpp
+  ${BRAIN_SOURCE_DIR}/Brain.hpp  
   ${BRAIN_SOURCE_DIR}/Base64.cpp
-  ${BRAIN_SOURCE_DIR}/CellComponent.cpp  
-  ${BRAIN_SOURCE_DIR}/Neuron.cpp  
-  ${BRAIN_SOURCE_DIR}/Synapse.cpp  
-  ${BRAIN_SOURCE_DIR}/Branch.cpp  
+  ${BRAIN_SOURCE_DIR}/Base64.hpp
+  ${BRAIN_SOURCE_DIR}/CellComponent.cpp
+  ${BRAIN_SOURCE_DIR}/CellComponent.hpp  
+  ${BRAIN_SOURCE_DIR}/Neuron.cpp
+  ${BRAIN_SOURCE_DIR}/Neuron.hpp  
+  ${BRAIN_SOURCE_DIR}/Synapse.cpp
+  ${BRAIN_SOURCE_DIR}/Synapse.hpp  
+  ${BRAIN_SOURCE_DIR}/Branch.cpp
+  ${BRAIN_SOURCE_DIR}/Branch.hpp  
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
+  ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
 )
 

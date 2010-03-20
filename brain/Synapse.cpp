@@ -12,7 +12,7 @@ namespace Elysia {
 Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
-    mWhere=mBrain->inactiveSynapse();
+    //mWhere=mBrain->initializeSynapse();
 }
 
 bool Synapse::detach(){
@@ -33,6 +33,8 @@ void Synapse::connect(){
     mConnectionStrength = 1;
     mRecipientNeuron->attachSynapse(this);
 }
+
+
 
 
 bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
@@ -63,18 +65,28 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     return true;
 }
 
-void Synapse::fireSynapse(float signal){
-	signal += mSignalWeight;
+void Synapse::fireSynapse(){
+
 	if(mFiringCounter == 0){
-	  assert(mWhere==mBrain->inactiveSynapse());
-	  mBrain->activeSynapse(this);
+	  //assert(mWhere= mBrain->activeSynapseListSentinel()); //Wait, why is this here?
+	mBrain->activateSynapse(this);
 	}
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons
-    mParentBranch->activateComponent(*mBrain, signal);
-    
 }
 
+void Synapse::residualFire(){
+	if(mFiringCounter > 0){
+		mFiringCounter--;
+		if(mFiringCounter == 0){
+			mBrain->inactivateSynapse(this);
+		}
+		mParentBranch->activateComponent(*mBrain, mSignalWeight);
+	}
+	else{
+		assert(this);
+	}
+}
 
 
 void Synapse::develop(const ActivityStats& stats){

@@ -13,14 +13,14 @@ ProteinDensity&Branch::getProteinDensityStructure() {
     return mParentComponent->getProteinDensityStructure();
 }
 
-void Branch::activateComponent(Brain&ctx, float signal){
-	if(mLastActivity != ctx.mCurTime){
-		mLastActivity = ctx.mCurTime;
+void Branch::activateComponent(Brain&brain, float signal){
+	if(mLastActivity != brain.mCurTime){
+		mLastActivity = brain.mCurTime;
 		mActivity = 0;
 	}
 	mActivity += signal;
     if(mActivity > mThreshold){
-        mParentComponent->activateComponent(ctx,mSignalWeight);
+        mParentComponent->activateComponent(brain,mSignalWeight);
 		mActivity = -999.9f;					//prevent branch from firing again this round
     }
 }

@@ -12,6 +12,7 @@ class ActivityStats;
 class Neuron : public CellComponent, ActivityStats{
     std::list<Neuron*>::iterator mWhere;
     Brain*mBrain;
+    friend class Brain;
 private:
     ///Neuron location
     Vector3f mNeuronLocation;
@@ -52,7 +53,7 @@ public:
 	*/
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
-    void activateComponent(Brain*, float signal);
+    void activateComponent(float signal);
 	void fireNeuron(Synapse*target);
 	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }

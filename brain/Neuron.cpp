@@ -9,7 +9,7 @@ namespace Elysia {
 
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
     mBrain=brain;
-    mWhere=brain->inactiveNeuron();
+    mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
@@ -22,13 +22,18 @@ void Neuron::fire() {
     }
 }
 
-void Neuron::activateComponent(Brain* brain, float signal){
+void Neuron::activateComponent(float signal){
 	if(mLastActivity != mBrain->mCurTime){
 		mLastActivity = mBrain->mCurTime;
 		mActivity = 0;
 	}
-    mActivity += signal;
-    }
+	if(mActivity <= mThreshold){
+	    mActivity += signal;
+		if(mActivity > mThreshold){
+			mBrain -> activateNeuron(this);     //Add to Neuron List
+		}
+	}
+}
 
 void Neuron::removeSynapse(Synapse*synapse){
   std::vector<Synapse* >::iterator where=std::find(mConnectedSynapses.begin(),mConnectedSynapses.end(),synapse);
@@ -40,7 +45,7 @@ void Neuron::removeSynapse(Synapse*synapse){
 }
 
 void Neuron::fireNeuron(Synapse*target){
-	target->fireSynapse(mNeuronSignalWeight);			
+	target->fireSynapse();			
 }
 
 void Neuron::attachSynapse(Synapse*target){

@@ -26,9 +26,9 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
     }else {
        branchiness=floor(branchiness);
     }
-    size_t maxDepth=floor(parentRandomDepthDeterminer);
+    size_t maxDepth=(size_t)floor(parentRandomDepthDeterminer);
     if (parentRandomDepthDeterminer>treeDepth-floor(treeDepth))
-      maxDepth=ceil(treeDepth);
+      maxDepth=(size_t)ceil(treeDepth);
     if (depth>=(int)maxDepth) {
         branchiness=0;
     }    
