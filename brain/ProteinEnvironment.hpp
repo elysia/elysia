@@ -1,3 +1,6 @@
+#ifndef PROTEIN_ENVIRONMENT_HPP
+#define PROTEIN_ENVIRONMENT_HPP
+
 #include "genome.pb.h"
 namespace Elysia { namespace Genome {
  class Gene;
@@ -17,3 +20,5 @@ public:
   virtual ~ProteinEnvironment(){}
 };
 }
+
+ #endif

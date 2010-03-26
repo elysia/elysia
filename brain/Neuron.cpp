@@ -5,9 +5,15 @@
 #include "ActivityStats.hpp"
 #include "genome.pb.h"
 #include "Brain.hpp"
-namespace Elysia {
+#include "SimpleProteinEnvironment.hpp"
+#include "ProteinDensity.hpp"
 
+namespace Elysia {
+Neuron::~Neuron() {
+    delete mProteinDensity;
+}
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
+    mProteinDensity = new ProteinDensity(brain->getProteinEnvironment());
     mBrain=brain;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
@@ -22,7 +28,7 @@ void Neuron::fire() {
     }
 }
 
-void Neuron::activateComponent(float signal){
+void Neuron::activateComponent(Brain&, float signal){
 	if(mLastActivity != mBrain->mCurTime){
 		mLastActivity = mBrain->mCurTime;
 		mActivity = 0;
@@ -44,6 +50,11 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
+
+bool Neuron::fireSynapse() {
+    //ANDREW fix this ASAP
+    return false;
+}
 void Neuron::fireNeuron(Synapse*target){
 	target->fireSynapse();			
 }
@@ -55,7 +66,9 @@ void Neuron::attachSynapse(Synapse*target){
 void Neuron::passDevelopmentSignal(float signal){
 	mDevelopmentSignal += signal;
 }
-
+ProteinDensity& Neuron::getProteinDensityStructure(){
+    return *mProteinDensity;
+}
 void Neuron::developSynapse(const ActivityStats& stats){
 for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;

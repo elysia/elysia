@@ -19,6 +19,7 @@ protected:
 
 public:
     CellComponent();
+    virtual ~CellComponent(){}
     virtual Neuron*getParentNeuron()=0;
     void strengthen(float reward); //for punishment, use negative reward
 	virtual ProteinDensity &getProteinDensityStructure()=0;

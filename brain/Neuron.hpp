@@ -3,6 +3,7 @@
 #include "CellComponent.hpp"
 #include "ActivityStats.hpp"
 #include <vector>
+
 namespace Elysia {
 class Synapse;
 class ActivityStats;
@@ -10,6 +11,7 @@ class ActivityStats;
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
 class Neuron : public CellComponent, ActivityStats{
+    ProteinDensity *mProteinDensity;
     std::list<Neuron*>::iterator mWhere;
     Brain*mBrain;
     friend class Brain;
@@ -45,15 +47,16 @@ private:
 
 public:
     Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location);
+    ~Neuron();
     void fire();
     ///Simulates one millisecond of neural time
     void tick();
-    /* Removed to wait for tie in to protein soup
+    
 	ProteinDensity& getProteinDensityStructure();
-	*/
+
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
-    void activateComponent(float signal);
+    void activateComponent(Brain&, float signal);
 	void fireNeuron(Synapse*target);
 	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }

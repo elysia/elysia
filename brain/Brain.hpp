@@ -31,6 +31,9 @@ public:
     void inactivateNeuron(Neuron *inactiveSynapse);
     std::list<Synapse *>::iterator activeSynapseListSentinel(){return mActiveSynapses.end();}
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
+    ProteinEnvironment* getProteinEnvironment() {
+        return mProteinMap;
+    }
 };
 }
 
