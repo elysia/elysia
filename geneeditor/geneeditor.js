@@ -861,6 +861,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                         fill : [256,256,256,0.0625],
                         visible : true,
                         zIndex : currentMaxZ+=2});
+            this.originbb=[0,0,0,0];
+            this.destbb=[100,0,100,0];
             this.origin = [0,0,0];
             this.dest = [100,0,0];
             this.fatness=30;
@@ -868,8 +870,12 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 var origin=this.origin;
                 var fatness=this.fatness;
                 var dest=this.dest;
+
                 var lensqr=(dest[0]-origin[0])*(dest[0]-origin[0])+(dest[1]-origin[1])*(dest[1]-origin[1]);
                 var len=Math.sqrt(lensqr);
+                if (len==0) {
+                    len=1;
+                }
                 var par=[(dest[0]-origin[0])/len,(dest[1]-origin[1])/len];
                 var perp=[-par[1],par[0]];
                 this.segments=[origin[0],origin[1],
@@ -914,35 +920,49 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 this.dest=d;
                 this.makeArrow();
             };
-            this.attachEnd=function(bbox,isHead){
-                var thisEnd=this.origin;
-                var otherEnd=this.dest;
-                if (isHead) {
-                    thisEnd=this.dest;
-                    otherEnd=this.origin;
-                }
-                var choices=[[bbox[0]*.5+bbox[2]*.5,bbox[1]],
-                             [bbox[0]*.5+bbox[2]*.5,bbox[3]],
-                             [bbox[0],bbox[1]*.5+bbox[3]*.5],
-                             [bbox[2],bbox[1]*.5+bbox[3]*.5]];
-                var distSqr=function(start,fin) {
-                    return (start[0]-fin[0])*(start[0]-fin[0])+(start[1]-fin[1])*(start[1]-fin[1]);
-                };
-                var minChoice=choices[0];
-                var minDist=distSqr(choices[0],otherEnd);
-                for (var i=1;i<4;i++){
-                    var dist=distSqr(choices[i],otherEnd);
-                    if (dist<minDist) {
-                        minDist=dist;
-                        minChoice=choices[i];
+            this.attachEnds=function() {
+                for (var isHead=0;isHead<2;++isHead){
+                   
+                    var thisEnd=this.origin;
+                    var otherEnd=this.dest;
+                    var bbox=this.originbb;
+                    if (isHead) {
+                        thisEnd=this.dest;
+                        otherEnd=this.origin;
+                        bbox=this.destbb;
+                    }
+                    var choices=[[bbox[0]*.5+bbox[2]*.5,bbox[1]],
+                                 [bbox[0]*.5+bbox[2]*.5,bbox[3]],
+                                 [bbox[0],bbox[1]*.5+bbox[3]*.5],
+                                 [bbox[2],bbox[1]*.5+bbox[3]*.5]];
+                    var distSqr=function(start,fin) {
+                        return (start[0]-fin[0])*(start[0]-fin[0])+(start[1]-fin[1])*(start[1]-fin[1]);
+                    };
+                    var minChoice=choices[0];
+                    var minDist=distSqr(choices[0],otherEnd);
+                    for (var i=1;i<4;i++){
+                        var dist=distSqr(choices[i],otherEnd);
+                        if (dist<minDist) {
+                            minDist=dist;
+                            minChoice=choices[i];
+                        }
+                    }
+                    if (isHead) {
+                        this.dest=minChoice;
+                    }else {    
+                        this.origin=minChoice;
                     }
                 }
+                this.makeArrow();
+            };
+            this.attachEnd=function(bbox,isHead){
                 if (isHead) {
-                    this.setDestination(minChoice);
-                }else {    
-                    this.setOrigin(minChoice);
+                    this.destbb=bbox;
+                }else {
+                    this.originbb=bbox;
                 }
-            }
+                this.attachEnds();
+            };
     }});
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     var Selectable = Klass (CanvasNode, {
