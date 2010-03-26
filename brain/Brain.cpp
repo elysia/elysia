@@ -6,10 +6,14 @@
 #include "Synapse.hpp"
 
 namespace Elysia {
+
 Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
 }
+
 void Brain::tick(){
+	processNeuron();
+	processSynapse();
     ++mCurTime;
 }
 

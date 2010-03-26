@@ -273,7 +273,8 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/Synapse.hpp  
   ${BRAIN_SOURCE_DIR}/Branch.cpp
   ${BRAIN_SOURCE_DIR}/Branch.hpp  
-
+  ${BRAIN_SOURCE_DIR}/test.cpp
+  ${BRAIN_SOURCE_DIR}/test.hpp
 )
 
 #Andrew's brain directory
@@ -290,10 +291,14 @@ SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/Synapse.cpp
   ${BRAIN_SOURCE_DIR}/Synapse.hpp  
   ${BRAIN_SOURCE_DIR}/Branch.cpp
-  ${BRAIN_SOURCE_DIR}/Branch.hpp  
+  ${BRAIN_SOURCE_DIR}/Branch.hpp
+  ${BRAIN_SOURCE_DIR}/ProteinEnvironment.cpp
+  ${BRAIN_SOURCE_DIR}/ProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
+  ${BRAIN_SOURCE_DIR}/test.cpp
+  ${BRAIN_SOURCE_DIR}/test.hpp
 )
 
 

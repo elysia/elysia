@@ -8,6 +8,9 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
+
+#include "test.hpp"
+
 bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     FILE * fp=fopen(fileName,"rb");
     if (!fp) return false;
@@ -37,7 +40,10 @@ int main(int argc, char **argv) {
     std::tr1::unordered_map<Elysia::String,Elysia::Vector3f> bleh;
     bleh["ahoy"]=test;
     Elysia::Genome::Genome genes;
-    if (argc>1) {        
+    if (argc>1) {
+		if(0 == strcmp(argv[1],"-test")){
+			return runtest();
+		}
         bool retval=loadFile(argv[1],genes);
         if (!retval) {
             printf("Error loading saved file\n");            
@@ -53,6 +59,11 @@ int main(int argc, char **argv) {
 	//Generate Neurons have to touch all neurons in development and all neurons firing
 	//Have to touch all synapses, could only touch all active synapses with a vector
 
+	
+
     getchar();
+
+	
+
 	return 0;
 }

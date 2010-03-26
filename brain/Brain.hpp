@@ -18,6 +18,8 @@ public:
 
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
+	std::set<Neuron *>mAllNeurons;
+	std::set<Synapse *>mAllSynapses;
 
     void tick();
 	void processSynapse();
