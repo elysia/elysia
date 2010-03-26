@@ -910,12 +910,10 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 }
             };
             this.setOrigin=function(o) {
-                console.log("Setting Origin from "+this.origin+" to "+o);
                 this.origin=o;
                 this.makeArrow();
             };
             this.setDestination=function(d) {
-                console.log("Setting Destination from "+this.dest+" to "+d);
                 this.dest=d;
                 this.makeArrow();
             };
