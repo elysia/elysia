@@ -882,14 +882,15 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                                origin[0]-perp[0]*.1*fatness,origin[1]-perp[1]*.1*fatness];
             };
             this.reassign = function(gene,isAxon,additionalSearchLobes) {
-                var arrowDestCoords=[isAxon?this.dest[0]:this.origin[0],isAxon?this.dest[1]+32:(this.origin[1]+32),0];
+                var arrowDestCoords=[isAxon?this.dest[0]:this.origin[0],isAxon?this.dest[1]+32:(this.origin[1]+32),
+                                     isAxon?this.dest[0]:this.origin[0],isAxon?this.dest[1]+32:(this.origin[1]+32)];
                 var arrowDestName=isAxon?"_AXON_DEST_":"_NON_AXON_DEST_";
                 var arrowDest;
                 var lobefinderFunction=function(lobefinder){
                                                          
                                                          if (lobefinder.hasOwnProperty('uid')&&lobefinder.isAxon!=isAxon) {
                                                              arrowDestName=lobefinder.uid;
-                                                             arrowDestCoords=lobefinder.getOrigin();
+                                                             arrowDestCoords=lobefinder.getBoundingBox();
                                                              arrowDest=lobefinder;
                                                          }
                                                      };
@@ -903,11 +904,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 }else {
                     gene.arrows[arrowDestName]=[this];
                 }
-                if (!isAxon) {
-                    this.setOrigin(arrowDestCoords);              
-                }else {
-                    this.setDestination(arrowDestCoords);
-                }
+                this.attachEnd(arrowDestCoords,!isAxon);
             };
             this.setOrigin=function(o) {
                 this.origin=o;
@@ -917,6 +914,35 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 this.dest=d;
                 this.makeArrow();
             };
+            this.attachEnd=function(bbox,isHead){
+                var thisEnd=this.origin;
+                var otherEnd=this.dest;
+                if (isHead) {
+                    thisEnd=this.dest;
+                    otherEnd=this.origin;
+                }
+                var choices=[[bbox[0]*.5+bbox[2]*.5,bbox[1]],
+                             [bbox[0]*.5+bbox[2]*.5,bbox[3]],
+                             [bbox[0],bbox[1]*.5+bbox[3]*.5],
+                             [bbox[2],bbox[1]*.5+bbox[3]*.5]];
+                var distSqr=function(start,fin) {
+                    return (start[0]-fin[0])*(start[0]-fin[0])+(start[1]-fin[1])*(start[1]-fin[1]);
+                };
+                var minChoice=choices[0];
+                var minDist=distSqr(choices[0],otherEnd);
+                for (var i=1;i<4;i++){
+                    var dist=distSqr(choices[i],otherEnd);
+                    if (dist<minDist) {
+                        minDist=dist;
+                        minChoice=choices[i];
+                    }
+                }
+                if (isHead) {
+                    this.setDestination(minChoice);
+                }else {    
+                    this.setOrigin(minChoice);
+                }
+            }
     }});
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     var Selectable = Klass (CanvasNode, {
@@ -1004,11 +1030,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 this.append(this.lobe);
                 this.arrows=[];
                 var arw=new Arrow;
-                if (this.isAxon) {
-                    arw.setOrigin(this.getOrigin());                
-                }else {
-                    arw.setDestination(this.getOrigin());                
-                }
+                arw.attachEnd(this.getBoundingBox(),this.isAxon);
 
                 this.arrows[this.arrows.length]=arw;
                 this.append(arw);
@@ -1207,21 +1229,14 @@ var Gene = function(editor,baseElysiaGenomeGene) {
 
                 var numarrows=this.arrows.length;
                 for (var i=0;i<numarrows;i++) {
-                    if (this.isAxon) {                        
-                        this.arrows[i].setOrigin(origin);
-                    }else {
-                        this.arrows[i].setDestination(origin);                        
-                    }
+                    this.arrows[i].attachEnd(this.getBoundingBox(),this.isAxon);
                 }
 
                 if (this.uid in this.gene.arrows) {
                     var arrows=this.gene.arrows[this.uid];
                     numarrows=arrows.length;
                     for (var j=0;j<numarrows;j++) {
-                        if (this.isAxon)
-                            arrows[j].setOrigin(origin);
-                        else
-                            arrows[j].setDestination(origin);
+                        arrows[j].attachEnd(this.getBoundingBox(),this.isAxon);
                     }
                 }
 
