@@ -783,6 +783,7 @@
 var Gene = function(editor,baseElysiaGenomeGene) {
         var th=baseElysiaGenomeGene;
         var num=getUID();
+        th.arrows={};
         th.name="gene_"+num;
         th.uid=num;   
         th.minAge=0.0;
@@ -846,6 +847,79 @@ var Gene = function(editor,baseElysiaGenomeGene) {
         };
     return th;
 };
+/*
+    var Arrow = Klass(Polygon,{
+        initialize: function(editor) {
+            Polygon.initialize.call(this,[0,0, 0,.1, .9,.1, .9,.2,1,0,.9,-.2,.9,-.1,0,-.1]);
+        }
+    });
+*/
+    var Arrow = Klass(Polygon,{        
+        initialize: function(editor) {
+            Polygon.initialize.call(this,[0,0,0,10,90,10,90,20,100,0,90,-20,90,-10,0,-1],{stroke : false,
+                        stroke : [0,0,0,0],
+                        fill : [256,256,256,0.0625],
+                        visible : true,
+                        zIndex : currentMaxZ+=2});
+            this.origin = [0,0,0];
+            this.dest = [100,0,0];
+            this.fatness=30;
+            this.makeArrow=function(){
+                var origin=this.origin;
+                var fatness=this.fatness;
+                var dest=this.dest;
+                var lensqr=(dest[0]-origin[0])*(dest[0]-origin[0])+(dest[1]-origin[1])*(dest[1]-origin[1]);
+                var len=Math.sqrt(lensqr);
+                var par=[(dest[0]-origin[0])/len,(dest[1]-origin[1])/len];
+                var perp=[-par[1],par[0]];
+                this.segments=[origin[0],origin[1],
+                               origin[0]+perp[0]*.1*fatness,origin[1]+perp[1]*.1*fatness,
+                               origin[0]+perp[0]*.1*fatness+par[0]*.9*len,origin[1]+perp[1]*.1*fatness+par[1]*.9*len,
+                               origin[0]+perp[0]*.2*fatness+par[0]*.9*len,origin[1]+perp[1]*.2*fatness+par[1]*.9*len,
+                               origin[0]+par[0]*len,origin[1]+par[1]*len,
+                               origin[0]-perp[0]*.2*fatness+par[0]*.9*len,origin[1]-perp[1]*.2*fatness+par[1]*.9*len,
+                               origin[0]-perp[0]*.1*fatness+par[0]*.9*len,origin[1]-perp[1]*.1*fatness+par[1]*.9*len,
+                               origin[0]-perp[0]*.1*fatness,origin[1]-perp[1]*.1*fatness];
+            };
+            this.reassign = function(gene,isAxon,additionalSearchLobes) {
+                var arrowDestCoords=[isAxon?this.dest[0]:this.origin[0],isAxon?this.dest[1]+32:(this.origin[1]+32),0];
+                var arrowDestName=isAxon?"_AXON_DEST_":"_NON_AXON_DEST_";
+                var arrowDest;
+                var lobefinderFunction=function(lobefinder){
+                                                         
+                                                         if (lobefinder.hasOwnProperty('uid')&&lobefinder.isAxon!=isAxon) {
+                                                             arrowDestName=lobefinder.uid;
+                                                             arrowDestCoords=lobefinder.getOrigin();
+                                                             arrowDest=lobefinder;
+                                                         }
+                                                     };
+                gene.findLobesWithThisGene().forEach(lobefinderFunction);
+                for (var index1=0;index1<additionalSearchLobes.length;index1++) {
+                    lobefinderFunction(additionalSearchLobes[index1]);                    
+                }
+                
+                if (arrowDestName in gene.arrows) {
+                    gene.arrows[arrowDestName][gene.arrows[arrowDestName].length]=this;
+                }else {
+                    gene.arrows[arrowDestName]=[this];
+                }
+                if (!isAxon) {
+                    this.setOrigin(arrowDestCoords);              
+                }else {
+                    this.setDestination(arrowDestCoords);
+                }
+            };
+            this.setOrigin=function(o) {
+                console.log("Setting Origin from "+this.origin+" to "+o);
+                this.origin=o;
+                this.makeArrow();
+            };
+            this.setDestination=function(d) {
+                console.log("Setting Destination from "+this.dest+" to "+d);
+                this.dest=d;
+                this.makeArrow();
+            };
+    }});
     /// the selectable class is an interface that any object which wishes to be selected must inherit from. Some functions should be overridden in the subclass
     var Selectable = Klass (CanvasNode, {
         initialize: function(editor) {
@@ -855,8 +929,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
             this.mEditor=editor;
             {
                 var th=this;
-                this.addEventListener('keydown',editor.keyDown)
-                this.addEventListener('keyup',editor.keyUp)
+                this.addEventListener('keydown',editor.keyDown);
+                this.addEventListener('keyup',editor.keyUp);
                 this.addEventListener('mousedown',function(ev) {
                         if (editor.clickedSelected(ev)) {
                             editor.enableMoveOnMouseUp=true;
@@ -910,6 +984,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
             this.y=bb[1];
         }
     });
+
+
     ///Lobe is a Selectable that represents a gene area on the map of the creature. Each lobe has a number of propreties that will affect the development of a given creature
     var Lobe = Klass(Selectable, {
         initialize: function(editor,gene) {
@@ -927,7 +1003,35 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                     });
                 this.lobe.x+=5;
                 this.lobe.y+=274;
-                this.append(this.lobe)
+                this.append(this.lobe);
+                this.arrows=[];
+                var arw=new Arrow;
+                if (this.isAxon) {
+                    arw.setOrigin(this.getOrigin());                
+                }else {
+                    arw.setDestination(this.getOrigin());                
+                }
+
+                this.arrows[this.arrows.length]=arw;
+                this.append(arw);
+                arw.reassign(gene,this.isAxon,[]);
+                this.reassignArrows= function() {//this function reassigns orphaned arrows to point here
+                    var vanillaDestName=this.isAxon?"_NON_AXON_DEST_":"_AXON_DEST_";
+                    var orphanArrowList=[];
+                    var orphanArrowListLength=0;
+                    if (vanillaDestName in gene.arrows) {
+                        orphanArrowListLength=gene.arrows[vanillaDestName].length;
+                    }
+                    var index1;
+                    for (index1=0;index1<orphanArrowListLength;index1++) {
+                        orphanArrowList[orphanArrowList.length]=gene.arrows[vanillaDestName][index1];
+                    }
+                    gene.arrows[vanillaDestName]=[];
+                    for (index1=0;index1<orphanArrowListLength;index1++) {
+                        orphanArrowList[index1].reassign(this.gene,!this.isAxon,[this]);
+                    }
+                };
+                this.reassignArrows();
                 //make an canvas TextNode that prints the name of the gene on the lobe
                 this.name=new TextNode(gene.name);//,{align:'center',baseline:'hanging'});
                 this.name.align='center';
@@ -947,6 +1051,23 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 this.ageSpan.maxWidth=this.lobe.width;
                 this.lobe.append(this.ageSpan);
                 this.recomputeAgeIndicator();
+            },
+            unassignArrows:function(){
+                var orphanArrowList=[];
+                var orphanArrowListLength=0;
+                var gene=this.gene;
+                if (this.uid in gene.arrows) {
+                    orphanArrowListLength=gene.arrows[this.uid].length;
+                }
+                var index1;
+                for (index1=0;index1<orphanArrowListLength;index1++) {
+                    orphanArrowList[orphanArrowList.length]=gene.arrows[this.uid][index1];
+                }
+                gene.arrows[this.uid]=[];
+                for (index1=0;index1<orphanArrowListLength;index1++) {
+                    orphanArrowList[index1].reassign(this.gene,!this.isAxon,[]);
+                }
+                
             },
             recomputeAgeIndicator:function() {
                 var gmna=this.gene.minAge;
@@ -985,6 +1106,10 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                     }
                 }
                 this.lobe.fill=col;
+                var arrowlength=this.arrows.length;
+                for (var i=0;i<arrowlength;i++) {
+                    this.arrows[i].fill=col;
+                }
                 //debugPrint("Updating age "+this.mEditor.context.age+"("+this.mEditor.context.mGenomeEditor.Age+")"+" for uid "+this.uid+ " col is "+col+" cbox "+this.mEditor.context.mGenomeEditor.DrawAgeInactiveLobes);
             },
             isSelectable:function() {
@@ -1018,7 +1143,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 if (age>mxa) {
                     pctBad=(age-mxa)/(1.0-mxa);
                 }else if (age<mna) {
-                    pctBad=(mna-age)/mna
+                    pctBad=(mna-age)/mna;
                 }
                 return pctBad;
             },
@@ -1081,6 +1206,27 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 this.lobe.x=origin[0];
                 this.lobe.y=origin[1];
                 this.lobe.zIndex=origin[2];
+
+                var numarrows=this.arrows.length;
+                for (var i=0;i<numarrows;i++) {
+                    if (this.isAxon) {                        
+                        this.arrows[i].setOrigin(origin);
+                    }else {
+                        this.arrows[i].setDestination(origin);                        
+                    }
+                }
+
+                if (this.uid in this.gene.arrows) {
+                    var arrows=this.gene.arrows[this.uid];
+                    numarrows=arrows.length;
+                    for (var j=0;j<numarrows;j++) {
+                        if (this.isAxon)
+                            arrows[j].setOrigin(origin);
+                        else
+                            arrows[j].setDestination(origin);
+                    }
+                }
+
             },
             ///sets the bounding box of the entire gene--this specifies the top left corner and bottom right corner. This function can effectively move a lobe by moving its topleft and bottom right corners.
             setBoundingBox:function(bb) {
@@ -1088,9 +1234,6 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 var x2 = Math.max(bb[0], bb[2]);
                 var y1 = Math.min(bb[1], bb[3]);
                 var y2 = Math.max(bb[1], bb[3]);
-
-                this.lobe.x=x1;
-                this.lobe.y=y1;
                 this.lobe.width=x2-x1;
                 this.lobe.height=y2-y1;
                 this.name.cy=this.lobe.height;
@@ -1098,11 +1241,12 @@ var Gene = function(editor,baseElysiaGenomeGene) {
 
                 this.ageSpan.cy=this.lobe.height/2;
                 this.ageSpan.maxWidth=this.lobe.width;
+                this.setOrigin([x1,y1,this.zIndex]);
             }
         });
         var LobeOutput=Klass(Lobe,{initialize:function(editor,gene) {
-            Lobe.initialize.bind(this)(editor,gene);
             this.isAxon=true;
+            Lobe.initialize.bind(this)(editor,gene);
         },
         visibleColor:function() {
            return [128,128,128,.5];
@@ -1112,8 +1256,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
         }
                               });
         var LobeInput=Klass(Lobe,{initialize:function(editor,gene) {
-            Lobe.initialize.bind(this)(editor,gene);
             this.isAxon=false;
+            Lobe.initialize.bind(this)(editor,gene);
         },
         visibleColor:function() {
            return [0,128,128,.5];
@@ -1519,8 +1663,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
              var doIt=function (lobe) {
                  //need a separate isSelected variable per item in the loop to track selection of the objects individually
                  var isSelected=lobe.selected;
-                 var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
-                 var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
+                 var undoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}lobe.reassignArrows();};
+                 var redoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);lobe.unassignArrows();};
                  redoFunction();
                  context.performedAction(redoFunction,undoFunction);
              };
@@ -1708,8 +1852,8 @@ var Gene = function(editor,baseElysiaGenomeGene) {
          var thus = this;
          var isSelected=lobe.selected;
          var context=this.context;
-         var redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}};
-         var undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);};
+         var redoFunction=function(){thus.append(lobe);if (isSelected) {context.select(lobe);}lobe.reassignArrows();};
+         var undoFunction=function(){if(lobe.isSelected()) {isSelected=true;}context.deselect(lobe);thus.remove(lobe);lobe.unassignArrows();};
          redoFunction();
          this.context.performedAction(redoFunction,undoFunction);
          return lobe;
