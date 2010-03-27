@@ -1073,17 +1073,17 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 };
                 this.reassignArrows();
                 //make an canvas TextNode that prints the name of the gene on the lobe
-                this.name=new TextNode(gene.name);//,{align:'center',baseline:'hanging'});
+                this.name=new TextNode(gene.name,this.isAxon?{fill:[0,192,64,1],opacity:1}:{fill:[220,220,220,1],opacity:1});//,{align:'center',baseline:'hanging'});
                 this.name.align='center';
                 this.name.baseline='bottom';
                 this.name.cx=0;
-                this.name.cy=this.lobe.height;
+                this.name.cy=this.lobe.height*.9;
                 this.name.maxWidth=this.lobe.width;
                 this.lobe.append(this.name);
                 this.minAge=0.0;
                 this.maxAge=1.0;
            
-                this.ageSpan=new TextNode('[0,1]');//,{align:'center',baseline:'hanging'});
+                this.ageSpan=new TextNode('[0,1]',this.isAxon?{fill:[0,129,64,1],opacity:1}:{fill:[192,192,192,1],opacity:1});//,{align:'center',baseline:'hanging'});
                 this.ageSpan.align='center';
                 this.ageSpan.baseline='bottom';
                 this.ageSpan.cx=0;
@@ -1269,7 +1269,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
                 var y2 = Math.max(bb[1], bb[3]);
                 this.lobe.width=x2-x1;
                 this.lobe.height=y2-y1;
-                this.name.cy=this.lobe.height;
+                this.name.cy=this.lobe.height*.9;
                 this.name.maxWidth=this.lobe.width;
 
                 this.ageSpan.cy=this.lobe.height/2;
@@ -1719,7 +1719,7 @@ var Gene = function(editor,baseElysiaGenomeGene) {
       },
       ///When the make new lobe button is pressed this item is invoked and makes a new lobe calls performedAction on it to populate the undos
       makeNewLobe : function () {
-          return this.makeNewSelectable(new LobeOutput(this,new Gene(this,new Elysia.Genome.Gene())));
+          return this.makeNewSelectable(new LobeInput(this,new Gene(this,new Elysia.Genome.Gene())));
       },
       makeSelectedAppearAt : function (age) {
           var first=true;
