@@ -17,7 +17,7 @@ void test1() {
     dummy = myProteinEnvironment;
 
 	Brain *brain= new Brain(dummy);
-	for(int i=0;i<100;i++){
+	for(float i=0.0f;i<100;i++){
 		Vector3f v;
 		v.x = i;
 		v.y = i;

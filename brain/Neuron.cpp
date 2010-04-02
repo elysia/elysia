@@ -50,11 +50,6 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
-
-bool Neuron::fireSynapse() {
-    //ANDREW fix this ASAP
-    return false;
-}
 void Neuron::fireNeuron(Synapse*target){
 	target->fireSynapse();			
 }
@@ -84,7 +79,6 @@ void Neuron::tick(){
 			ActivityStats& stats = getActivityStats();
 			developSynapse(stats);
 			mDevelopmentCounter	= 30;					//number of timesteps before next development re-evaluation
-
 		}
 		else{ mDevelopmentCounter--;}
 	}

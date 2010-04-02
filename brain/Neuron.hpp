@@ -42,7 +42,6 @@ private:
 	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
 	
 
-    bool fireSynapse();
     virtual Neuron*getParentNeuron(){return this;}
 
 public:
