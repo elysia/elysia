@@ -5,17 +5,14 @@ namespace Elysia {
 class ProteinEnvironment;
 
 class ProteinDensity {
-    typedef std::map<Elysia::Genome::Effect,float> ProteinDensityMap;
-    
-    
-    ProteinDensityMap mIntrinsicProteins;
+    Elysia::Genome::Gene mGene;
     ProteinEnvironment *mExtrinsicProteins;
 public:
-  ProteinDensity(ProteinEnvironment*env){
+  ProteinDensity(ProteinEnvironment*env, const Elysia::Genome::Gene&gene):mGene(gene){
         mExtrinsicProteins=env;
   }
   float getProteinDensity(const Elysia::Genome::Effect&);
-  std::vector<ProteinDensityMap::value_type> getCompleteProteinDensity();
+    std::vector<std::pair<Elysia::Genome::Effect,float> > getCompleteProteinDensity();
 };
 
 }

@@ -12,8 +12,8 @@ namespace Elysia {
 Neuron::~Neuron() {
     delete mProteinDensity;
 }
-Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location):  mNeuronLocation(location){
-    mProteinDensity = new ProteinDensity(brain->getProteinEnvironment());
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
+    mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;

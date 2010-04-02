@@ -5,6 +5,10 @@
 #include <vector>
 
 namespace Elysia {
+namespace Genome {
+class Gene;
+}
+
 class Synapse;
 class ActivityStats;
 /**
@@ -45,7 +49,7 @@ private:
     virtual Neuron*getParentNeuron(){return this;}
 
 public:
-    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location);
+    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&spawningGene);
     ~Neuron();
     void fire();
     ///Simulates one millisecond of neural time
