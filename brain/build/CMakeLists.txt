@@ -296,6 +296,8 @@ SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/ProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
+  ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
+  ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.hpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp

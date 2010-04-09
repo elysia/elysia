@@ -4,11 +4,12 @@
 #include "ProteinEnvironment.hpp"
 #include "Neuron.hpp"
 #include "Synapse.hpp"
-
+#include "SimpleSpatialSearch.hpp"
 namespace Elysia {
 
 Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
+    mSpatialSearch=new SimpleSpatialSearch;
 }
 
 void Brain::tick(){
@@ -55,6 +56,7 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
 
 
 Brain::~Brain() {
+    delete mSpatialSearch;
     delete mProteinMap;
 }
 }

@@ -7,10 +7,11 @@
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
 #include "ProteinDensity.hpp"
-
+#include "SpatialSearch.hpp"
 namespace Elysia {
 Neuron::~Neuron() {
     delete mProteinDensity;
+    mBrain->getSpatialSearch()->removeNeighbor(this);
 }
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
@@ -18,7 +19,8 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
-    this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);        
+    this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);
+    mBrain->getSpatialSearch()->addNeighbor(this);
 }
 void Neuron::fire() {
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();

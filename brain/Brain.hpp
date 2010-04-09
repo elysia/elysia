@@ -5,9 +5,11 @@ namespace Elysia {
 class ProteinEnvironment;
 class Neuron;
 class Synapse; 
+class SpatialSearch;
 
 class Brain {
     ProteinEnvironment *mProteinMap;
+    SpatialSearch *mSpatialSearch;
 public:
     /**
      * Brain constructor
@@ -33,6 +35,9 @@ public:
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
     ProteinEnvironment* getProteinEnvironment() {
         return mProteinMap;
+    }
+    SpatialSearch *getSpatialSearch(){
+        return mSpatialSearch;
     }
 };
 }

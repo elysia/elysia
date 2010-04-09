@@ -54,7 +54,7 @@ public:
     void fire();
     ///Simulates one millisecond of neural time
     void tick();
-    
+    const Vector3f& getLocation()const {return mNeuronLocation;}
 	ProteinDensity& getProteinDensityStructure();
 
     void removeSynapse(Synapse*synapse);
