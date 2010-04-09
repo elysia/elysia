@@ -10,6 +10,8 @@ class SpatialSearch;
 class Brain {
     ProteinEnvironment *mProteinMap;
     SpatialSearch *mSpatialSearch;
+    ///creature maturity from 0(just born) to 1(adult)
+    float mAge;
 public:
     /**
      * Brain constructor
@@ -17,7 +19,7 @@ public:
      */
     Brain (ProteinEnvironment *proteinMap);
     SimTime mCurTime;
-
+    float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
 	std::set<Neuron *>mAllNeurons;

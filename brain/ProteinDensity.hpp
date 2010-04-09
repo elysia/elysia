@@ -12,7 +12,9 @@ public:
         mExtrinsicProteins=env;
   }
   float getProteinDensity(const Elysia::Genome::Effect&);
-    std::vector<std::pair<Elysia::Genome::Effect,float> > getCompleteProteinDensity();
+  std::vector<std::pair<Elysia::Genome::Effect,float> > getCompleteProteinDensity();
+  std::vector<BoundingBox3f3f> getTargetBounds(float age);
+  Vector3f getRandomTargetPoint(float age);
 };
 
 }

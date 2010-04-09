@@ -38,6 +38,10 @@ public:
   //Function to find the zone that a single point reside in
   ProteinZone &resideInZones(const Vector3f queryPoint, 
                              std::vector<ProteinZone> mMainZoneList);
+  ///This function looks through the genes present in the location and their densities and selects the gene most likely to have contributed to the desored effects' density at the moment.
+  virtual const Elysia::Genome::Gene& retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect);
+
+                             
   ~SimpleProteinEnvironment();
 };
 }

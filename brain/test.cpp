@@ -15,7 +15,7 @@ void testTwoConnectedNeurons() {
     ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
 
 	Brain *brain= new Brain(myProteinEnvironment);
-	for(int i=0;i<2;i++){
+	for(float i=0;i<2;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
@@ -43,7 +43,7 @@ void testTwoConnectedNeurons() {
 		v.z = i;
 		Neuron *n;
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-        
+        //n->connect();
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 

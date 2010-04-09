@@ -4,6 +4,7 @@
 #include "genome.pb.h"
 #include "ActivityStats.hpp"
 #include "Brain.hpp"
+#include "SpatialSearch.hpp"
 //Takes care of disconnecting DendriteTip. Should be called in destructor
 
 namespace Elysia {
@@ -25,14 +26,19 @@ bool Synapse::detach(){
 }
 
 void Synapse::connect(){
-    Neuron *parentneuron;
-    parentneuron = mParentBranch->getParentNeuron();
-    //Get the target bound from gene
-    //Pick location from bound
-    //Nearest neighbor target
-    mConnectionStrength = 1;
-    mRecipientNeuron->attachSynapse(this);
+    if(mRecipientNeuron){this->detach();}
+    Neuron * parentNeuron = mParentBranch->getParentNeuron();
+    Brain *parentBrain = parentNeuron->getBrain();
+    float age = parentBrain->getAge();
+    Vector3f targetLocation = parentNeuron->getProteinDensityStructure().getRandomTargetPoint(age);
+    mRecipientNeuron = parentBrain->getSpatialSearch()->findNearestNeighbor(targetLocation);
+    if (mRecipientNeuron) {
+      //Nearest neighbor target
+      mConnectionStrength = 1.0f;
+      mRecipientNeuron->attachSynapse(this);
+    }
 }
+
 
 
 

@@ -267,6 +267,9 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/Base64.cpp
   ${BRAIN_SOURCE_DIR}/CellComponent.cpp
   ${BRAIN_SOURCE_DIR}/CellComponent.hpp  
+  ${BRAIN_SOURCE_DIR}/ProteinDensity.hpp
+  ${BRAIN_SOURCE_DIR}/ProteinDensity.cpp
+
   ${BRAIN_SOURCE_DIR}/Neuron.cpp
   ${BRAIN_SOURCE_DIR}/Neuron.hpp  
   ${BRAIN_SOURCE_DIR}/Synapse.cpp
@@ -294,6 +297,8 @@ SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/Branch.hpp
   ${BRAIN_SOURCE_DIR}/ProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/ProteinEnvironment.hpp
+  ${BRAIN_SOURCE_DIR}/ProteinDensity.hpp
+  ${BRAIN_SOURCE_DIR}/ProteinDensity.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp

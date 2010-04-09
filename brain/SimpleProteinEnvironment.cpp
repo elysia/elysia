@@ -136,6 +136,14 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 
 	return myFail;
 }
+
+const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
+  assert(0);
+  //FIXME actually look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
+  static Elysia::Genome::Gene retval;
+  return retval;
+}
+
 SimpleProteinEnvironment::~SimpleProteinEnvironment(){
 }
 
