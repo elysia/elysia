@@ -13,6 +13,7 @@ namespace Elysia {
 Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
+	mRecipientNeuron = NULL;
     //mWhere=mBrain->initializeSynapse();
 }
 
@@ -104,33 +105,37 @@ void Synapse::develop(const ActivityStats& stats){
 	float maxStrengthen = 0.1f;			//Maximum amount to strengthen in mid-development
 	float maxWeaken = -0.04f;			//Maximum amount to weaken in mid-development
 	float strengthenRange = 2.0f;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
-	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
-		if(mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
-			mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
-		}
-		else{
-			mConnectionStrength += initialWeaken;
-		}
-	}
-	else{
-		if(stats.mBestDevelopmentSignal >= earlyDevelopmentWindow ){
-			if(mFiringCounter > 0){
-				strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
-				if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
-				if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-				mConnectionStrength += strengthenAmount;
-			}
-			else{
-				strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
-				if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-				mConnectionStrength += strengthenAmount;
-			}
-		}
-		else{ assert(0);}
-	}
-}
-	
 
+    if(mRecipientNeuron){
+    	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
+	    	if(mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
+	    		mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
+	    	}
+	    	else{
+	    		mConnectionStrength += initialWeaken;
+	    	}
+	    }
+	    else{
+	    	if(stats.mBestDevelopmentSignal >= earlyDevelopmentWindow ){
+	    		if(mFiringCounter > 0){
+	    			strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
+	    			if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
+	    			if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
+	    			mConnectionStrength += strengthenAmount;
+	    		}
+	    		else{
+	    			strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
+	    			if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
+	    			mConnectionStrength += strengthenAmount;
+	    		}
+	    	}
+	    	else{ assert(0);}
+	    }
+    }
+    else{
+        this->connect();
+    }
+}
 
 }
     

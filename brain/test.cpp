@@ -43,7 +43,8 @@ void testTwoConnectedNeurons() {
 		v.z = i;
 		Neuron *n;
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-        //n->connect();
+        
+        n->developSynapse(n->getActivityStats());
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 
