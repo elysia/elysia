@@ -96,14 +96,120 @@ std::vector<std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment:
 void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age){
 	//Will write this function last
 }
+static bool okArea(const BoundingBox3f3f&input) { //The area is not equal in any aspect -> not OK
+  return input.min().x!=input.max().x&&input.min().y!=input.max().y;
+}
 
+template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const BoundingBox<T>&b) {
+   BoundingBox<T> retval(a.min().max(b.min()),a.max().min(b.max()));
+   if (retval.diag().x<=0||retval.diag().y<=0) {
+      return BoundingBox<T>(retval.min(),retval.min());//null bounding box at min
+   }
+   return retval;
+}
+
+ SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox) {
+   ProteinZone retval;
+   retval.mBounds=bbox;
+   assert(a.mSoup.empty()&&b.mSoup.empty());
+   //Combine the genes into a shared, common sized, region
+   retval.mGenes.insert(retval.mGenes.end(),a.mGenes.begin(),a.mGenes.end());
+   retval.mGenes.insert(retval.mGenes.end(),b.mGenes.begin(),b.mGenes.end());
+   return retval;
+}
+
+SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::relocateZone(ProteinZone a, const BoundingBox3f3f &bbox) { //generate a box of type a
+   a.mBounds=bbox;
+   return a;
+}
+
+void SimpleProteinEnvironment::combineZonesFromSameGene(ProteinZone &a, const ProteinZone&b) {  //merge 2 zones of same gene type
+   a.mBounds.mergeIn(b.mBounds);
+}
+
+void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output) {
+    // Assume any combination of 2 zones will results in 9 subsections
+    // Figure out using the intersections points how to generate the subsections
+    // Subsections of area 0 --> ignore
+    // Add subsections of significant areas to the list with the proper gene type
+    // Combine subsections of similar gene type horizontally
+  ProteinZone ab[2]={a,b};  //combine a and b into a list
+  float horizedges[4]={ab[0].mBounds.min().x,ab[1].mBounds.min().x,ab[0].mBounds.max().x,ab[1].mBounds.max().x};  //generate list of x bounds
+  float vertedges[4]={ab[0].mBounds.min().y,ab[1].mBounds.min().y,ab[0].mBounds.max().y,ab[1].mBounds.max().y};  //generate lsit of y bounds
+  std::sort(horizedges+0,horizedges+4);  //Sort the horizontal list left->right (min->max)
+  std::sort(vertedges+0,vertedges+4);  //Sort the vertical list top->bottom (min->max)
+  bool combinable[3][3][2];
+  ProteinZone combiners[3][3][2];
+  //Loop through the subsections
+  for (int i=0;i<3;++i) {
+    for (int j=0;j<3;++j) {
+      BoundingBox3f3f newBounds[2];
+      //Generate one section 1->9 (corner-to-corner)
+      BoundingBox3f3f location(Vector3f(horizedges[i],vertedges[j],a.mBounds.min().z),
+                                   Vector3f(horizedges[i+1],vertedges[j+1],a.mBounds.max().z));
+      bool valid[2];
+      for (int z=0;z<2;++z) {
+         //Is it inside a or b?
+         valid[z]=okArea(newBounds[z]=intersect(location,ab[z].mBounds));
+         combinable[i][j][z]=false;
+      }
+      if (valid[0]&&valid[1]) //It is a subsection of A and B
+         output.push_back(combineZone(a,b,location));
+      else if (valid[0]) { //It is a subsection of A
+         combiners[i][j][0]=relocateZone(ab[0],newBounds[0]);
+         combinable[i][j][0]=true;
+      } else if (valid[1]) { //It is a subsection of B
+         combiners[i][j][0]=relocateZone(ab[1],newBounds[1]);
+         combinable[i][j][1]=true;
+      }
+    }
+  }
+  //Results in 9 subsections of type A, B and AB
+  
+  //Loop through the subsections and determine zones that are neighbors (horizontal)
+  for (int z=0;z<2;++z) {
+    for (int i=0;i<3;++i) {
+      for (int j=0;j<2;++j) {
+         if (combinable[i][j][z]&&combinable[i][j+1][z]) {
+            combineZonesFromSameGene(combiners[i][j+1][z],combiners[i][j][z]);
+            combinable[i][j][z]=false;
+         }
+       }
+    }
+  }
+  //send back combined zones
+  for (int z=0;z<2;++z) {
+    for (int i=0;i<3;++i) {
+      for (int j=0;j<3;++j) {
+         if (combinable[i][j][z]) {
+            output.push_back(combiners[i][j][z]);
+         }
+      }
+    }
+  }
+}
 
 //Split large zone definitions into smaller component zones for calculations (given zone 1 and zone 2)
 //Return a list of zones (post-split)
-std::vector<SimpleProteinEnvironment::ProteinZone> SimpleProteinEnvironment::ZoneIntersection(const ProteinZone &zone1, 
-                                                                    const ProteinZone &zone2){
-	std::vector<ProteinZone> myZoneListReturn;
-	return myZoneListReturn;
+void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZoneList){
+	std::vector<ProteinZone> myLocalZoneList;
+	myLocalZoneList = mMainZoneList;
+	bool converged=false;
+	bool restart=false;
+
+	while (!converged) {
+		//Defaults to converged incase for-loop and detection never terminates
+    	converged=true;
+
+    	//Loop through zones and check intersection (for row from start-->end)
+    	for (std::vector<ProteinZone>::iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
+			//(for column from current-row-diagonal + 1 --> end) ==> results in half triangle w/o diagonal
+	    	for (std::vector<ProteinZone>::iterator j=i+1,je=mMainZoneList.end();j!=je;++j) {
+                ChopZonePair(*i,*j,myLocalZoneList);
+                //if myLocalZoneList --> not null --> update main list, restart
+    		}
+    	}
+	}
 }
 
 //Zone management functions to add zones to the main list (given sub-list, and main-list)

@@ -20,15 +20,17 @@ class SimpleProteinEnvironment : public ProteinEnvironment{
   std::vector<ProteinZone> mMainZoneList;
   
 private:
-
+  ProteinZone combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox);
+  ProteinZone relocateZone(ProteinZone a, const BoundingBox3f3f &bbox);
+  void combineZonesFromSameGene(ProteinZone &a, const ProteinZone&b);  
 public:
   ProteinEnvironment& initialize(const Elysia::Genome::Genome&genes);
   float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
   std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
+  void ChopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output);
 
   //Split large zone definitions into smaller component zones for calculations
-  std::vector<ProteinZone> ZoneIntersection(const ProteinZone &zone1, 
-                                            const ProteinZone &zone2);
+  void ZoneIntersection(std::vector<ProteinZone> mMainZoneList);
   //Zone management functions to add and remove zones from the main list
   void addZone(std::vector<ProteinZone> mSubZoneList,
                std::vector<ProteinZone> mMainZoneList);
@@ -97,4 +99,39 @@ public:
             Soup=B
             Genes=abcd --> do some processing to figure out what soup comes next
             --> update soup to C
+
+//option 1
+				//Compare the two zones
+				//	1. Phase 1: Classify relationship
+				//		A. full overlap
+				//		B. crossing corners --> generate 3
+				//		C. crossing sides --> generate 1
+				//      D. Totally inside
+				//		D. no crossing --> do nothing
+				//  2. Phase 2: Generate new temporary list for overlap (perfect identical overlap)
+				//     Goal: Generate 1 new zone from N overlapping zones --> combine chemicals
+				//			>>Add itself to "merge" list
+				//			>>Add all matching entries to "merge" list
+				//			>>Run merge operation
+				//			>>If only itself --> it doesn't overlap --> "merge" will yield just itself
+				//			>>Add merge result into "new" list and swap with old one
+				//			>>Loop through all until there are no overlaps remaining
+				//  3. Phase 3: Detect partial overlaps
+				//     Goal: Break up unique areas
+				//          >>Use table driven cutting
+				//          >>Add new zones to "new" list
+				//          >>Swap with old list
+				//          >>Restart detection from start --> including merge operations
+				//          >>End if no new overlaps exist anywhere
+//option 2
+// for each edge in a, intersect it with perpendicular lines in zone b.  this gives between 0 and 2 intersections per edge
+// Given edges A1,A2,A3,A4 & Given edges B1,B2,B3,B4
+// --> find intersection points between A and B per edge
+// --> Example: Edge A1 (top clockwise) --> may intersect with edges B1 (full or partial), B2 (point), B4 (point), or NONE
+// Assume any combination of 2 zones will results in 9 subsections
+// Figure out using the intersections points how to generate the subsections
+// Subsections of area 0 --> ignore
+// Add subsections of significant areas to the list with the proper gene type
+// Combine subsections of similar gene type horizontally
+            
 */
