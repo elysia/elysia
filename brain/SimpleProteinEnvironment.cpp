@@ -134,6 +134,11 @@ void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZ
     // Add subsections of significant areas to the list with the proper gene type
     // Combine subsections of similar gene type horizontally
   ProteinZone ab[2]={a,b};  //combine a and b into a list
+  if (!okArea(intersect(ab[0].mBounds,ab[1].mBounds))) {
+     output.push_back(a);
+     output.push_back(b);
+     return;
+  }
   float horizedges[4]={ab[0].mBounds.min().x,ab[1].mBounds.min().x,ab[0].mBounds.max().x,ab[1].mBounds.max().x};  //generate list of x bounds
   float vertedges[4]={ab[0].mBounds.min().y,ab[1].mBounds.min().y,ab[0].mBounds.max().y,ab[1].mBounds.max().y};  //generate lsit of y bounds
   std::sort(horizedges+0,horizedges+4);  //Sort the horizontal list left->right (min->max)
@@ -153,9 +158,9 @@ void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZ
          valid[z]=okArea(newBounds[z]=intersect(location,ab[z].mBounds));
          combinable[i][j][z]=false;
       }
-      if (valid[0]&&valid[1]) //It is a subsection of A and B
+      if (valid[0]&&valid[1]) { //It is a subsection of A and B
          output.push_back(combineZone(a,b,location));
-      else if (valid[0]) { //It is a subsection of A
+      } else if (valid[0]) { //It is a subsection of A
          combiners[i][j][0]=relocateZone(ab[0],newBounds[0]);
          combinable[i][j][0]=true;
       } else if (valid[1]) { //It is a subsection of B
