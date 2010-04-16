@@ -19,6 +19,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
+    //mWhere=mBrain->activateNeuron(this); //JUST FOR TESTING REMOVE ME LATER
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);
     mBrain->getSpatialSearch()->addNeighbor(this);
 }

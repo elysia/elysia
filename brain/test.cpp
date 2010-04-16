@@ -43,8 +43,11 @@ void testTwoConnectedNeurons() {
 		v.z = i;
 		Neuron *n;
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-        
         n->developSynapse(n->getActivityStats());
+        if(i == 1){
+            n->activateComponent(*brain,100);
+            n->tick();
+        }
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 
@@ -54,7 +57,7 @@ void testTwoConnectedNeurons() {
 
 int runtest(){
     Elysia::testTwoConnectedNeurons();
-	printf("puppies");
+	printf("puppies\n");
 	getchar();
 	return 1;
 	
