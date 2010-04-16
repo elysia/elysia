@@ -19,29 +19,66 @@ public:
     }
 };
 
-Vector3f ProteinDensity::getRandomTargetPoint(float age) {
+BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox&tbb) {
+    return BoundingBox3f3f(Vector3f(tbb.minx(),
+                                    tbb.miny(),
+                                    tbb.has_maxz()?tbb.maxz():0),
+                           Vector3f(tbb.maxx(),
+                                    tbb.maxy(),
+                                    tbb.has_maxz()?tbb.maxz():0));
+}
+bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb) {
+    if ((tbb.has_mint()==false||
+         tbb.mint()<=age)&&
+        (tbb.has_maxt()==false||
+         tbb.maxt()>=age)) {
+        return true;
+    }
+    return false;
+}
+void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f>&eligibleBoxes){
+    int num_regions=this->mGene.target_region_size();
+    for(int i=0;i<num_regions;++i) {
+        const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(i);
+        if (isActiveBB(age,*tbb)) {
+            eligibleBoxes.push_back( convertBB(*tbb));
+        }
+    }    
+}
+
+Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
+    int num_regions=this->mGene.target_region_size();
+    if (num_regions) {
+        int num_tries=2;
+        for (int i=0;i<num_tries;++i) {
+            const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(rand()%num_regions);
+            if (isActiveBB(age,*tbb)) {
+                return randomWithinBbox(convertBB(*tbb));
+            }
+        }
+    }
+    std::vector<BoundingBox3f3f> eligibleBoxes;   
+    getTargetBounds(age,eligibleBoxes);
+    if (eligibleBoxes.size()) {
+        return randomWithinBbox(eligibleBoxes[rand()%eligibleBoxes.size()]);
+    }
+    return Vector3f(0,0,0);
+    
+}
+Vector3f ProteinDensity::getRandomTargetPointByRegion(float age) {
     std::vector<std::pair<float,BoundingBox3f3f> >mEligibleBoxes;
     float totalArea=0;
     int num_regions=this->mGene.target_region_size();
     for(int i=0;i<num_regions;++i) {
         const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(i);
         
-        if ((tbb->has_mint()==false||
-             tbb->mint()<=age)&&
-            (tbb->has_maxt()==false||
-             tbb->maxt()>=age)) {
+        if (isActiveBB(age,*tbb)) {
             float area=(tbb->maxx()-tbb->minx())*
                 (tbb->maxy()-tbb->miny());
             float newTotal=totalArea+area;
             if (newTotal!=totalArea) {
-                mEligibleBoxes.push_back
-                    (std::pair<float,BoundingBox3f3f>(totalArea,
-                                                      BoundingBox3f3f(Vector3f(tbb->minx(),
-                                                                               tbb->miny(),
-                                                                               tbb->has_maxz()?tbb->maxz():0),
-                                                                      Vector3f(tbb->maxx(),
-                                                                               tbb->maxy(),
-                                                                               tbb->has_maxz()?tbb->maxz():0))));
+                mEligibleBoxes.push_back(std::pair<float,BoundingBox3f3f>(totalArea,
+                                                                          convertBB(*tbb)));
                 totalArea=newTotal;
             }
         }
