@@ -43,6 +43,20 @@ void Branch::developSynapse(const ActivityStats& stats){
 	(*i)->developSynapse(stats);
 }
 
+void Branch::visualizeTree(FILE *dendriteTree, size_t parent){
+    size_t self;
+    self = size_t(this);
+    fprintf(dendriteTree,"%lu -- %lu;\n",parent,self);
+    for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
+         i!=ie;
+         ++i)
+	(*i)->visualizeSynapse(dendriteTree, self);
+	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i)
+	(*i)->visualizeTree(dendriteTree, self);
+}
+
 void Branch::growSynapse(void){
 	Synapse *s;
     mChildSynapses.push_back(s = new Synapse(this));

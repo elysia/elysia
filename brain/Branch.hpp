@@ -26,6 +26,7 @@ class Branch:  public CellComponent{
     void activateComponent(Brain&,float signal);
 	virtual void passDevelopmentSignal(float signal);
 	void developSynapse(const ActivityStats& stats);
+	void visualizeTree(FILE *dendriteTree, size_t parent);
 };
 
 }

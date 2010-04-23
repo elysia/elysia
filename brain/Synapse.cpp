@@ -137,6 +137,12 @@ void Synapse::develop(const ActivityStats& stats){
     }
 }
 
+void Synapse::visualizeSynapse(FILE *dendriteTree, size_t parent){
+    size_t self;
+    self = size_t(this);
+    fprintf(dendriteTree,"%lu -- %lu;\n",parent,self);
+}
+
 }
     
 

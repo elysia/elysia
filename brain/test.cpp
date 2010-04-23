@@ -45,15 +45,21 @@ void testTwoConnectedNeurons() {
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
         n->developSynapse(n->getActivityStats());
         if(i == 1){
-            n->activateComponent(*brain,100);
-            n->tick();
+            //n->activateComponent(*brain,100);
+            //n->tick();
         }
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 
 }
-}
 
+void visualize(Neuron *cell){
+    FILE * dendriteTree;
+    dendriteTree = fopen("Dendritic_Tree.txt", "w");
+    cell -> visualizeTree(dendriteTree, 0);
+    fclose(dendriteTree);
+}
+}
 
 int runtest(){
     Elysia::testTwoConnectedNeurons();

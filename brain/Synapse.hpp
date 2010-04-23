@@ -29,6 +29,7 @@ public:
 	void fireSynapse();
 	void residualFire();
 	void develop(const ActivityStats& stats);
+	void visualizeSynapse(FILE *dendriteTree, size_t parent);
 	
 };
 

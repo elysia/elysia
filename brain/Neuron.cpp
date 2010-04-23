@@ -16,6 +16,7 @@ Neuron::~Neuron() {
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
+    mDevelopmentCounter = 0;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
@@ -73,6 +74,17 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
          ++i)
 	(*i)->developSynapse(stats);
 }
+
+void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
+    size_t self;
+    self = (size_t)this;
+    fprintf(dendriteTree,"Graph Tree {\n");
+    for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i)
+         (*i) -> visualizeTree(dendriteTree, self);
+   fprintf(dendriteTree,"}");
+   }
 void Neuron::tick(){
 	if(mActivity > mThreshold){
 		fire();
