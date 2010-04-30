@@ -197,8 +197,10 @@ void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZ
 //Split large zone definitions into smaller component zones for calculations (given zone 1 and zone 2)
 //Return a list of zones (post-split)
 void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZoneList){
-	std::vector<ProteinZone> myLocalZoneList;
-	myLocalZoneList = mMainZoneList;
+	std::vector<ProteinZone> mLocalZoneList;
+	std::vector<ProteinZone> mSwapZoneList;
+	mLocalZoneList = mMainZoneList;
+	mSwapZoneList = mMainZoneList;
 	bool converged=false;
 	bool restart=false;
 
@@ -210,11 +212,48 @@ void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZo
     	for (std::vector<ProteinZone>::iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
 			//(for column from current-row-diagonal + 1 --> end) ==> results in half triangle w/o diagonal
 	    	for (std::vector<ProteinZone>::iterator j=i+1,je=mMainZoneList.end();j!=je;++j) {
-                ChopZonePair(*i,*j,myLocalZoneList);
-                //if myLocalZoneList --> not null --> update main list, restart
+				mLocalZoneList.clear();	//ensure that the list returned is initialized properly
+				mSwapZoneList.clear();		//ensure that the list returned is initialized properly
+                ChopZonePair(*i,*j,mLocalZoneList);
+				if(mLocalZoneList.size() == 2){
+					if( ((i->mBounds == mLocalZoneList[0].mBounds)  || 
+						 (i->mBounds == mLocalZoneList[1].mBounds)) ||
+						((j->mBounds == mLocalZoneList[0].mBounds)  || 
+						 (j->mBounds == mLocalZoneList[1].mBounds)) ){
+						//Technicaly, I only need to look at only i, or j, but the 2nd set it a sanity check
+						//No new zones were created
+						//-No action
+					}else{
+						//These are 2 new zones
+						//-Create new zones excluding current 2
+						//-Append new zones to list
+						//-Restart -> Swap
+						RebuildZones(*i,*j,mMainZoneList,mSwapZoneList);
+
+					}
+				}else if (mLocalZoneList.size() > 2){
+					//These are all new zones
+					//-
+				}else if (mLocalZoneList.size() == 1){
+					//2 zones were merged
+					//-
+				}else{
+					//Serious error... should not be 0 or fewer
+				}
     		}
     	}
 	}
+}
+
+void SimpleProteinEnvironment::RebuildZones(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &input, std::vector<ProteinZone> &output) {
+    // Create a new list excluding the current 2 zones
+	for (std::vector<ProteinZone>::iterator i=input.begin(),ie=input.end();i!=ie;++i) {
+		//if( (i != a)&&(i != b) ){
+			output.push_back(a);
+			//output.push_back(i);
+		//}
+	}
+	return;
 }
 
 //Zone management functions to add zones to the main list (given sub-list, and main-list)
