@@ -45,6 +45,10 @@ void testTwoConnectedNeurons() {
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
         n->developSynapse(n->getActivityStats());
         if(i == 1){
+        FILE *dendriteTree=NULL;
+        size_t parent;
+        parent = 0;
+        n->visualizeTree(dendriteTree, parent);
             //n->activateComponent(*brain,100);
             //n->tick();
         }
@@ -53,12 +57,7 @@ void testTwoConnectedNeurons() {
 
 }
 
-void visualize(Neuron *cell){
-    FILE * dendriteTree;
-    dendriteTree = fopen("Dendritic_Tree.txt", "w");
-    cell -> visualizeTree(dendriteTree, 0);
-    fclose(dendriteTree);
-}
+
 }
 
 int runtest(){

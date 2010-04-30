@@ -47,10 +47,12 @@ void Branch::visualizeTree(FILE *dendriteTree, size_t parent){
     size_t self;
     self = size_t(this);
     fprintf(dendriteTree,"%lu -- %lu;\n",parent,self);
-    for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
+    /*
+	for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
          i!=ie;
          ++i)
 	(*i)->visualizeSynapse(dendriteTree, self);
+	*/
 	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i)
