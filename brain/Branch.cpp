@@ -55,12 +55,12 @@ void Branch::visualizeTree(FILE *dendriteTree, size_t parent){
          ++i)
 	(*i)->visualizeTree(dendriteTree, self);
 
-	/*
+	
 	for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
          i!=ie;
          ++i)
 	(*i)->visualizeSynapse(dendriteTree, self);
-	*/	
+		
 }
 
 void Branch::growSynapse(void){

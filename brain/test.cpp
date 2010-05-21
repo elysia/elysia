@@ -64,7 +64,6 @@ void testTwoConnectedNeurons() {
 
 int runtest(){
     Elysia::testTwoConnectedNeurons();
-	printf("puppies\n");
 	getchar();
 	return 1;
 	

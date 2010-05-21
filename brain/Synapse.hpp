@@ -22,8 +22,7 @@ public:
     CellComponent* mParentBranch;
     Neuron *mRecipientNeuron;
     float mConnectionStrength;
-    //Detach dendrite tip from target neuron return 1 for success
-    bool detach();
+    bool detach();		//Detach dendrite tip from target neuron return 1 for success
     void connect();     //need to get the location bound from neuron
 	Synapse(CellComponent * parent);
 	void fireSynapse();
