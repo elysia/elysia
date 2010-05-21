@@ -9,6 +9,7 @@
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
 #include "genome.pb.h"
+#include <time.h>
 
 namespace Elysia {
 void testTwoConnectedNeurons() {
@@ -42,6 +43,7 @@ void testTwoConnectedNeurons() {
 		v.y = i;
 		v.z = i;
 		Neuron *n;
+		srand(time(NULL));
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
         n->developSynapse(n->getActivityStats());
         if(i == 1){

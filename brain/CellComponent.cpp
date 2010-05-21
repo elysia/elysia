@@ -13,7 +13,7 @@ CellComponent::CellComponent() {
 
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {
     float branchiness;
-    if(depth>parentRandomDepthDeterminer/2){
+    if(depth>treeDepth/2+parentRandomDepthDeterminer){
         branchiness = tipBranchiness;
     }
     else{branchiness = baseBranchiness;}

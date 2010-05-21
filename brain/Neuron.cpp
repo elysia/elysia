@@ -8,6 +8,8 @@
 #include "SimpleProteinEnvironment.hpp"
 #include "ProteinDensity.hpp"
 #include "SpatialSearch.hpp"
+#include <time.h>
+
 namespace Elysia {
 Neuron::~Neuron() {
     delete mProteinDensity;
@@ -79,12 +81,12 @@ void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
     dendriteTree = fopen("Dendritic_Tree.txt", "w");
     size_t self;
     self = (size_t)this;
-    fprintf(dendriteTree,"Graph Tree {\n");
+    //fprintf(dendriteTree,"Graph Tree {\n");
     for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i)
          (*i) -> visualizeTree(dendriteTree, self);
-   fprintf(dendriteTree,"}");
+   //fprintf(dendriteTree,"}");
    fclose(dendriteTree);
    }
 void Neuron::tick(){
