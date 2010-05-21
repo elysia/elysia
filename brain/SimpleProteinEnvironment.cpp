@@ -127,7 +127,7 @@ void SimpleProteinEnvironment::combineZonesFromSameGene(ProteinZone &a, const Pr
    a.mBounds.mergeIn(b.mBounds);
 }
 
-void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output) {
+void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output) {
     // Assume any combination of 2 zones will results in 9 subsections
     // Figure out using the intersections points how to generate the subsections
     // Subsections of area 0 --> ignore
@@ -196,7 +196,7 @@ void SimpleProteinEnvironment::ChopZonePair(const ProteinZone &a, const ProteinZ
 
 //Split large zone definitions into smaller component zones for calculations (given zone 1 and zone 2)
 //Return a list of zones (post-split)
-void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZoneList){
+void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZoneList){
 	std::vector<ProteinZone> mLocalZoneList;
 	std::vector<ProteinZone> mSwapZoneList;
 	mLocalZoneList = mMainZoneList;
@@ -214,7 +214,7 @@ void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZo
 	    	for (std::vector<ProteinZone>::iterator j=i+1,je=mMainZoneList.end();j!=je;++j) {
 				mLocalZoneList.clear();	//ensure that the list returned is initialized properly
 				mSwapZoneList.clear();		//ensure that the list returned is initialized properly
-                ChopZonePair(*i,*j,mLocalZoneList);
+                chopZonePair(*i,*j,mLocalZoneList);
 				if(mLocalZoneList.size() == 2){
 					if( ((i->mBounds == mLocalZoneList[0].mBounds)  || 
 						 (i->mBounds == mLocalZoneList[1].mBounds)) ||
@@ -228,15 +228,16 @@ void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZo
 						//-Create new zones excluding current 2
 						//-Append new zones to list
 						//-Restart -> Swap
-						RebuildZones(*i,*j,mMainZoneList,mSwapZoneList);
-
+						rebuildZones(i,j,mMainZoneList,mSwapZoneList);
+						addZones(mLocalZoneList,mSwapZoneList);
 					}
-				}else if (mLocalZoneList.size() > 2){
+				}else if ((mLocalZoneList.size() > 2)||(mLocalZoneList.size() == 1)){
 					//These are all new zones
-					//-
-				}else if (mLocalZoneList.size() == 1){
-					//2 zones were merged
-					//-
+					//-Create new zones excluding current 2
+					//-Append new zones to list
+					//-Restart -> Swap
+					rebuildZones(i,j,mMainZoneList,mSwapZoneList);
+					addZones(mLocalZoneList,mSwapZoneList);
 				}else{
 					//Serious error... should not be 0 or fewer
 				}
@@ -245,27 +246,30 @@ void SimpleProteinEnvironment::ZoneIntersection(std::vector<ProteinZone> mMainZo
 	}
 }
 
-void SimpleProteinEnvironment::RebuildZones(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &input, std::vector<ProteinZone> &output) {
+void SimpleProteinEnvironment::rebuildZones(std::vector<ProteinZone>::const_iterator a,std::vector<ProteinZone>::const_iterator b, const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output) {
     // Create a new list excluding the current 2 zones
-	for (std::vector<ProteinZone>::iterator i=input.begin(),ie=input.end();i!=ie;++i) {
-		//if( (i != a)&&(i != b) ){
-			output.push_back(a);
-			//output.push_back(i);
-		//}
+	for (std::vector<ProteinZone>::const_iterator i=input.begin(),ie=input.end();i!=ie;++i) {
+		if( (i != a)&&(i != b) ){
+			output.push_back(*i);
+		}
 	}
 	return;
 }
 
 //Zone management functions to add zones to the main list (given sub-list, and main-list)
 //Return new main-list
-void SimpleProteinEnvironment::addZone( std::vector<ProteinZone> mSubZoneList, 
-                                        std::vector<ProteinZone> mMainZoneList){
+void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZoneList, 
+                                        std::vector<ProteinZone> &mMainZoneList){
     //Append all the zones in the sub-list to the main-list
+	for (std::vector<ProteinZone>::const_iterator i=mSubZoneList.begin(),ie=mSubZoneList.end();i!=ie;++i) {
+		mMainZoneList.push_back(*i);
+	}
+	return;
 }
 
 //Zone management functions to remove zones from the main list (given sub-list, and main-list)
 //Return new main-list
-void SimpleProteinEnvironment::removeZone(  std::vector<ProteinZone> mSubZoneList, 
+void SimpleProteinEnvironment::removeZones(  std::vector<ProteinZone> mSubZoneList, 
                                             std::vector<ProteinZone> mMainZoneList){
     //Find and remove all matching entries in the sub-list out of the main-list
 }

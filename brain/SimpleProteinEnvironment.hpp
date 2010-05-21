@@ -27,17 +27,17 @@ public:
   ProteinEnvironment& initialize(const Elysia::Genome::Genome&genes);
   float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
   std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
-  void ChopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output);
+  void chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output);
 
   //Split large zone definitions into smaller component zones for calculations
-  void ZoneIntersection(std::vector<ProteinZone> mMainZoneList);
+  void zoneIntersection(std::vector<ProteinZone> mMainZoneList);
 
-  void RebuildZones(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &input, std::vector<ProteinZone> &output);
+  void rebuildZones(std::vector<ProteinZone>::const_iterator a, std::vector<ProteinZone>::const_iterator b, const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output);
 
   //Zone management functions to add and remove zones from the main list
-  void addZone(std::vector<ProteinZone> mSubZoneList,
-               std::vector<ProteinZone> mMainZoneList);
-  void removeZone(std::vector<ProteinZone> mSubZoneList,
+  void addZones(const std::vector<ProteinZone> &mSubZoneList,
+               std::vector<ProteinZone> &mMainZoneList);
+  void removeZones(std::vector<ProteinZone> mSubZoneList,
                   std::vector<ProteinZone> mMainZoneList);
 
   //Function to find the zone that a single point reside in
