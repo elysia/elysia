@@ -13,7 +13,6 @@ class Branch:  public CellComponent{
     //Which branch does this synapse belong to
     std::vector<Synapse *>mChildSynapses;
     //Which dendrite tips come from this branch
-	std::vector<Branch *>mChildBranches;
     float mSignalWeight;
     
    public:
