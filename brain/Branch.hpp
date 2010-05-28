@@ -7,7 +7,7 @@ class Synapse;
 class Branch;
 //The branch class covers all branch points in the dendrite tree. When a dendrite is active, it passes activity
 //to the previous dendrite branch (whose identity it stores as a pointer). Neurons at the base 
-class Branch:  public CellComponent{
+class BRAIN_CORE_EXPORT Branch:  public CellComponent{
 
     CellComponent *mParentComponent;
     //Which branch does this synapse belong to

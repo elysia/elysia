@@ -4,7 +4,7 @@
 namespace Elysia {
 class ProteinEnvironment;
 
-class ProteinDensity {
+class BRAIN_CORE_EXPORT ProteinDensity {
     Elysia::Genome::Gene mGene;
     ProteinEnvironment *mExtrinsicProteins;
 public:

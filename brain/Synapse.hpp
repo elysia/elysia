@@ -11,7 +11,7 @@ class Brain;
 ///The dendrite_tip represents connections from the dendrite tree onto other neurons. Neurons pass activity onto
 ///dendrite_tips and dendrite_tips pass that activity onto branches
 
-class Synapse{
+class BRAIN_CORE_EXPORT Synapse{
     Brain *mBrain;
 	std::list<Synapse*>::iterator mWhere;
     friend class Brain;

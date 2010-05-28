@@ -119,9 +119,13 @@ ENDIF()
 #add-ins
 
 IF(NOT CMAKE_MODULE_PATH)
-  SET(CMAKE_MODULE_PATH ${TOP_LEVEL}/build)
+  SET(CMAKE_MODULE_PATH ${TOP_LEVEL}/build/modules)
 ENDIF()
 GET_FILENAME_COMPONENT(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ABSOLUTE)
+INCLUDE(ListUtil)
+INCLUDE(ParseArguments)
+INCLUDE(AddPluginTarget)
+
 
 MACRO(VERIFY_VERSION package_name major minor subminor)
   IF (${package_name}_MAJOR_VERSION LESS ${major})
@@ -181,6 +185,7 @@ FIND_PACKAGE(ProtocolBuffers)
 IF(NOT PROTOCOLBUFFERS_FOUND)
   MESSAGE(FATAL_ERROR "Cannot find Protocol Buffers")
 ENDIF()
+
 IF(WIN32)
 SET(PROTOCOLBUFFERS_COMPILER ${DEPENDENCIES_ROOT}/bin/protoc.exe)
 ENDIF()
@@ -206,6 +211,11 @@ VERIFY_VERSION(Boost 1 37 0)
 
 #source file location
 SET(BRAIN_SOURCE_DIR ${TOP_LEVEL})
+IF(WIN32)
+ADD_DEFINITIONS(/FI${BRAIN_SOURCE_DIR}/Platform.hpp)
+ELSE()
+ADD_DEFINITIONS(-include ${BRAIN_SOURCE_DIR}/Platform.hpp)
+ENDIF()
 
 #cxx flags
 INCLUDE_DIRECTORIES(BEFORE
@@ -226,7 +236,7 @@ SET(BRAIN_CORE_SOURCES
 ADD_CUSTOM_TARGET(genome
                   DEPENDS ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/genome.pb.h)
 ADD_CUSTOM_COMMAND(OUTPUT ${BRAIN_SOURCE_DIR}/genome.pb.cc ${BRAIN_SOURCE_DIR}/genome.pb.h
-                   COMMAND ${PROTOCOLBUFFERS_COMPILER} ${BRAIN_SOURCE_DIR}/genome.proto -I${BRAIN_SOURCE_DIR} --cpp_out=${BRAIN_SOURCE_DIR}
+                   COMMAND ${PROTOCOLBUFFERS_COMPILER} ${BRAIN_SOURCE_DIR}/genome.proto -I${BRAIN_SOURCE_DIR} --cpp_out=dllexport_decl=BRAIN_CORE_EXPORT:${BRAIN_SOURCE_DIR}
                    DEPENDS ${BRAIN_SOURCE_DIR}/genome.proto)
 
 
@@ -259,30 +269,10 @@ SET(BRAIN_SOURCES
 #Nghia's ANN test
 SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
-  ${BRAIN_SOURCE_DIR}/Brain.cpp  
-  ${BRAIN_SOURCE_DIR}/genome.pb.cc
-  ${BRAIN_SOURCE_DIR}/SpatialSearch.cpp
-  ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
-  ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.cpp
-  ${BRAIN_SOURCE_DIR}/Base64.cpp
-  ${BRAIN_SOURCE_DIR}/CellComponent.cpp
-  ${BRAIN_SOURCE_DIR}/CellComponent.hpp  
-  ${BRAIN_SOURCE_DIR}/ProteinDensity.hpp
-  ${BRAIN_SOURCE_DIR}/ProteinDensity.cpp
-
-  ${BRAIN_SOURCE_DIR}/Neuron.cpp
-  ${BRAIN_SOURCE_DIR}/Neuron.hpp  
-  ${BRAIN_SOURCE_DIR}/Synapse.cpp
-  ${BRAIN_SOURCE_DIR}/Synapse.hpp  
-  ${BRAIN_SOURCE_DIR}/Branch.cpp
-  ${BRAIN_SOURCE_DIR}/Branch.hpp  
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp
 )
-
-#Andrew's brain directory
-SET(BRAINSANDBOX_SOURCES
-  ${BRAIN_SOURCE_DIR}/main.cpp
+SET(BRAIN_CORE_LIB_SOURCES 
   ${BRAIN_SOURCE_DIR}/Brain.cpp
   ${BRAIN_SOURCE_DIR}/Brain.hpp  
   ${BRAIN_SOURCE_DIR}/Base64.cpp
@@ -303,22 +293,43 @@ SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.hpp
-  ${BRAIN_SOURCE_DIR}/genome.pb.cc
+  ${BRAIN_SOURCE_DIR}/genome.pb.cc)
+
+#Andrew's brain directory
+SET(BRAINSANDBOX_SOURCES
+  ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp
 )
+SET(BRAIN_PLUGIN_DIR ${BRAIN_SOURCE_DIR}/plugins)
+
+SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
+
+SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp)
 
 
+ADD_PLUGIN_TARGET(vis
+                    SOURCES ${BRAIN_PLUGIN_VIS_SOURCES}
+                    TARGET_LDFLAGS ${sirikata_LDFLAGS}
+                    LIBRARIES ${BRAIN_CORE_LIB}
+                    TARGET_LIBRARIES ${BRAIN_CORE_LIB})
 
 
+ADD_LIBRARY(brain-core SHARED ${BRAIN_CORE_LIB_SOURCES})
+SET_TARGET_PROPERTIES(brain-core PROPERTIES COMPILE_DEFINITIONS BRAIN_CORE_BUILD)
 #libs
 #ADD_LIBRARY(cbr-core STATIC ${BRAIN_CORE_SOURCES} ${BRAIN_PROTOCOL_SOURCES})
 
 #binaries
 ADD_EXECUTABLE(nearestneighbor ${NEAREST_NEIGHBOR_SOURCES})
 ADD_DEPENDENCIES(nearestneighbor genome)
+ADD_DEPENDENCIES(nearestneighbor brain-core)
+
+
+
 TARGET_LINK_LIBRARIES(nearestneighbor
 #  cbr-core
+        brain-core
         ${PROTOCOLBUFFERS_LIBRARIES}
         )
 IF(NOT WIN32)
@@ -330,8 +341,10 @@ ADD_EXECUTABLE(brainsandbox ${BRAINSANDBOX_SOURCES})
 ADD_DEPENDENCIES(brainsandbox genome)
 TARGET_LINK_LIBRARIES(brainsandbox
 #  cbr-core
+        brain-core
         ${PROTOCOLBUFFERS_LIBRARIES}
         )
+ADD_DEPENDENCIES(brainsandbox brain-core)
 IF(NOT WIN32)
 SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS -lpthread)
 ENDIF()

@@ -7,7 +7,7 @@ class Neuron;
 class Synapse; 
 class SpatialSearch;
 
-class Brain {
+class BRAIN_CORE_EXPORT Brain {
     ProteinEnvironment *mProteinMap;
     SpatialSearch *mSpatialSearch;
     ///creature maturity from 0(just born) to 1(adult)

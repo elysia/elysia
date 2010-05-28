@@ -3,7 +3,7 @@ class Neuron;
 
 /** Find nearest neighbor from a scatter set of locations
  */
-class SpatialSearch{
+class BRAIN_CORE_EXPORT SpatialSearch{
 private:
 public:
     virtual Neuron* findNearestNeighbor(const Vector3f &queryPoint)=0;

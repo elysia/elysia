@@ -10,7 +10,7 @@ namespace Elysia { namespace Genome {
  * Cells can do point queries into this datastructure to see what the protein environment is 
  */
  namespace Elysia {
-class ProteinEnvironment {
+class BRAIN_CORE_EXPORT ProteinEnvironment {
 public:
   ///This initialization function reads the genome information and creates the zones that sets up the protein environment
   virtual ProteinEnvironment& initialize(const Elysia::Genome::Genome&)=0;

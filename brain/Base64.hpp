@@ -46,10 +46,10 @@ public:
 
 typedef DataReference<const void*> MemoryReference;
 
-void toBase64(std::vector<unsigned char>&retval,
+BRAIN_CORE_EXPORT void toBase64(std::vector<unsigned char>&retval,
               const MemoryReference&firstInput, 
               const MemoryReference&secondInput);
-bool fromBase64(std::vector<unsigned char>&retval,
+BRAIN_CORE_EXPORT bool fromBase64(std::vector<unsigned char>&retval,
                 const MemoryReference&a);
 }
 

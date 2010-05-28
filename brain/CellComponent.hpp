@@ -6,7 +6,7 @@ class ProteinDensity;
 class Branch;
 class ActivityStats;
 class Brain;
-class CellComponent{
+class BRAIN_CORE_EXPORT CellComponent{
 protected:
     float mActivity;                   
     float mThreshold;                  //How much activity is required to fire

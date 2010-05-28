@@ -14,7 +14,7 @@ class ActivityStats;
 /**
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
-class Neuron : public CellComponent, ActivityStats{
+class BRAIN_CORE_EXPORT Neuron : public CellComponent, ActivityStats{
     ProteinDensity *mProteinDensity;
     std::list<Neuron*>::iterator mWhere;
     Brain*mBrain;

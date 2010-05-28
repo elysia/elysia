@@ -1,5 +1,5 @@
 
-class Lobe{
+class BRAIN_CORE_EXPORT Lobe{
 public:
     int lobe_number;
     std::vector<Neuron *>child_neuron;

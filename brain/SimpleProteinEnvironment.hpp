@@ -6,9 +6,9 @@ namespace Elysia {
  * Class defines the protein soup that components interact with
  * The supporting functions use the genome to generate a list of zones used for defining neuron effects
  */
-class SimpleProteinEnvironment : public ProteinEnvironment{
+class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
   //Define the data that each zone carries with it
-  struct ProteinZone{
+  struct BRAIN_CORE_EXPORT ProteinZone{
     typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
     //Soup activates genes so you need to know which soup is active
     std::vector< EffectAndDensityPair > mSoup;

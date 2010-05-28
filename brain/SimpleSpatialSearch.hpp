@@ -5,7 +5,7 @@ class Neuron;
 /** Find nearest neighbor from a scatter set of locations
  *  --"Simple" implementation of nearest neighbor
  */
-class SimpleSpatialSearch : public SpatialSearch { 
+class BRAIN_CORE_EXPORT SimpleSpatialSearch : public SpatialSearch { 
     std::tr1::unordered_set<Neuron*> mNeurons;
 private:
 public:
