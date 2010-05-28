@@ -2,6 +2,7 @@
 #include "SimpleProteinEnvironment.hpp"
 namespace Elysia {
 /*
+//Example of a pair
 namespace std {
 template <class T, class U> class pair {public:
  pair (const T&f, const U&s) {first=f;second=s;}
@@ -10,7 +11,7 @@ template <class T, class U> class pair {public:
 };}
 */
 
-//Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome
+//Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome (and simplify)
 ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
     //Zones start out as representing 1 gene (can be overlapping)
     //Since they can represent a collection of genes,
@@ -97,7 +98,9 @@ std::vector<std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment:
 void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age){
 	//Will write this function last
 }
-static bool okArea(const BoundingBox3f3f&input) { //The area is not equal in any aspect -> not OK
+
+//The area is not equal in any aspect -> not OK
+static bool okArea(const BoundingBox3f3f&input) { 
   return input.min().x!=input.max().x&&input.min().y!=input.max().y;
 }
 
@@ -109,6 +112,7 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
    return retval;
 }
 
+//Combine genes into a single-shared region
  SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox) {
    ProteinZone retval;
    retval.mBounds=bbox;
@@ -119,15 +123,18 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
    return retval;
 }
 
+//Relocate a zone to a new box location
 SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::relocateZone(ProteinZone a, const BoundingBox3f3f &bbox) { //generate a box of type a
    a.mBounds=bbox;
    return a;
 }
 
-void SimpleProteinEnvironment::combineZonesFromSameGene(ProteinZone &a, const ProteinZone&b) {  //merge 2 zones of same gene type
+//Merge 2 zones of same gene type
+void SimpleProteinEnvironment::combineZonesFromSameGene(ProteinZone &a, const ProteinZone&b) {  
    a.mBounds.mergeIn(b.mBounds);
 }
 
+//Combine 2 zones by dividing it up into parts before reassembling them
 void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output) {
     // Assume any combination of 2 zones will results in 9 subsections
     // Figure out using the intersections points how to generate the subsections
@@ -195,7 +202,7 @@ void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZ
   }
 }
 
-//Split large zone definitions into smaller component zones for calculations (given zone 1 and zone 2)
+//Split and simplify large zone definitions into smaller component zones for calculations (given list of all zones)
 //Return a list of zones (post-split)
 void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZoneList){
 	std::vector<ProteinZone> mLocalZoneList;
