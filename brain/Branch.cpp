@@ -48,6 +48,7 @@ void Branch::developSynapse(const ActivityStats& stats){
 void Branch::visualizeTree(FILE *dendriteTree, size_t parent){
     size_t self;
     self = size_t(this);
+	fprintf(dendriteTree,"%lu [style=\"filled\" fillcolor=\"#0000FF\"];\n",self);
     fprintf(dendriteTree,"%lu -- %lu;\n",parent,self);
     
 	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
