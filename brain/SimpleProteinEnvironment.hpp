@@ -35,10 +35,10 @@ public:
   void rebuildZones(std::vector<ProteinZone>::const_iterator a, std::vector<ProteinZone>::const_iterator b, const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output);
 
   //Zone management functions to add and remove zones from the main list
-  void addZone(std::vector<ProteinZone> &mSubZoneList,
+  void addZones(const std::vector<ProteinZone> &mSubZoneList,
                std::vector<ProteinZone> &mMainZoneList);
-  void removeZone(std::vector<ProteinZone> &mSubZoneList,
-                  std::vector<ProteinZone> &mMainZoneList);
+  void removeZones(std::vector<ProteinZone> mSubZoneList,
+                  std::vector<ProteinZone> mMainZoneList);
 
   //Function to find the zone that a single point reside in
   ProteinZone &resideInZones(const Vector3f queryPoint, 
