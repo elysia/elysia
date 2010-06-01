@@ -51,8 +51,8 @@ void testTwoConnectedNeurons() {
         size_t parent;
         parent = 0;
         n->visualizeTree(dendriteTree, parent);
-            //n->activateComponent(*brain,100);
-            //n->tick();
+        n->activateComponent(*brain,100);
+        n->tick();
         }
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
