@@ -56,7 +56,7 @@ void testTwoConnectedNeurons() {
         n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-
+	fclose(dendriteTree);
 }
 
 void testProteinEnvironment() {

@@ -15,14 +15,14 @@ public:
 namespace Elysia {
 /* function to find Nearest Neighbor from local copy of list
  */
-Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint){
+Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neuron* exclude){
     std::tr1::unordered_set<Neuron*>::iterator i;
     float maxDistance;
     Neuron * maxDistanceItem=NULL;
     for(i=mNeurons.begin();i!=mNeurons.end();++i) {
        Neuron * current=*i;//find out what's "inside" i
        float currentDistance=(current->getLocation()-queryPoint).length();
-       if (maxDistanceItem==NULL || currentDistance<maxDistance) {
+       if ((maxDistanceItem==NULL || currentDistance<maxDistance) && current != exclude){
             maxDistance=currentDistance;
             maxDistanceItem=current;
        }

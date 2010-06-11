@@ -87,7 +87,7 @@ void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
          ++i)
          (*i) -> visualizeTree(dendriteTree, self);
    //fprintf(dendriteTree,"}");
-   fclose(dendriteTree);
+   
    }
 void Neuron::tick(){
 	if(mActivity > mThreshold){
