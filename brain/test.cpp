@@ -62,7 +62,7 @@ void testTwoConnectedNeurons() {
 
 void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float*grow_leaf_count,float*grow_neuron_count,float*other_count){
    using namespace Elysia::Genome;
-    *grow_leaf_count=0;
+    *grow_neuron_count=0;
     *grow_leaf_count=0;
     *other_count=0;
     for (size_t i=0;i<combinedResult.size();++i) {
