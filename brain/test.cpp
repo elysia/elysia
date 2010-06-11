@@ -60,21 +60,21 @@ void testTwoConnectedNeurons() {
 }
 
 
-void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float&grow_leaf_count,float&grow_neuron_count,float&other_count){
+void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float*grow_leaf_count,float*grow_neuron_count,float*other_count){
    using namespace Elysia::Genome;
-    grow_leaf_count=0;
-    grow_leaf_count=0;
-    other_count=0;
+    *grow_leaf_count=0;
+    *grow_leaf_count=0;
+    *other_count=0;
     for (size_t i=0;i<combinedResult.size();++i) {
        switch(combinedResult[i].first) {
          case GROW_NEURON:
-           grow_neuron_count+=combinedResult[i].second;
+           *grow_neuron_count+=combinedResult[i].second;
            break;
          case GROW_LEAF:
-           grow_leaf_count+=combinedResult[i].second;
+           *grow_leaf_count+=combinedResult[i].second;
            break;
          default:
-           other_count+=combinedResult[i].second;
+           *other_count+=combinedResult[i].second;
            break;
        }
    }
@@ -105,6 +105,16 @@ void testProteinEnvironment() {
    firstRegion.set_maxz(2);
 
    *firstGene.add_bounds()=firstRegion;
+
+   Elysia::Genome::TemporalBoundingBox firstTargetRegion;
+   firstTargetRegion.set_minx(5);
+   firstTargetRegion.set_miny(5);
+   firstTargetRegion.set_minz(5);
+   firstTargetRegion.set_maxx(8);
+   firstTargetRegion.set_maxy(8);
+   firstTargetRegion.set_maxz(8);
+
+   *firstGene.add_target_region()=firstTargetRegion;
    Elysia::Genome::Gene secondGene;
    Elysia::Genome::Protein secondProtein;
    secondProtein.set_protein_code(GROW_LEAF);
@@ -132,17 +142,17 @@ void testProteinEnvironment() {
    float grow_neuron_count=0;
    float other_count=0;
 
-   testResultHelper(combinedResult,grow_leaf_count,grow_neuron_count,other_count);
+   testResultHelper(combinedResult,&grow_leaf_count,&grow_neuron_count,&other_count);
    assert(grow_leaf_count==.75);
    assert(grow_neuron_count==.125);
    assert(other_count==0);
 
-   testResultHelper(firstResult,grow_leaf_count,grow_neuron_count,other_count);
+   testResultHelper(firstResult,&grow_leaf_count,&grow_neuron_count,&other_count);
    assert(grow_leaf_count==.25);
    assert(grow_neuron_count==.125);
    assert(other_count==0);
 
-   testResultHelper(secondResult,grow_leaf_count,grow_neuron_count,other_count);
+   testResultHelper(secondResult,&grow_leaf_count,&grow_neuron_count,&other_count);
    assert(grow_leaf_count==.5);
    assert(grow_neuron_count==0);
    assert(other_count==0);
