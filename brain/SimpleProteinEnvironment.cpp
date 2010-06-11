@@ -259,6 +259,7 @@ void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZo
 		if(restart){
 			mMainZoneList.swap(mSwapZoneList);
 			converged=false;
+			restart=false;
 		}
 
 	}//end while
