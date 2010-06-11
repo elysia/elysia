@@ -116,7 +116,7 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
  SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox) {
    ProteinZone retval;
    retval.mBounds=bbox;
-   assert(a.mSoup.empty()&&b.mSoup.empty());
+   assert(!a.mSoup.empty()&&!b.mSoup.empty());
    //Combine the genes into a shared, common sized, region
    retval.mGenes.insert(retval.mGenes.end(),a.mGenes.begin(),a.mGenes.end());
    retval.mGenes.insert(retval.mGenes.end(),b.mGenes.begin(),b.mGenes.end());
