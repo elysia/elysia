@@ -95,7 +95,7 @@ void testProteinEnvironment() {
    *firstGene.add_external_proteins()=firstProtein;
    assert(firstGene.external_proteins(0).protein_code()==GROW_NEURON);
    *firstGene.add_external_proteins()=firstAuxProtein;
-   assert(firstGene.external_proteins(0).protein_code()==GROW_LEAF);
+   assert(firstGene.external_proteins(1).protein_code()==GROW_LEAF);
    Elysia::Genome::TemporalBoundingBox firstRegion;
    firstRegion.set_minx(0);
    firstRegion.set_miny(0);
@@ -162,7 +162,7 @@ void testProteinEnvironment() {
 
 int runtest(){
     Elysia::testTwoConnectedNeurons();
-    //Elysia::testProteinEnvironment();
+    Elysia::testProteinEnvironment();
 	//getchar();
 	return 1;
 	
