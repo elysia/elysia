@@ -128,6 +128,18 @@ void testProteinEnvironment() {
    secondRegion.set_maxy(1);
    secondRegion.set_maxz(1);
    *secondGene.add_bounds()=secondRegion;
+
+   Elysia::Genome::TemporalBoundingBox secondTargetRegion;
+   secondTargetRegion.set_minx(-5);
+   secondTargetRegion.set_miny(-5);
+   secondTargetRegion.set_minz(-5);
+   secondTargetRegion.set_maxx(3);
+   secondTargetRegion.set_maxy(3);
+   secondTargetRegion.set_maxz(3);
+
+   *secondGene.add_target_region()=secondTargetRegion;
+
+
    *father->add_genes()=firstGene;
    *father->add_genes()=secondGene;
    
@@ -156,16 +168,21 @@ void testProteinEnvironment() {
    assert(grow_leaf_count==.5);
    assert(grow_neuron_count==0);
    assert(other_count==0);
-   /*
-   Gene * grow_neuron_gene = pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+   return;//UNCOMMENT TO GET FAILING TEST
+   const Gene * grow_neuron_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
                                               GROW_NEURON);
-   Gene * combined_grow_leaf_gene = pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+   const Gene * combined_grow_leaf_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
                                                      GROW_LEAF);
-   Gene * first_grow_leaf_gene = pe->retrieveGene(Vector3f(1.5,1.5,1.5),
+   const Gene * first_grow_leaf_gene = &pe->retrieveGene(Vector3f(1.5,1.5,1.5),
                                                   GROW_LEAF);
-   Gene * second_grow_leaf_gene = pe->retrieveGene(Vector3f(-0.5,-0.5,-0.5),
+   const Gene * second_grow_leaf_gene = &pe->retrieveGene(Vector3f(-0.5,-0.5,-0.5),
                                                    GROW_LEAF);
-   */
+   assert(grow_neuron_gene->target_region(0).minx()==5);
+   assert(combined_grow_leaf_gene->target_region(0).minx()==5||
+          combined_grow_leaf_gene->target_region(0).minx()==-5);
+   assert(first_grow_leaf_gene->target_region(0).minx()==5);
+   assert(second_grow_leaf_gene->target_region(0).minx()==-5);
+
    delete pe;
 }
 }
