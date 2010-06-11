@@ -172,7 +172,7 @@ void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZ
          combiners[i][j][0]=relocateZone(ab[0],newBounds[0]);
          combinable[i][j][0]=true;
       } else if (valid[1]) { //It is a subsection of B
-         combiners[i][j][0]=relocateZone(ab[1],newBounds[1]);
+         combiners[i][j][1]=relocateZone(ab[1],newBounds[1]);
          combinable[i][j][1]=true;
       }
     }
