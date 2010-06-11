@@ -59,6 +59,28 @@ void testTwoConnectedNeurons() {
 	fclose(dendriteTree);
 }
 
+
+void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float&grow_leaf_count,float&grow_neuron_count,float&other_count){
+   using namespace Elysia::Genome;
+    grow_leaf_count=0;
+    grow_leaf_count=0;
+    other_count=0;
+    for (size_t i=0;i<combinedResult.size();++i) {
+       switch(combinedResult[i].first) {
+         case GROW_NEURON:
+           grow_neuron_count+=combinedResult[i].second;
+           break;
+         case GROW_LEAF:
+           grow_leaf_count+=combinedResult[i].second;
+           break;
+         default:
+           other_count+=combinedResult[i].second;
+           break;
+       }
+   }
+
+}
+
 void testProteinEnvironment() {
    using namespace Elysia::Genome;
    Elysia::Genome::Genome twoOverlappingGenes;
@@ -104,26 +126,33 @@ void testProteinEnvironment() {
    std::vector<std::pair<Elysia::Genome::Effect, float> > firstResult=pe->getCompleteProteinDensity(Vector3f(1.5,1.5,1.5));
    //check that secondResult matches expectations
    std::vector<std::pair<Elysia::Genome::Effect, float> > secondResult=pe->getCompleteProteinDensity(Vector3f(-.5,-.5,-.5));
-   assert(combinedResult.size()==2);
-   assert(firstResult.size()==2);
-   assert(secondResult.size()==1);
-   assert((combinedResult[0].first==GROW_LEAF&&combinedResult[0].second==.75)||
-          (combinedResult[1].first==GROW_LEAF&&combinedResult[1].second==.75));
-   assert((combinedResult[0].first==GROW_NEURON&&combinedResult[0].second==.125)||
-          (combinedResult[1].first==GROW_NEURON&&combinedResult[1].second==.125));
-   assert((firstResult[0].first==GROW_LEAF&&firstResult[0].second==.25)||
-          (firstResult[1].first==GROW_LEAF&&firstResult[1].second==.25));
-   assert((firstResult[0].first==GROW_NEURON&&firstResult[0].second==.125)||
-          (firstResult[1].first==GROW_NEURON&&firstResult[1].second==.125));
-   assert(secondResult[0].first==GROW_LEAF&&secondResult[0].second==.5);
+   float grow_leaf_count=0;
+   float grow_neuron_count=0;
+   float other_count=0;
+
+   testResultHelper(combinedResult,grow_leaf_count,grow_neuron_count,other_count);
+   assert(grow_leaf_count==.75);
+   assert(grow_neuron_count==.125);
+   assert(other_count==0);
+
+   testResultHelper(firstResult,grow_leaf_count,grow_neuron_count,other_count);
+   assert(grow_leaf_count==.25);
+   assert(grow_neuron_count==.125);
+   assert(other_count==0);
+
+   testResultHelper(secondResult,grow_leaf_count,grow_neuron_count,other_count);
+   assert(grow_leaf_count==.5);
+   assert(grow_neuron_count==0);
+   assert(other_count==0);
+
    delete pe;
 }
 }
 
 int runtest(){
     Elysia::testTwoConnectedNeurons();
-    Elysia::testProteinEnvironment();
-	getchar();
+    //Elysia::testProteinEnvironment();
+	//getchar();
 	return 1;
 	
 }
