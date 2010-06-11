@@ -90,10 +90,12 @@ void testProteinEnvironment() {
    firstProtein.set_protein_code(GROW_NEURON);//so we can easily identify where
    firstProtein.set_density(0.125);   
    Elysia::Genome::Protein firstAuxProtein;
-   firstProtein.set_protein_code(GROW_LEAF);//so we see that they are additive
-   firstProtein.set_density(0.25);
+   firstAuxProtein.set_protein_code(GROW_LEAF);//so we see that they are additive
+   firstAuxProtein.set_density(0.25);
    *firstGene.add_external_proteins()=firstProtein;
+   assert(firstGene.external_proteins(0).protein_code()==GROW_NEURON);
    *firstGene.add_external_proteins()=firstAuxProtein;
+   assert(firstGene.external_proteins(0).protein_code()==GROW_LEAF);
    Elysia::Genome::TemporalBoundingBox firstRegion;
    firstRegion.set_minx(0);
    firstRegion.set_miny(0);
@@ -144,7 +146,16 @@ void testProteinEnvironment() {
    assert(grow_leaf_count==.5);
    assert(grow_neuron_count==0);
    assert(other_count==0);
-
+   /*
+   Gene * grow_neuron_gene = pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+                                              GROW_NEURON);
+   Gene * combined_grow_leaf_gene = pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+                                                     GROW_LEAF);
+   Gene * first_grow_leaf_gene = pe->retrieveGene(Vector3f(1.5,1.5,1.5),
+                                                  GROW_LEAF);
+   Gene * second_grow_leaf_gene = pe->retrieveGene(Vector3f(-0.5,-0.5,-0.5),
+                                                   GROW_LEAF);
+   */
    delete pe;
 }
 }
