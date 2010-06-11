@@ -16,6 +16,8 @@ void testTwoConnectedNeurons() {
     ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
 
 	Brain *brain= new Brain(myProteinEnvironment);
+	FILE *dendriteTree=NULL;
+	dendriteTree = fopen("Dendritic_Tree.txt", "w");
 	for(float i=0;i<2;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
@@ -46,14 +48,12 @@ void testTwoConnectedNeurons() {
 		srand(time(NULL));
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
         n->developSynapse(n->getActivityStats());
-        if(i == 1){
-        FILE *dendriteTree=NULL;
+        
         size_t parent;
         parent = 0;
         n->visualizeTree(dendriteTree, parent);
         n->activateComponent(*brain,100);
         n->tick();
-        }
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 

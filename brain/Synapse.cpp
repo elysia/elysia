@@ -139,9 +139,13 @@ void Synapse::develop(const ActivityStats& stats){
 
 void Synapse::visualizeSynapse(FILE *dendriteTree, size_t parent){
     size_t self;
+	size_t recipient;
     self = size_t(this);
+	recipient = size_t(mRecipientNeuron);
 	fprintf(dendriteTree,"%lu [style=\"filled\" fillcolor=\"#00FF00\"];\n",self);
 	fprintf(dendriteTree,"%lu -- %lu;\n",parent,self);
+	fprintf(dendriteTree,"%lu [style=\"filled\" fillcolor=\"#FF0000\"];\n",recipient);
+	fprintf(dendriteTree,"%lu -- %lu;\n",self,recipient);
 }
 
 }

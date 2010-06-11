@@ -78,7 +78,7 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
 }
 
 void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
-    dendriteTree = fopen("Dendritic_Tree.txt", "w");
+    
     size_t self;
     self = (size_t)this;
     //fprintf(dendriteTree,"Graph Tree {\n");
