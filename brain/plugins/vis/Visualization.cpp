@@ -11,7 +11,6 @@ BrainPlugin* makeVisualization(Brain*b) {
 Visualization::Visualization(){
 }
 void Visualization::update() {
-    std::cout<<"HELLO\n";
 }
 void Visualization::initialize( Brain*b) {
     mGraphics=mGlobalGraphics.lock();
