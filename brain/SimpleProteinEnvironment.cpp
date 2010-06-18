@@ -312,10 +312,20 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 	return myFail;
 }
 
+//Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
-  assert(0);
-  //FIXME actually look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
   static Elysia::Genome::Gene retval;
+  SimpleProteinEnvironment::ProteinZone localzone;
+  //Find THE zone that location belongs to; may need to be expanded later to cross multiple zones
+  localzone = resideInZones(location, mMainZoneList);
+
+  std::vector< std::pair<Elysia::Genome::Effect,float> >::const_iterator i,ie;
+  for (i=localzone.mSoup.begin(),ie=localzone.mSoup.end();i!=ie;++i) {
+	  if (i->first==effect) {
+		  //How to find the gene responsible for this effect?  Return that gene!
+	  }
+  }
+
   return retval;
 }
 
