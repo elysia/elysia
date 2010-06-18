@@ -32,10 +32,10 @@ void Brain::processNeuron(){
 }
 
 void Brain::processSynapse(){
-	for (std::list<Synapse*>::iterator i=mActiveSynapses.begin(),ie=mActiveSynapses.end();
-         i!=ie;
-		 ++i) {
-        (*i)->residualFire();
+    std::list<Synapse*>::iterator j,i=mActiveSynapses.begin(),ie=mActiveSynapses.end();
+	while (i!=ie) {
+        std::list<Synapse*>::iterator j=i++;
+        (*j)->residualFire();
 	}
 }
 
