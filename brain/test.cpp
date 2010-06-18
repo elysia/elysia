@@ -48,20 +48,24 @@ void testTwoConnectedNeurons() {
 		Neuron *n;
 		srand(time(NULL));
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene));
 		createdList.push_back(n);
 		}
 	for(float i=0;i<neuronNumber;i++){
 		Neuron *n = createdList[i];
-        n->developSynapse(n->getActivityStats());
-        
+        n->developSynapse(n->getActivityStats());       
         size_t parent;
         parent = 0;
         n->visualizeTree(dendriteTree, parent);
-        n->activateComponent(*brain,100);
-        n->tick();
-		createdList.push_back(n);
 		//const Vector3f &location):  mNeuronLocation(location){));
+	}
+	for(int j=0; j<100; j++){
+		for(float i=0;i<neuronNumber;i++){
+			Neuron *n = createdList[i];
+			if(j== 0){n->activateComponent(*brain,100);}
+			n->tick();
+		//const Vector3f &location):  mNeuronLocation(location){));
+		}
+		brain ->tick();
 	}
 	fclose(dendriteTree);
 }

@@ -27,8 +27,8 @@ void Brain::processNeuron(){
          i!=ie;
 		 ++i) {
         (*i)->tick();
-	mActiveNeurons.clear();
 	}
+	mActiveNeurons.clear();
 }
 
 void Brain::processSynapse(){
@@ -41,11 +41,11 @@ void Brain::processSynapse(){
 
 void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 	mActiveSynapses.erase(inactiveSynapse->mWhere);
-	inactiveSynapse->mWhere= activeSynapseListSentinel();
+	inactiveSynapse->mWhere=activeSynapseListSentinel();
 }
 void Brain::inactivateNeuron(Neuron *inactiveNeuron){
 	mActiveNeurons.erase(inactiveNeuron->mWhere);
-	inactiveNeuron->mWhere= activeNeuronListSentinel();
+	inactiveNeuron->mWhere=activeNeuronListSentinel();
 }
 
 std::list<Synapse *>::iterator Brain::activateSynapse(Synapse *activeSynapse){
@@ -53,7 +53,7 @@ std::list<Synapse *>::iterator Brain::activateSynapse(Synapse *activeSynapse){
     return mActiveSynapses.begin();
 }
 std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
-  mActiveNeurons.push_back(activeNeuron);
+  mActiveNeurons.push_front(activeNeuron);
   return mActiveNeurons.begin();
 }
 

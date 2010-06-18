@@ -14,8 +14,9 @@ Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
 	mRecipientNeuron = NULL;
+	mFiringWindow = 10;		//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
-    //mWhere=mBrain->initializeSynapse();
+    mWhere=mBrain->activeSynapseListSentinel();
 }
 
 bool Synapse::detach(){
@@ -77,7 +78,7 @@ void Synapse::fireSynapse(){
 
 	if(mFiringCounter == 0){
 	  //assert(mWhere= mBrain->activeSynapseListSentinel()); //Wait, why is this here?
-	mBrain->activateSynapse(this);
+	mWhere = mBrain->activateSynapse(this);
 	}
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons

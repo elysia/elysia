@@ -27,6 +27,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mBrain->getSpatialSearch()->addNeighbor(this);
 }
 void Neuron::fire() {
+	printf("fire");
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
