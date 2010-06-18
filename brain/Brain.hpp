@@ -6,12 +6,14 @@ class ProteinEnvironment;
 class Neuron;
 class Synapse; 
 class SpatialSearch;
+class BrainPlugin;
 
 class BRAIN_CORE_EXPORT Brain {
     ProteinEnvironment *mProteinMap;
     SpatialSearch *mSpatialSearch;
     ///creature maturity from 0(just born) to 1(adult)
     float mAge;
+    std::vector<BrainPlugin*> mPlugins;
 public:
     /**
      * Brain constructor

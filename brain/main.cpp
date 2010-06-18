@@ -8,7 +8,7 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
-
+#include "SharedLibrary.hpp"
 #include "test.hpp"
 
 bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
@@ -36,6 +36,15 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
 }
 
 int main(int argc, char **argv) {
+    Elysia::SharedLibrary vis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
+    if (!vis.load()) {
+        std::cerr<<"Failed to load vis library\n";
+    }else {
+        void (*init)();
+        init=(void(*)())vis.symbol("init");
+        (*init)();
+    }
+    
     Elysia::Vector3f test(0,1,2);
     std::tr1::unordered_map<Elysia::String,Elysia::Vector3f> bleh;
     bleh["ahoy"]=test;

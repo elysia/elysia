@@ -1,9 +1,11 @@
 #include "../../Platform.hpp"
+#include "BrainPlugins.hpp"
+#include "Visualization.hpp"
 static int core_plugin_refcount = 0;
 
 SIRIKATA_PLUGIN_EXPORT_C void init() {
     core_plugin_refcount++;
-    
+    Elysia::BrainPlugins::registerBrainPlugin("Vis",&Elysia::makeVisualization);
 }
 
 SIRIKATA_PLUGIN_EXPORT_C void destroy() {
