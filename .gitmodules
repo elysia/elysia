@@ -1,0 +1,9 @@
+[submodule "externals/macdepends"]
+	path = externals/macdepends
+	url = git://github.com/elysia/elysiamacdepends.git
+[submodule "externals/linuxdepends"]
+	path = externals/linuxdepends
+	url = git://github.com/elysia/elysialinuxdepends.git
+[submodule "externals/win32depends"]
+	path = externals/win32depends
+	url = git://github.com/elysia/elysiawin32depends.git
