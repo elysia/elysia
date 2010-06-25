@@ -216,7 +216,7 @@ IF(NOT BOOST_ROOT)
 ENDIF()
 SET(Boost_FIND_REQUIRED TRUE)
 IF(WIN32)
-  FIND_PACKAGE(Boost COMPONENTS thread)# COMPONENTS system thread date_time program_options)
+  FIND_PACKAGE(Boost COMPONENTS thread date_time)# COMPONENTS system thread date_time program_options)
 ELSE()
   FIND_PACKAGE(Boost COMPONENTS thread)# COMPONENTS system)
   #STRING(REPLACE "boost_system" "boost_thread" Boost_THREAD_LIBRARY ${Boost_SYSTEM_LIBRARY})
@@ -230,9 +230,9 @@ VERIFY_VERSION(Boost 1 37 0)
 #source file location
 SET(BRAIN_SOURCE_DIR ${TOP_LEVEL})
 IF(WIN32)
-ADD_DEFINITIONS(/FI${BRAIN_SOURCE_DIR}/Platform.hpp)
+ADD_DEFINITIONS(/FI\"${BRAIN_SOURCE_DIR}/Platform.hpp\")
 ELSE()
-ADD_DEFINITIONS(-include ${BRAIN_SOURCE_DIR}/Platform.hpp)
+ADD_DEFINITIONS(-include \"${BRAIN_SOURCE_DIR}/Platform.hpp\")
 ENDIF()
 SET(FINAL_INCLUDE_DIRS ${BRAIN_SOURCE_DIR}
         ${Boost_INCLUDE_DIRS}
@@ -334,11 +334,10 @@ SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
 
-
 ADD_PLUGIN_TARGET(vis
                     SOURCES ${BRAIN_PLUGIN_VIS_SOURCES}
                     TARGET_LDFLAGS ${sirikata_LDFLAGS}
-                    LIBRARIES ${GLUT_LIBRARIES} brain-core debug ${Boost_THREAD_LIBRARY_DEBUG} optimized ${Boost_THREAD_LIBRARY_RELEASE}
+                    LIBRARIES ${GLUT_LIBRARIES} brain-core debug ${Boost_THREAD_LIBRARY_DEBUG} optimized ${Boost_THREAD_LIBRARY_RELEASE} debug ${Boost_DATE_TIME_LIBRARY_DEBUG} optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
                     TARGET_LIBRARIES brain-core)
 
 
