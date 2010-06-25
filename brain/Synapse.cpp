@@ -14,6 +14,7 @@ Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
 	mRecipientNeuron = NULL;
+	mSignalWeight = 1.0f;	//This is the strength of the signal passed to activated branches. In the future, we may want to make it dynamic to allow certain synapses to have more force.
 	mFiringWindow = 10;		//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
     mWhere=mBrain->activeSynapseListSentinel();
