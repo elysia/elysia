@@ -19,7 +19,7 @@ void testTwoConnectedNeurons() {
 	dendriteTree = fopen("Dendritic_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
 	int neuronNumber = 2;
-	for(float i=0;i<neuronNumber;i++){
+	for(int i=0;i<neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
