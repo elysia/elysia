@@ -10,7 +10,6 @@ class BRAIN_CORE_EXPORT CellComponent{
 protected:
     float mActivity;                   
     float mThreshold;                  //How much activity is required to fire
-    float mSignalStrength;
     int   mDevelopmentStage;                        //0 = development, 1=mature
 	SimTime   mLastActivity;				//timestep of last signal
 protected:

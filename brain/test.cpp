@@ -58,13 +58,15 @@ void testTwoConnectedNeurons() {
         n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<100; j++){
+	for(int j=0; j<3; j++){
 		for(float i=0;i<neuronNumber;i++){
 			Neuron *n = createdList[i];
 			if(j== 0){n->activateComponent(*brain,100);}
+			//if(j== 2){brain->inactivateNeuron(n);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
+		
 		brain ->tick();
 	}
 	fclose(dendriteTree);

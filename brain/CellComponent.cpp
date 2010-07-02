@@ -8,7 +8,6 @@ CellComponent::CellComponent() {
     mActivity = 0;
     mThreshold = 1;
     mDevelopmentStage = 0;
-    mSignalStrength = 1;
 }
 
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {

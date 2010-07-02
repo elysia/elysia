@@ -7,6 +7,7 @@
 namespace Elysia {
 Branch::Branch(CellComponent * parent) {
     mParentComponent=parent;
+	mSignalWeight = 1.0f;
 }
 
 ProteinDensity&Branch::getProteinDensityStructure() {
