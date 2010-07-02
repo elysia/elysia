@@ -1,6 +1,0 @@
-[Contains references for adobe API]
-
-http://www.adobe.com/support/flash/action_scripts/actionscript_dictionary/index.html
-
-
-
