@@ -41,6 +41,22 @@ ENDIF()
 IF(NOT WIN32)
 SET(BRAIN_DEFAULT_COMPILE_FLAGS "-Wall -Wno-unused-function -Wno-unused-variable -fvisibility=hidden")
 ENDIF()
+IF(WIN32)
+SET(elysia_LDFLAGS "")
+ELSE()
+SET(elysia_LDFLAGS "-lpthread ")
+ENDIF()
+
+IF(APPLE)
+SET(CMAKE_CXX_COMPILER /usr/bin/g++-4.0)
+  SET(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.5.sdk")
+  SET(CMAKE_OSX_ARCHITECTURES "i386")
+  SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.5")
+  SET(CMAKE_EXE_LINKER_FLAGS "-Wl,-syslibroot -Wl,/Developer/SDKs/MacOSX10.5.sdk")
+  ADD_DEFINITIONS(-isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386 -mmacosx-version-min=10.5)
+  SET(elysia_LDFLAGS "${elysia_LDFLAGS} -Wl,-syslibroot -Wl,/Developer/SDKs/MacOSX10.5.sdk")
+  SET(CMAKE_CXX_FLAGS -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch i386 -mmacosx-version-min=10.5)
+ENDIF()
 SET(CMAKE_CXX_FLAGS ${BRAIN_DEFAULT_COMPILE_FLAGS})
 
 # Default build target
@@ -219,6 +235,8 @@ IF(WIN32)
   FIND_PACKAGE(Boost COMPONENTS thread date_time)# COMPONENTS system thread date_time program_options)
 ELSE()
   FIND_PACKAGE(Boost COMPONENTS thread)# COMPONENTS system)
+  #SET(Boost_THREAD_LIBRAR_DIRS ${BOOST_ROOT}/lib)
+  #SET(Boost_THREAD_LIBRARY boost_thread)
   #STRING(REPLACE "boost_system" "boost_thread" Boost_THREAD_LIBRARY ${Boost_SYSTEM_LIBRARY})
   #STRING(REPLACE "boost_system" "boost_regex" Boost_REGEX_LIBRARY ${Boost_SYSTEM_LIBRARY})
   #STRING(REPLACE "boost_system" "boost_date_time" Boost_DATE_TIME_LIBRARY ${Boost_SYSTEM_LIBRARY})
@@ -286,9 +304,7 @@ SET(BRAIN_SOURCES
 #  cbr-core
 #        ${PROTOCOLBUFFERS_LIBRARIES}
 #        )
-#IF(NOT WIN32)
-#SET_TARGET_PROPERTIES(brain PROPERTIES LINK_FLAGS -lpthread)
-#ENDIF()
+
 
 #Nghia's ANN test
 SET(NEAREST_NEIGHBOR_SOURCES
@@ -343,13 +359,14 @@ ENDIF()
 
 ADD_PLUGIN_TARGET(vis
                     SOURCES ${BRAIN_PLUGIN_VIS_SOURCES}
-                    TARGET_LDFLAGS ${sirikata_LDFLAGS}
+                    TARGET_LDFLAGS ${elysia_LDFLAGS}
                     LIBRARIES ${VIS_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
 
 
 ADD_LIBRARY(brain-core SHARED ${BRAIN_CORE_LIB_SOURCES})
 SET_TARGET_PROPERTIES(brain-core PROPERTIES COMPILE_DEFINITIONS BRAIN_CORE_BUILD)
+SET_TARGET_PROPERTIES(brain-core PROPERTIES LINK_FLAGS ${elysia_LDFLAGS})
 IF(NOT WIN32)
 FIND_LIBRARY(DYLIB_LIBRARY NAMES dl)
 SET(PROTOCOLBUFFERS_LIBRARIES ${PROTOCOLBUFFERS_LIBRARIES} ${DYLIB_LIBRARY})
@@ -373,9 +390,6 @@ TARGET_LINK_LIBRARIES(nearestneighbor
         brain-core
         ${PROTOCOLBUFFERS_LIBRARIES}
         )
-IF(NOT WIN32)
-SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS -lpthread)
-ENDIF()
 
 #binaries
 ADD_EXECUTABLE(brainsandbox ${BRAINSANDBOX_SOURCES})
@@ -386,9 +400,9 @@ TARGET_LINK_LIBRARIES(brainsandbox
         ${PROTOCOLBUFFERS_LIBRARIES}
         )
 ADD_DEPENDENCIES(brainsandbox brain-core)
-IF(NOT WIN32)
-SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS -lpthread)
-ENDIF()
+SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS ${elysia_LDFLAGS})
+SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS ${elysia_LDFLAGS})
+
 SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis
                       PROPERTIES
                       DEBUG_POSTFIX "_d" )
