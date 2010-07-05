@@ -1,7 +1,7 @@
 #include <boost/thread.hpp>
 namespace Elysia {
 class GraphicsSystem {
-    boost::thread mRenderThread;
+    std::tr1::shared_ptr<boost::thread> mRenderThread;
 public:
     GraphicsSystem();
     ~GraphicsSystem();

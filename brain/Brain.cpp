@@ -67,5 +67,8 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
 Brain::~Brain() {
     delete mSpatialSearch;
     delete mProteinMap;
+    for (std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
+        delete *i;
+    }
 }
 }

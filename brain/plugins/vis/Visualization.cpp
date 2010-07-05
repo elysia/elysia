@@ -22,4 +22,7 @@ void Visualization::initialize( Brain*b) {
     
 
 }
+Visualization::~Visualization() {
+    mGraphics=std::tr1::shared_ptr<GraphicsSystem>();
+}
 }

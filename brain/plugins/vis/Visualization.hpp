@@ -9,7 +9,7 @@ public:
     Visualization();
     void update();
     void initialize(Brain*b);
-
+    ~Visualization();
 };
 BrainPlugin* makeVisualization(Brain*b);
 }
