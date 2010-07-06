@@ -20,7 +20,7 @@ public:
      * \param proteinMap the map of where proteins are being deployed in the brain so that neurons may grow appropriately. Brain takes ownership of pointer and destroys it
      */
     Brain (ProteinEnvironment *proteinMap);
-    SimTime mCurTime;
+    SimTime mCurTime;					
     float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;

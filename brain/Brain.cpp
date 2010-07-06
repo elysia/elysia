@@ -9,6 +9,15 @@
 #include "BrainPlugin.hpp"
 namespace Elysia {
 
+/**
+ *	Brain::Brain
+ *
+ *  @param ProteinEnvironment *proteinMap - a base protein map for the brain
+ *
+ *	Description:	Creates a new Brain instance using a defined protein map as a base.
+ *					Also adds a new spatial search instance, sets the brain's age to 0 and
+ *					initializes all requisite brain plugins
+**/
 Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
     mSpatialSearch=new SimpleSpatialSearch;
@@ -16,6 +25,16 @@ Brain::Brain (ProteinEnvironment *proteinMap){
     BrainPlugins::constructAll(this).swap(mPlugins);
 }
 
+/**
+ *	Brain::tick()
+ *
+ *	Description:	One "tick" of the brain simulation code, where the following occurs:
+ *					 - processNeuron() called
+ *					 - processSynapes() called
+ *					 - increments the current time in the simulation
+ *					 - ages the brain
+ *					 - updates all the plugins for this brain
+**/
 void Brain::tick(){
 	processNeuron();
 	processSynapse();
@@ -28,6 +47,12 @@ void Brain::tick(){
 }
 
 
+/**
+ *	Brain::processNeuron()
+ *
+ *	Description:	Updates all neurons in the neuron list for this brain, then clears the list of
+ *					active neurons
+**/
 void Brain::processNeuron(){
 	for (std::list<Neuron*>::iterator i=mActiveNeurons.begin(),ie=mActiveNeurons.end();
          i!=ie;
@@ -37,6 +62,12 @@ void Brain::processNeuron(){
 	mActiveNeurons.clear();
 }
 
+/**
+ *	Brain::processSynapes()
+ *
+ *	Description:	Iterates through brain's associates synapses and updates all of them using
+ *					the Synapse class residualFire() method
+**/
 void Brain::processSynapse(){
     std::list<Synapse*>::iterator j,i=mActiveSynapses.begin(),ie=mActiveSynapses.end();
 	while (i!=ie) {
@@ -45,27 +76,65 @@ void Brain::processSynapse(){
 	}
 }
 
+/**
+ *	Brain::inactivateSynapse
+ *
+ *	@param Synapse *inactiveSynapse - synapse to remove
+ *
+ *	Description:	Removes a synapse from the synapse list and updates it.
+**/
 void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 	mActiveSynapses.erase(inactiveSynapse->mWhere);
 	inactiveSynapse->mWhere=activeSynapseListSentinel();
 }
+
+/**
+ *	Brain::inactivateNeuron
+ *
+ *	@param Neuron *inactiveNeuron - an inactive neuron to remove
+ *
+ *	Description:	Removes an unused neuron from the neuron list and updates
+**/
 void Brain::inactivateNeuron(Neuron *inactiveNeuron){
 	mActiveNeurons.erase(inactiveNeuron->mWhere);
 	inactiveNeuron->mWhere=activeNeuronListSentinel();
 }
 
+/**
+ *	std::list<Synapse *>::iterator Brain::activateSynapse
+ *
+ *	@param Synapse *activeSynapse - a synapse to activate
+ *	@return	the beginning element of the active synapses list for this brain
+ *
+ *	Description:	Adds a new synapse to the brain (at front of active synapse list)
+ *					and returns the front element of the list
+**/
 std::list<Synapse *>::iterator Brain::activateSynapse(Synapse *activeSynapse){
     mActiveSynapses.push_front(activeSynapse);
     return mActiveSynapses.begin();
 }
+/**
+ *	std::list<Neuron *>::iterator Brain::activateNeuron
+ *
+ *	@param Neuron *activeNeuron - a neuron to activate
+ *	@return	the beginning element of the active neuron list for this brain
+ *
+ *	Description:	Adds a new neuron to the brain (at front of active neuron list)
+ *					and returns the front element of the list
+**/
 std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
   mActiveNeurons.push_front(activeNeuron);
   return mActiveNeurons.begin();
 }
 
-
+/**
+ *	Brain::~Brain()
+ *
+ *	Description:	Brain destructor
+**/
 Brain::~Brain() {
     delete mSpatialSearch;
     delete mProteinMap;
 }
 }
+

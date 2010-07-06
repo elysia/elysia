@@ -3,12 +3,19 @@
 #include "Branch.hpp"
 #include "ActivityStats.hpp"
 namespace Elysia {
+
+/**
+ *	CellComponent::CellComponent
+ *
+ *	Description:	Instantiates a new CellComponent object with some default values
+**/
 CellComponent::CellComponent() {
-    //These are default values for a generic neuron
-    mActivity = 0;
-    mThreshold = 1;
-    mDevelopmentStage = 0;
-    mSignalStrength = 1;
+    // These are default values for a generic neuron
+	//	
+    mActivity = _M_ACTIVITY_DEFAULT_VALUE_;
+    mThreshold = _M_THRESHOLD_DEFAULT_VALUE_;
+    mDevelopmentStage = _M_DEVELOPMENT_STAGE_DEFAULT_VALUE_;
+    mSignalStrength = _M_SIGNAL_STRENGTH_DEFAULT_VALUE_;
 }
 
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {

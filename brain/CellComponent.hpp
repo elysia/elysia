@@ -1,5 +1,11 @@
 #ifndef _ELYSIA_CELL_COMPONENT_HPP_
 #define _ELYSIA_CELL_COMPONENT_HPP_
+
+#define _M_ACTIVITY_DEFAULT_VALUE_			0
+#define _M_THRESHOLD_DEFAULT_VALUE_			1
+#define _M_DEVELOPMENT_STAGE_DEFAULT_VALUE_ 0
+#define _M_SIGNAL_STRENGTH_DEFAULT_VALUE_	1
+
 namespace Elysia {
 class Neuron;
 class ProteinDensity; 
