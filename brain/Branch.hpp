@@ -1,4 +1,3 @@
-
 #ifndef _ELYSIA_BRANCH_HPP_
 #include "CellComponent.hpp"
 #include <vector>
