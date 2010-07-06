@@ -357,9 +357,13 @@ ELSE()
 SET(VIS_PLUGIN_LIBS ${VIS_PLUGIN_LIBS} ${Boost_THREAD_LIBRARY_RELEASE}  ${Boost_DATE_TIME_LIBRARY_RELEASE})
 ENDIF()
 
+SET(vis_LDFLAGS ${GLUT_LDFLAGS})
+IF(APPLE)
+SET(vis_LDFLAGS "${vis_LDFLAGS} -framework OpenGL")
+ENDIF()
 ADD_PLUGIN_TARGET(vis
                     SOURCES ${BRAIN_PLUGIN_VIS_SOURCES}
-                    TARGET_LDFLAGS ${elysia_LDFLAGS}
+                    TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS}"
                     LIBRARIES ${VIS_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
 
