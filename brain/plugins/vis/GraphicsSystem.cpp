@@ -10,13 +10,16 @@ int GAngle=0;
 volatile bool gKillGraphics=false;
 volatile bool gShutDown=false;
 volatile bool gInvalidDisplayFunction=false;
+volatile bool gShutdownComplete=false;
 int gGlutWindowId=0;
 std::tr1::shared_ptr<boost::thread> gRenderThread;
 void Deinitialize() {
     if (gKillGraphics) {
         gShutDown=true;
         gKillGraphics=false;
-        while(true);
+        fflush(stdout);
+        fflush(stderr);
+        while(!gShutdownComplete);
     }
 }
 void GlutNop(){}
@@ -51,6 +54,8 @@ void Timer(int extra)
         if (!gInvalidDisplayFunction) {
             glutPostRedisplay();
             glutTimerFunc(30,Timer,0);
+        }else {
+            gShutdownComplete=true;
         }
 	}
 

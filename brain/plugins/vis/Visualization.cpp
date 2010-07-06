@@ -13,9 +13,6 @@ Visualization::Visualization(){
 void Visualization::update() {
 }
 void Visualization::initialize( Brain*b) {
-#ifdef __APPLE__
-    return;
-#endif
     mGraphics=mGlobalGraphics.lock();
     if (!mGraphics) {
         std::tr1::shared_ptr<GraphicsSystem> tmp(new GraphicsSystem());
