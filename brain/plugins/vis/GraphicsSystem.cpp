@@ -20,6 +20,11 @@ void Deinitialize() {
         fflush(stdout);
         fflush(stderr);
         while(!gShutdownComplete);
+#ifdef _WIN32
+        Sleep(1000);
+#else
+        sleep(1);//need to sleep to allow the gl context to destroy itself (mac requires the main thread exit by itself after the window is destroyed)
+#endif
     }
 }
 void GlutNop(){}
