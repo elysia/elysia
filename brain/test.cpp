@@ -207,7 +207,7 @@ int runtest(){
     Elysia::testProteinEnvironment();
     for (int i=0;i<30000;++i) {
         Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
-        usleep(10);        
+//        usleep(10);        
     }
 	//getchar();
 	return 1;
