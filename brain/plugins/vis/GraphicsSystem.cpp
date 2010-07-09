@@ -6,6 +6,7 @@
 #include "GL/glut.h"
 //#include <GL/freeglut.h>
 #endif
+#include "Visualization.hpp"
 int GAngle=0;
 volatile bool gKillGraphics=false;
 volatile bool gShutDown=false;
@@ -13,8 +14,21 @@ volatile bool gInvalidDisplayFunction=false;
 volatile bool gShutdownComplete=false;
 int gGlutWindowId=0;
 std::tr1::shared_ptr<boost::thread> gRenderThread;
+namespace Elysia {
+std::vector<Visualization*> gToRender;
+boost::mutex gRenderLock;
+boost::condition_variable gRenderCompleteCondition;
+boost::condition_variable gRenderCondition;
+
+}
 void Deinitialize() {
     if (gKillGraphics) {
+        {
+            boost::unique_lock<boost::mutex> renderLock(Elysia::gRenderLock);    
+            Elysia::gToRender.clear();
+            Elysia::gRenderCondition.notify_one();
+            Elysia::gRenderCompleteCondition.notify_one();
+        }
         gShutDown=true;
         gKillGraphics=false;
         fflush(stdout);
@@ -28,22 +42,49 @@ void Deinitialize() {
     }
 }
 void GlutNop(){}
+
+namespace Elysia {
+static int gDisplayWidth=1024;
+static int gDisplayHeight=768;
+void Reshape(int w, int h) {
+    gDisplayWidth=w;
+    gDisplayHeight=h;
+}
 void Display(void) {
     if (!gKillGraphics) {
+        glViewport(0,0,gDisplayWidth,gDisplayHeight);
         glClear(GL_COLOR_BUFFER_BIT);
-        
-        glLoadIdentity();
-        glRotated(GAngle,0,1,0);
-        
-        // Anti-Clockwise Winding
-        glBegin(GL_TRIANGLES);
-		glVertex3f(-1,0,0);
-		glVertex3f(1,0,0);
-		glVertex3f(0,1,0);
-        glEnd();
-        
-        GAngle = GAngle + 4;
-        
+        {
+            boost::unique_lock<boost::mutex> lok(gRenderLock);
+            gRenderCompleteCondition.notify_one();
+            if (gToRender.size()) {
+                gRenderCondition.wait(lok);
+                int heightPartition=1;
+                if (gToRender.size()>3) {
+                    heightPartition=2;
+                }
+                if (gToRender.size()>10) {
+                    heightPartition=3;
+                }
+                int i=0;
+                for (int h=0;h<heightPartition;++h) {
+                    int wlim=gToRender.size()/heightPartition;
+                    if (gToRender.size()%heightPartition) wlim++;
+                    for (int w=0;w<wlim;++w,++i) { 
+                        /*glViewport(w*gDisplayWidth/wlim,
+                          h*gDisplayHeight/heightPartition,
+                          (w+1)*gDisplayWidth/wlim,
+                          (h+1)*gDisplayHeight/heightPartition);*/
+                        if (i<(int)gToRender.size())
+                            gToRender[i]->draw();
+                    }
+                }
+            }
+        }
+        {
+            boost::unique_lock<boost::mutex> lok(gRenderLock);
+            gRenderCompleteCondition.notify_one();
+        }
         glFlush();
     }else {
     }
@@ -53,7 +94,7 @@ void Display(void) {
         glutDestroyWindow(gGlutWindowId);
     }
 }
-
+}
 void Timer(int extra)
 	{
         if (!gInvalidDisplayFunction) {
@@ -75,15 +116,15 @@ void myfunc() {
         
     }
     glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+    glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
     //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
 	gGlutWindowId=glutCreateWindow("This is the window title");
-	glutDisplayFunc(Display);
+	glutDisplayFunc(Elysia::Display);
+    glutReshapeFunc(Elysia::Reshape);
 	glutTimerFunc(0,Timer,0);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glFrustum(-1,1,-1,1,1,3);
-	glTranslated(0,0,-2);
 	glMatrixMode(GL_MODELVIEW);
     
 	// Enable Front Face
@@ -111,5 +152,6 @@ GraphicsSystem::GraphicsSystem () {
 }
 GraphicsSystem::~GraphicsSystem () {
     gKillGraphics=true;
+          
 }
 }

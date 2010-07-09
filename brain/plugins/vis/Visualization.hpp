@@ -7,6 +7,7 @@ class Visualization:public BrainPlugin  {
     static std::tr1::weak_ptr<GraphicsSystem> mGlobalGraphics;
 public:
     Visualization();
+    void draw();
     void update();
     void initialize(Brain*b);
     ~Visualization();
