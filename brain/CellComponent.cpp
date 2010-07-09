@@ -18,6 +18,15 @@ CellComponent::CellComponent() {
 
 }
 
+/**
+ *	CellComponent::synchBranchDensity()
+ *
+ *	Description:	This takes the genetically determined parameters or the dendritic tree at the neuron's birth
+ *					     it creates the initial dendritic structures and makes the terminal synapses
+ *						 when triggered through changes in protein level it will modify the dendritic structure
+ *						 based on the new parameters (either creating new branches or killing existing ones
+**/
+
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {
     float branchiness;
     if(depth>treeDepth/2+parentRandomDepthDeterminer){
