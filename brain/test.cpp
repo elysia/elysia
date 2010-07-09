@@ -83,7 +83,7 @@ void testDevelopment(){
 	for(int i=0;i<neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
         sourcebb->set_minx(50+i);
         sourcebb->set_miny(50+i);
         sourcebb->set_minz(50+i);
@@ -113,7 +113,7 @@ void testDevelopment(){
 		for(int i=100;i<100+neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
         sourcebb->set_minx(0);
         sourcebb->set_miny(0);
         sourcebb->set_minz(0);

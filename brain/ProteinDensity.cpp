@@ -66,7 +66,7 @@ Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
     
 }
 Vector3f ProteinDensity::getRandomTargetPointByRegion(float age) {
-    std::vector<std::pair<float,BoundingBox3f3f> >mEligibleBoxes;
+    std::vector<std::pair<float,BoundingBox3f3f> >eligibleBoxes;
     float totalArea=0;
     int num_regions=this->mGene.target_region_size();
     for(int i=0;i<num_regions;++i) {
@@ -77,21 +77,21 @@ Vector3f ProteinDensity::getRandomTargetPointByRegion(float age) {
                 (tbb->maxy()-tbb->miny());
             float newTotal=totalArea+area;
             if (newTotal!=totalArea) {
-                mEligibleBoxes.push_back(std::pair<float,BoundingBox3f3f>(totalArea,
+                eligibleBoxes.push_back(std::pair<float,BoundingBox3f3f>(totalArea,
                                                                           convertBB(*tbb)));
                 totalArea=newTotal;
             }
         }
     }
     std::vector<std::pair<float,BoundingBox3f3f> >::iterator where=
-        std::lower_bound(mEligibleBoxes.begin(),
-                     mEligibleBoxes.end(),
+        std::lower_bound(eligibleBoxes.begin(),
+                     eligibleBoxes.end(),
                          std::pair<float,BoundingBox3f3f>((rand()/(double)RAND_MAX)*totalArea,BoundingBox3f3f()),
                      PairFirstLess());
-    if (where!=mEligibleBoxes.begin()) {
+    if (where!=eligibleBoxes.begin()) {
         --where;
     }
-    if (where!=mEligibleBoxes.end()) {
+    if (where!=eligibleBoxes.end()) {
         return randomWithinBbox(where->second);
     }
     return Vector3f(0,0,0);
