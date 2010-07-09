@@ -9,10 +9,17 @@ namespace Elysia {
 class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
   //Define the data that each zone carries with it
   struct BRAIN_CORE_EXPORT ProteinZone{
-    typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
-    //Soup activates genes so you need to know which soup is active
-    std::vector< EffectAndDensityPair > mSoup;
-    std::vector< Elysia::Genome::Gene > mGenes;
+    //Define Gene-Soup Structure because each gene needs to associate to the correct soup contribution
+    struct BRAIN_CORE_EXPLORE GeneSoupStruct{
+      //Soup activates genes so you need to know which soup is active
+      typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
+      typedef std::vector< EffectAndDensityPair > SoupVector;
+      SoupVector mSoup;
+      
+      //This is the gene-related-to-the-soup
+      Elysia::Genome::Gene mGenes;
+    };
+    std::vector< GeneSoupStruct > mGeneSoup;
     BoundingBox3f3f mBounds;
     const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
     float getSpecificProteinDensity(Elysia::Genome::Effect); 
