@@ -31,20 +31,18 @@ void testTwoConnectedNeurons() {
         sourcebb->set_maxy(i);
         sourcebb->set_maxz(i);
 
-        targetbb->set_minx(1-i);
-        targetbb->set_miny(1-i);
-        targetbb->set_minz(1-i);
+        targetbb->set_minx(i);
+        targetbb->set_miny(i);
+        targetbb->set_minz(i);
 
         targetbb->set_maxx(1-i);
         targetbb->set_maxy(1-i);
-        targetbb->set_maxz(1-i);
-
-        
+        targetbb->set_maxz(2);
 
 		Vector3f v;
 		v.x = i;
 		v.y = i;
-		v.z = i;
+		v.z = 1;
 		Neuron *n;
 		srand(time(NULL));
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
@@ -72,6 +70,103 @@ void testTwoConnectedNeurons() {
 	fclose(dendriteTree);
     delete brain;
 }
+
+void testDevelopment(){
+	ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
+
+	Brain *brain= new Brain(myProteinEnvironment);
+	FILE *dendriteTree=NULL;
+	dendriteTree = fopen("Development_Tree.txt", "w");
+	std::vector<Neuron *> createdList;
+	int neuronNumber = 2;
+
+	for(int i=0;i<neuronNumber;i++){
+        Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
+        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        sourcebb->set_minx(50+i);
+        sourcebb->set_miny(50+i);
+        sourcebb->set_minz(50+i);
+
+        sourcebb->set_maxx(150+i);
+        sourcebb->set_maxy(150+i);
+        sourcebb->set_maxz(150+i);
+
+        targetbb->set_minx(i);
+        targetbb->set_miny(i);
+        targetbb->set_minz(i);
+
+        targetbb->set_maxx(i+1);
+        targetbb->set_maxy(i+1);
+        targetbb->set_maxz(i+1);
+
+		Vector3f v;
+		v.x = i;
+		v.y = i;
+		v.z = i;
+		Neuron *n;
+		srand(time(NULL));
+		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
+		createdList.push_back(n);
+	}
+
+		for(int i=100;i<100+neuronNumber;i++){
+        Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
+        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        sourcebb->set_minx(0);
+        sourcebb->set_miny(0);
+        sourcebb->set_minz(0);
+
+        sourcebb->set_maxx(20);
+        sourcebb->set_maxy(20);
+        sourcebb->set_maxz(20);
+
+        targetbb->set_minx(i);
+        targetbb->set_miny(i);
+        targetbb->set_minz(i);
+
+        targetbb->set_maxx(i+1);
+        targetbb->set_maxy(i+1);
+        targetbb->set_maxz(i+1);
+
+        
+
+		Vector3f v;
+		v.x = i;
+		v.y = i;
+		v.z = i;
+		Neuron *n;
+		srand(time(NULL));
+		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
+		createdList.push_back(n);
+	}
+
+
+	for(float i=0;i<2*neuronNumber;i++){
+		Neuron *n = createdList[i];
+        n->developSynapse(n->getActivityStats());       
+        size_t parent;
+        parent = 0;
+        n->visualizeTree(dendriteTree, parent);
+		//const Vector3f &location):  mNeuronLocation(location){));
+	}
+	for(int j=0; j<10; j++){
+		for(float i=0;i<neuronNumber;i++){
+			Neuron *n = createdList[i];
+			if(j== 0 && i==0){n->activateComponent(*brain,100);}
+			//if(j== 2){brain->inactivateNeuron(n);}
+			n->tick();
+		//const Vector3f &location):  mNeuronLocation(location){));
+		}
+		
+		brain ->tick();
+	}
+	fclose(dendriteTree);
+    delete brain;
+}
+
+
 
 
 void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float*grow_leaf_count,float*grow_neuron_count,float*other_count){
@@ -203,7 +298,8 @@ void testProteinEnvironment() {
 }
 
 int runtest(){
-    Elysia::testTwoConnectedNeurons();
+    //Elysia::testTwoConnectedNeurons();
+	Elysia::testDevelopment();
     Elysia::testProteinEnvironment();
     for (int i=0;i<30000;++i) {
         Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
