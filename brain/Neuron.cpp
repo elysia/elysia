@@ -11,10 +11,31 @@
 #include <time.h>
 
 namespace Elysia {
+
+/**
+ *	Neuron::~Neuron()
+ *
+ *	Description:	Deletes the protein density from memory and removes this neuron from the nearest-neighbor search
+**/
 Neuron::~Neuron() {
     delete mProteinDensity;
     mBrain->getSpatialSearch()->removeNeighbor(this);
 }
+
+/**
+ *	Neuron::Neuron()
+ *
+ *	@param Brain* brain - inherits a parent brain structure from somewhere
+ *	@param float BaseBranchiness - 
+ *	@param float TipBranchiness - 
+ *	@param float TreeDepth - 
+ *	@param const Vector3f &location - neuron's location in space
+ *	@param const Elysia::Genome::Gene &gene - parent gene info
+ *
+ *	Description:	Instantiates a new neuron object at some phyiscal location, setting the development counter at zero.
+ *					The branch density is synched based upon some random parameters and some base parameters, as well as a defined tree depth
+ *					This neuron is added to the nearest neighbor spatial search
+**/
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
@@ -26,6 +47,12 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);
     mBrain->getSpatialSearch()->addNeighbor(this);
 }
+
+/**
+ *	Neuron::fire()
+ *
+ *	Description:	Fires neuron into all synapses connected to it
+**/
 void Neuron::fire() {
 	printf("fire");
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
@@ -35,6 +62,17 @@ void Neuron::fire() {
     }
 }
 
+/**
+ *	Neuron::activateComponent(Brain&, float signal)
+ *
+ *	@param Brain&
+ *	@param float signal - signal to add to activity
+ *
+ *	Description:	If last activity is not current sim time in the brain, reset activity to zero
+ *					and make last activity time current brain time. 
+ *					Then, if the activity is under some treshold, the signal parameter is added to activity,
+ *					after which the neuron is activated if the new activity level is above some threshold
+**/
 void Neuron::activateComponent(Brain&, float signal){
 	if(mLastActivity != mBrain->mCurTime){
 		mLastActivity = mBrain->mCurTime;
@@ -48,6 +86,14 @@ void Neuron::activateComponent(Brain&, float signal){
 	}
 }
 
+/**
+ *	Neuron::removeSynapse(Synapse*synapse)
+ *
+ *	@param Synapse *synapse - pointer to some synapse you want to remove
+ *
+ *	Description:	Looks for the provided synapse in the connected synapses vector and removes it, if found.
+ *					Prints an error message if not found
+**/
 void Neuron::removeSynapse(Synapse*synapse){
   std::vector<Synapse* >::iterator where=std::find(mConnectedSynapses.begin(),mConnectedSynapses.end(),synapse);
   if (where!=mConnectedSynapses.end()) {
@@ -57,20 +103,54 @@ void Neuron::removeSynapse(Synapse*synapse){
   }
 }
 
+/**
+ *	Neuron::fireNeuron(Synapse*target)
+ *	
+ *	@param Synapse *target - pointer to a synapse to fire
+ *
+ *	Description:	Fires some synapse
+**/
 void Neuron::fireNeuron(Synapse*target){
 	target->fireSynapse();			
 }
 
+/**
+ *	Neuron::attachSynapse(Synapse*target)
+ *	
+ *	@param Synapse *target - pointer to a synapse to add
+ *
+ *	Description:	Puts the new synapse at the end of the connected synapses vector
+**/
 void Neuron::attachSynapse(Synapse*target){
 	mConnectedSynapses.push_back(target);
 }
 
+/**
+ *	Neuron::passDevelopmentSignal(float signal)
+ *	
+ *	@param float signal - signal to add to development signal
+ *
+ *	Description:	Adds some value to the development signal level
+**/
 void Neuron::passDevelopmentSignal(float signal){
 	mDevelopmentSignal += signal;
 }
+/**
+ *	ProteinDensity& Neuron::getProteinDensityStructure()
+ *
+ *	@returns *mProteinDensity
+**/
 ProteinDensity& Neuron::getProteinDensityStructure(){
     return *mProteinDensity;
 }
+
+/**
+ *	Neuron::developSynapse(const ActivityStats& stats)
+ *	
+ *	@param const ActivityStats& stats - activity statistics for something
+ *
+ *	Description:	Develops all synapses attached as child branches of this neuron
+**/
 void Neuron::developSynapse(const ActivityStats& stats){
 for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
@@ -78,6 +158,14 @@ for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.e
 	(*i)->developSynapse(stats);
 }
 
+/**
+ *	Neuron::visualizeTree(FILE *dendriteTree, size_t parent)
+ *	
+ *	@param FILE *dendriteTree - output file for the visualized dendrite tree
+ *	@param size_t parent - unused, please remove
+ *
+ *	Description:	Outputs a visualization of the dendrite tree to a file
+**/
 void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
     
     size_t self;
@@ -91,6 +179,17 @@ void Neuron::visualizeTree(FILE *dendriteTree, size_t parent){
    //fprintf(dendriteTree,"}");
    
    }
+
+/**
+ *	Neuron::tick()
+ *
+ *	Description:	Executes one "tick" of the brain simulation for this neuron.
+ *					If activity is over some threshold, fires the neuron.
+ *					If development stage is not set and development counter is not at zero,
+ *					the development counter is decremented.  If it is at zero, then we developSynapse(getActivityStats())
+ *					and reset development counter to 30.
+ *					mActivity always cleared at the end of this
+**/
 void Neuron::tick(){
 	if(mActivity > mThreshold){
 		fire();
