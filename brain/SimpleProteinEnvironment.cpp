@@ -12,7 +12,7 @@ template <class T, class U> class pair {public:
 */
 
 //Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome (and simplify)
-ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome&genes){
+ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome& genes){
     //Zones start out as representing 1 gene (can be overlapping)
     //Since they can represent a collection of genes,
     //They are chopped during the intersection process and overlap regions become new zones
@@ -28,12 +28,15 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
           int num_bounds=gene->bounds_size();
           for (int k=0;k<num_bounds;++k) {
               ProteinZone newZone;
-              newZone.mGenes.push_back(*gene);
+              ProteinZone::GeneSoupStruct newGeneSoup;
+              //PREVIOUS-NIA: newZone.mGenes.push_back(*gene);
+              newGeneSoup.mGenes=*gene;
               int num_proteins=gene->external_proteins_size();
               for (int j=0;j<num_proteins;++j) {
                   const Elysia::Genome::Protein *protein=&gene->external_proteins(j);
-                  newZone.mSoup.push_back(ProteinZone::EffectAndDensityPair(protein->protein_code(),protein->density()));
+                  newGeneSoup.mSoup.push_back(ProteinZone::GeneSoupStruct::EffectAndDensityPair(protein->protein_code(),protein->density()));
               }
+              newZone.mGeneSoup.push_back(newGeneSoup);
               newZone.mBounds =BoundingBox3f3f(Vector3f(gene->bounds(k).minx(),
                                                         gene->bounds(k).miny(),
                                                         gene->bounds(k).minz()),
@@ -52,10 +55,13 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
 //Return the magnitude of a given effect. 
 float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e){
   float retval=0;
-  std::vector< std::pair<Elysia::Genome::Effect,float> >::const_iterator i,ie;
-  for (i=mSoup.begin(),ie=mSoup.end();i!=ie;++i) {
-  //if the effect in the current iterator matches the desired protein effect passed in as "e", add the float to the return value
-        if (i->first==e) retval+=i->second;
+  std::vector< GeneSoupStruct >::const_iterator i,ie;
+  std::vector< GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
+  for (i=mGeneSoup.begin(),ie=mGeneSoup.end();i!=ie;++i){
+    for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
+      //if the effect in the current iterator matches the desired protein effect passed in as "e", add the float to the return value
+      if (j->first==e) retval+=j->second;
+    }
   }
   return retval;
 }
@@ -76,16 +82,20 @@ float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, cons
   return density;
 }
 
-//Find all the proteins at a given point (given location)
+//Find all the proteins at a given point (given location) (repetitions allowed)
 //Return vector of proteins
-std::vector<std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location){
-  std::vector<ProteinZone::EffectAndDensityPair >proteins;
+std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location){
+  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair > proteins;
   //loop through all the zones
-  for (std::vector<ProteinZone>::iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
+  std::vector< ProteinZone >::const_iterator i,ie;
+  std::vector< ProteinZone::GeneSoupStruct >::const_iterator j,je;
+  for (i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
     //if our test point is in the zone
     if (i->getBoundingBox().contains(location)) {
-        //Append the effects (i.e. mSoup) to the end of the returned proteins
-        proteins.insert(proteins.end(),i->mSoup.begin(),i->mSoup.end());
+      //Append the effects (i.e. mSoup) to the end of the returned proteins
+      for (j=i->mGeneSoup.begin(),je=i->mGeneSoup.end();j!=je;++j){
+        proteins.insert(proteins.end(),j->mSoup.begin(),j->mSoup.end());
+      }
     }
   }
   return proteins;
@@ -116,10 +126,9 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
  SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox) {
    ProteinZone retval;
    retval.mBounds=bbox;
-   assert(!a.mSoup.empty()&&!b.mSoup.empty());
    //Combine the genes into a shared, common sized, region
-   retval.mGenes.insert(retval.mGenes.end(),a.mGenes.begin(),a.mGenes.end());
-   retval.mGenes.insert(retval.mGenes.end(),b.mGenes.begin(),b.mGenes.end());
+   retval.mGeneSoup.insert(retval.mGeneSoup.end(),a.mGeneSoup.begin(),a.mGeneSoup.end());
+   retval.mGeneSoup.insert(retval.mGeneSoup.end(),b.mGeneSoup.begin(),b.mGeneSoup.end());
    return retval;
 }
 
@@ -320,11 +329,11 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   localzone = resideInZones(location, mMainZoneList);
 
   std::vector< std::pair<Elysia::Genome::Effect,float> >::const_iterator i,ie;
-  for (i=localzone.mSoup.begin(),ie=localzone.mSoup.end();i!=ie;++i) {
-	  if (i->first==effect) {
-		  //How to find the gene responsible for this effect?  Return that gene!
-	  }
-  }
+  //for (i=localzone.mSoup.begin(),ie=localzone.mSoup.end();i!=ie;++i) {
+	//  if (i->first==effect) {
+	//	  //How to find the gene responsible for this effect?  Return that gene!
+	//  }
+  //}
 
   return retval;
 }

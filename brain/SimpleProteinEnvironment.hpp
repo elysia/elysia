@@ -10,7 +10,7 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
   //Define the data that each zone carries with it
   struct BRAIN_CORE_EXPORT ProteinZone{
     //Define Gene-Soup Structure because each gene needs to associate to the correct soup contribution
-    struct BRAIN_CORE_EXPLORE GeneSoupStruct{
+    struct BRAIN_CORE_EXPORT GeneSoupStruct{
       //Soup activates genes so you need to know which soup is active
       typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
       typedef std::vector< EffectAndDensityPair > SoupVector;
