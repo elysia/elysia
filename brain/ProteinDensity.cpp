@@ -3,6 +3,12 @@
 #include "ProteinDensity.hpp"
 namespace Elysia {
 
+/**
+ *	Vector3f randomWithinBbox(const BoundingBox3f3f&bb)
+ *	
+ *	@param const BoundingBox3f3f &bb - a bound on the random distribution
+ *	@returns a 3-float vector with a random position in some box
+**/
 Vector3f randomWithinBbox(const BoundingBox3f3f&bb) {
     return Vector3f(bb.min().x+
                     (bb.max().x-bb.min().x)*(double)rand()/RAND_MAX,
@@ -19,6 +25,12 @@ public:
     }
 };
 
+/**
+ *	BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox &tbb)
+ *	
+ *	@param const Elysia::Genome::TemporalBoundingBox &tbb - source bounding box
+ *	@returns a 3-float vector converted from a TemporalBoundingBox type
+**/
 BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox&tbb) {
     return BoundingBox3f3f(Vector3f(tbb.minx(),
                                     tbb.miny(),
@@ -27,6 +39,19 @@ BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox&tbb) {
                                     tbb.maxy(),
                                     tbb.has_maxz()?tbb.maxz():0));
 }
+
+/**
+ *	bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb)
+ *	
+ *	@param float age - age of some bounding box
+ *	@param const Elysia::Genome::TemporalBoundingBox &tbb - bounding box to check
+ *	@returns TRUE or FALSE (see description)
+ *
+ *	Description:	Returns TRUE if one of: tbb doesn't have a minimum t | minimum t is less than age
+ *																AND one of
+ *											tbb has no maximum t | maximum t is more than age
+ *					Otherwise FALSE
+**/
 bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb) {
     if ((tbb.has_mint()==false||
          tbb.mint()<=age)&&
@@ -36,16 +61,37 @@ bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb) {
     }
     return false;
 }
-void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f>&eligibleBoxes){
+
+/**
+ *	ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &eligibleBoxes)
+ *	
+ *	@param float age - age of some bounding box
+ *	@param std::vector<BoundingBox3f3f> &eligibleBoxes - vector of eligible bounding boxes
+ *
+ *	Description:	Looks through a vector of target regions from a gene.  If if the target region is
+ *					an active bounding box (isActiveBB), then it is added to a vector of eligible
+ *					bounding boxes
+**/
+void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &eligibleBoxes){
     int num_regions=this->mGene.target_region_size();
     for(int i=0;i<num_regions;++i) {
-        const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(i);
+        const Elysia::Genome::TemporalBoundingBox *tbb = &mGene.target_region(i);
         if (isActiveBB(age,*tbb)) {
             eligibleBoxes.push_back( convertBB(*tbb));
         }
     }    
 }
 
+/**
+ *	Vector3f ProteinDensity::getRandomTargetPointByArea(float age)
+ *	
+ *	@param float age - age of some bounding box
+ *	@returns a 3d vector of random points
+ *
+ *	Description:	Finds the number of regions in a gene, then tries twice to return a random point within a box.
+ *					If this doesn't succeed, then the function calls getTargetBounds() from above.  If there's at least 
+ *					one item in eligibleBoxes, then a random coordinate is returned from there, otherwise return 0,0,0
+**/
 Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
     int num_regions=this->mGene.target_region_size();
     if (num_regions) {
@@ -65,6 +111,15 @@ Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
     return Vector3f(0,0,0);
     
 }
+
+/**
+ *	Vector3f ProteinDensity::getRandomTargetPointByRegion(float age)
+ *	
+ *	@param float age - age of some bounding box
+ *	@returns a 3d vector of random points
+ *
+ *	Description:	
+**/
 Vector3f ProteinDensity::getRandomTargetPointByRegion(float age) {
     std::vector<std::pair<float,BoundingBox3f3f> >eligibleBoxes;
     float totalArea=0;
