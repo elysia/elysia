@@ -151,7 +151,7 @@ void Synapse::residualFire(){
 **/
 void Synapse::develop(const ActivityStats& stats){
 
-	float strengthenAmount=_STRENGHTHEN_AMOUNT_;
+	float strengthenAmount=_STRENGTHEN_AMOUNT_;
 	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
 	float initialStrengthen = _INITIAL_STRENGTHEN_;			//How much to strengthen a firing synapse in early development
 	float initialWeaken = _INITIAL_WEAKEN_;
