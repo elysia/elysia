@@ -5,21 +5,37 @@
 #include "ActivityStats.hpp"
 #include "Brain.hpp"
 #include "SpatialSearch.hpp"
+
+#define SIGNAL_WEIGHT	1.01f
 //Takes care of disconnecting DendriteTip. Should be called in destructor
 
 namespace Elysia {
 	class Neuron;
 
+/**
+ *	Synapse::Synapse(CellComponent * parent)
+ *
+ *	@param CellComponent * parent - parent cell for synapse
+ *
+ *	Description:	Instantiates new Synapse object from parent component
+**/
 Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
 	mRecipientNeuron = NULL;
-	mSignalWeight = 1.01f;	//This is the strength of the signal passed to activated branches. In the future, we may want to make it dynamic to allow certain synapses to have more force.
-	mFiringWindow = 10;		//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
+	mSignalWeight = SIGNAL_WEIGHT;	//This is the strength of the signal passed to activated branches. In the future, we may want to make it dynamic to allow certain synapses to have more force.
+	mFiringWindow = 10;			//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
     mWhere=mBrain->activeSynapseListSentinel();
 }
 
+/**
+ *	bool Synapse::detach()
+ *
+ *	@returns TRUE on success, otherwise false
+ *
+ *	Description:	Tries to deatch this synapse from some recipient neuron.
+**/
 bool Synapse::detach(){
     if (mRecipientNeuron) {
         mRecipientNeuron->removeSynapse(this);
@@ -29,6 +45,13 @@ bool Synapse::detach(){
     return false;
 }
 
+/**
+ *	Synapse::connect()
+ *	
+ *	Description:	Detaches the synapse from a recipient neuron if it's connected to one already.
+ *					Then finds the nearest neuron to it and attaches the synapse to it with connection
+ *					strength 1.0
+**/
 void Synapse::connect(){
     if(mRecipientNeuron){this->detach();}
     Neuron * parentNeuron = mParentBranch->getParentNeuron();
@@ -43,10 +66,16 @@ void Synapse::connect(){
     }
 }
 
-
-
-
-
+/**
+ *	bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval)
+ *
+ *	@param Elysia::Genome::Gene gene - provides a target region size
+ *	@param float age - age of target
+ *	@param Vectore3f& retval - returned coordinates that should be randomized
+ *	@returns TRUE on success, FALSE on failure
+ *	
+ *	Description:	
+**/
 bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     int numregions;
     numregions = gene.target_region_size();
@@ -75,6 +104,11 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     return true;
 }
 
+/**
+ *	Synapse::fireSynapse()
+ *
+ *	Description:	If the firing counter is not set, fire the synapse.
+**/
 void Synapse::fireSynapse(){
 
 	if(mFiringCounter == 0){
@@ -85,6 +119,13 @@ void Synapse::fireSynapse(){
     //Tick function determines when to fire the synapses from the neurons
 }
 
+/**
+ *	Synapse::residualFire()
+ *
+ *	Description:	If the firing counter is positive, decrement it; deactivate the synapse if the firing counter is 
+ *					then zero, then activate the brain component from the parent branch with mSignalWeight.
+ *					If the firing counter is zero... what the hell does assert(this) do anyway?  
+**/
 void Synapse::residualFire(){
 	if(mFiringCounter > 0){
 		mFiringCounter--;
@@ -94,20 +135,30 @@ void Synapse::residualFire(){
 		mParentBranch->activateComponent(*mBrain, mSignalWeight);
 	}
 	else{
-		assert(this);
+		assert(this);		// what is this doing here?
 	}
 }
 
-
+/**
+ *	void Synapse::develop(const ActivityStats& stats)
+ *
+ *	@param const ActivityStats& stats - activity statistics
+ *
+ *	Description:	If the neuron is in its early states then give it some initial strengthening or weakening.
+ *					Otherwise, the connection is strengthened or weakened based on some other function (see code).
+ *					If this synapse isn't connected to anything, then the above does not occur and the synapse is connected
+ *					to a neuron based on the connect() function
+**/
 void Synapse::develop(const ActivityStats& stats){
-	float strengthenAmount=0.0f;
-	int earlyDevelopmentWindow = 40;	//How many concurrent synapses firing is required to move to "mid-development"
-	float initialStrengthen = 0.04f;		//How much to strengthen a firing synapse in early development
-	float initialWeaken = -0.01f;
-	float changeSize = 0.1f;				//Controls how quickly strengthening and weakening happen in mid-development
-	float maxStrengthen = 0.1f;			//Maximum amount to strengthen in mid-development
-	float maxWeaken = -0.04f;			//Maximum amount to weaken in mid-development
-	float strengthenRange = 2.0f;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
+
+	float strengthenAmount=_STRENGHTHEN_AMOUNT_;
+	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
+	float initialStrengthen = _INITIAL_STRENGTHEN_;			//How much to strengthen a firing synapse in early development
+	float initialWeaken = _INITIAL_WEAKEN_;
+	float changeSize = _CHANGE_SIZE_;				//Controls how quickly strengthening and weakening happen in mid-development
+	float maxStrengthen = _MAX_STRENGTHEN_;			//Maximum amount to strengthen in mid-development
+	float maxWeaken = _MAX_WEAKEN_;					//Maximum amount to weaken in mid-development
+	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 
     if(mRecipientNeuron){
     	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
@@ -132,7 +183,7 @@ void Synapse::develop(const ActivityStats& stats){
 	    			mConnectionStrength += strengthenAmount;
 	    		}
 	    	}
-	    	else{ assert(0);}
+	    	else{ assert(0);}		// there are probably better ways to do this
 	    }
     }
     else{
@@ -140,6 +191,14 @@ void Synapse::develop(const ActivityStats& stats){
     }
 }
 
+/**
+ *	Synapse::visualizeSynapse(FILE *dendriteTree, size_t parent)
+ *
+ *	@param FILE *dendriteTree - output file
+ *	@param size_t parent - size of parent 
+ *
+ *	Description:	Prints this synapse to a file
+**/
 void Synapse::visualizeSynapse(FILE *dendriteTree, size_t parent){
     size_t self;
 	size_t recipient;
