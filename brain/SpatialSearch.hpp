@@ -10,5 +10,6 @@ public:
     virtual void addNeighbor(Neuron*)=0;
     virtual void removeNeighbor(Neuron*)=0;
     virtual void moveNeighbor(Neuron*)=0;
+	virtual ~SpatialSearch(){}
 };
 }

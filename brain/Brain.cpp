@@ -133,6 +133,9 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
  *	Description:	Brain destructor
 **/
 Brain::~Brain() {
+	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
+		delete *i;
+	}
     delete mSpatialSearch;
     delete mProteinMap;
     for (std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
