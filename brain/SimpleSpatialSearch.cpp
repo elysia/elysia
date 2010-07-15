@@ -13,8 +13,15 @@ public:
 #endif
 
 namespace Elysia {
-/* function to find Nearest Neighbor from local copy of list
- */
+/**
+ *	Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neuron* exclude)
+ *
+ *	@param const Vector3f &queryPoint - point where to begin search
+ *	@param Neuron *exclude - pointer to neuron which you don't want to return (i.e. itself)
+ *	@returns nearest neighbor
+ * 
+ *	Description:	Finds nearest neighbor from local copy of list
+**/
 Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neuron* exclude){
     std::tr1::unordered_set<Neuron*>::iterator i;
     float maxDistance;
@@ -30,22 +37,35 @@ Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neu
     return maxDistanceItem;
 }
 
-/* function to *add* neighbor/point to local copy of list
- */
+/**
+ *	SimpleSpatialSearch::addNeighbor(Neuron* neuron)
+ *
+ *	@param Neuron *neuron - pointer to neuron to insert
+ * 
+ *	Description:	Function to *add* neighbor/point to local copy of list
+**/
 void SimpleSpatialSearch::addNeighbor(Neuron* neuron){
     mNeurons.insert(neuron);
 }
 
-
-/* function to *remove* neighbor/point to local copy of list
- */
+/**
+ *	SimpleSpatialSearch::removeNeighbor(Neuron* neuron)
+ *
+ *	@param Neuron *neuron - pointer to neuron to remove
+ * 
+ *	Description:	Function to *remove* neighbor/point from local copy of list
+**/
 void SimpleSpatialSearch::removeNeighbor(Neuron* neuron){
     mNeurons.erase(neuron);
 }
 
-
-/* function to *update* neighbor/point to local copy of list
- */
+/**
+ *	SimpleSpatialSearch::moveNeighbor(Neuron*)
+ *
+ *	@param Neuron *neuron - pointer to neuron to remove
+ * 
+ *	Description:	Function to *update* neighbor/point to local copy of list
+**/
 void SimpleSpatialSearch::moveNeighbor(Neuron*){
 }
 }
