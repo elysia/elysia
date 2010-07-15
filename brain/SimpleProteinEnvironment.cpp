@@ -51,8 +51,15 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
     return *this;
 }
 
-//Find the "specific protein density" total up the protein (given effect)
-//Return the magnitude of a given effect. 
+/**
+ *	float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e)
+ *
+ *	@param Elysia::Genome::Effect e - given effect
+ *	@returns magnitude of given effect
+ *
+ *	Description:	Find the "specific protein density" total up the protein (given effect)
+ *					Return the magnitude of a given effect. 
+**/
 float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e){
   float retval=0;
   std::vector< GeneSoupStruct >::const_iterator i,ie;
@@ -66,8 +73,16 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
   return retval;
 }
 
-//Get protein density at a location (given location, and protein effect interested in)
-//Return float of the effect's density
+/**
+ *	float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e)
+ *
+ *	@param const Vector3f &location - some location
+ *	@param const Elysia::Genome::Effect &effect - some effect
+ *	@returns effect's density
+ *
+ *	Description:	Get protein density at a location (given location, and protein effect interested in)
+ *					Return float of the effect's density
+**/
 float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&effect) {
   float density=0;
   ///loop through all protein zones
@@ -82,8 +97,14 @@ float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, cons
   return density;
 }
 
-//Find all the proteins at a given point (given location) (repetitions allowed)
-//Return vector of proteins
+/**
+ *	std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location)
+ *
+ *	@param const Vector3f &location - some location
+ *	@returns vector of proteins
+ *
+ *	Description:	Find all the proteins at a given point (given location) (repetitions allowed)
+**/
 std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location){
   std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair > proteins;
   //loop through all the zones
@@ -101,19 +122,38 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
   return proteins;
 }
 
-//Update ALL the mSoup (densities) for the next timestep, (given the current age)
-//Return nothing
-// These functions are not ready yet--- we should get LNK errors for them so we know when we're done
-//"Complicated" function to update the soup for the next time iteration
+/**
+ *	void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age)
+ *
+ *	@param const float age - current age
+ *
+ *	Description:	Update ALL the mSoup (densities) for the next timestep, (given the current age)
+**/
 void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age){
 	//Will write this function last
 }
 
-//The area is not equal in any aspect -> not OK
+/**
+ *	static bool okArea(const BoundingBox3f3f&input) 
+ *
+ *	@param const BoundingBox3f3f &input - bounding box area to check
+ *	@returns boolean
+ *
+ *	Description:	If the area is not equal in any aspect -> false, else true
+**/
 static bool okArea(const BoundingBox3f3f&input) { 
   return input.min().x!=input.max().x&&input.min().y!=input.max().y;
 }
 
+/**
+ *	template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const BoundingBox<T>&b) 
+ *
+ *	@param const BoundingBox<T> &a - one bounding box
+ *	@param const BoundingBox<T> &b - another bounding box
+ *	@returns another bounding box
+ *
+ *	Description:	What the hell does this do?
+**/
 template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const BoundingBox<T>&b) {
    BoundingBox<T> retval(a.min().max(b.min()),a.max().min(b.max()));
    if (retval.diag().x<=0||retval.diag().y<=0) {
@@ -286,8 +326,16 @@ void SimpleProteinEnvironment::rebuildZones(std::vector<ProteinZone>::const_iter
 	return;
 }
 
-//Zone management functions to add zones to the main list (given sub-list, and main-list)
-//Return new main-list
+/**
+ *	void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZoneList, 
+ *                                       std::vector<ProteinZone> &mMainZoneList)
+ *
+ *	@param const std::vector<ProteinZone> &mSubZoneList - zone sub-list
+ *	@param std::vector<ProteinZone> &mMainZoneList - zone main list
+ *	@returns new main list
+ *
+ *	Description:	Zone management functions to add zones to the main list (given sub-list, and main-list)
+**/
 void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZoneList, 
                                         std::vector<ProteinZone> &mMainZoneList){
     //Append all the zones in the sub-list to the main-list
@@ -304,8 +352,17 @@ void SimpleProteinEnvironment::removeZones(  std::vector<ProteinZone> mSubZoneLi
     //Find and remove all matching entries in the sub-list out of the main-list
 }
 
-//Function to find the zone that a single point reside in (given point, and zone list)
-//Return THE zone from the list that is inside the point, or fail
+/**
+ *	SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
+ *                                                       std::vector<ProteinZone> mMainZoneList)
+ *	
+ *	@param const Vector3f queryPoint - given point 
+ *	@param std::vector<ProteinZone> mMainZoneList - list of zones
+ *	@returns the zone from the list that's inside the point, or fail condition
+ *
+ *	Description:	Function to find the zone that a single point reside in (given point, and zone list)
+ *					Return THE zone from the list that is inside the point, or fail
+**/
 SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
                                                         std::vector<ProteinZone> mMainZoneList){
 	int i;
@@ -321,7 +378,14 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 	return myFail;
 }
 
-//Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
+/**
+ *	const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect)
+ *
+ *	@param const Vector3f &location - location where effect takes place
+ *	@param const Elysia::Genome::Effect &effect - the effect
+ *
+ *	Description:	Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
+**/
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
   static Elysia::Genome::Gene retval;
   SimpleProteinEnvironment::ProteinZone localzone;
@@ -338,6 +402,9 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   return retval;
 }
 
+/**
+ *	Destructor
+**/
 SimpleProteinEnvironment::~SimpleProteinEnvironment(){
 }
 
