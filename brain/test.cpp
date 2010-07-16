@@ -301,7 +301,7 @@ int runtest(){
     //Elysia::testTwoConnectedNeurons();
 	Elysia::testDevelopment();
     Elysia::testProteinEnvironment();
-    for (int i=0;i<30000;++i) {
+    if (0) for (int i=0;i<30000;++i) {
         Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
 //        usleep(10);        
     }

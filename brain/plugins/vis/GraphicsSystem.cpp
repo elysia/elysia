@@ -85,7 +85,7 @@ void Display(void) {
                           (h+1)*gDisplayHeight/heightPartition);
                         glMatrixMode(GL_MODELVIEW);
                         glLoadIdentity();
-                        glScalef(wlim/(float)(gDisplayWidth),heightPartition/(float)(gDisplayHeight),1.0);
+                        glScalef(2*wlim/(float)(gDisplayWidth),2*heightPartition/(float)(gDisplayHeight),1.0);
                         if (i<(int)gToRender.size())
                             gToRender[i]->draw();
                     }
@@ -139,7 +139,7 @@ void myfunc() {
 	glMatrixMode(GL_MODELVIEW);
     
 	// Enable Front Face
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
     atexit(Deinitialize);
 	glutMainLoop();
 

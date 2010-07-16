@@ -27,9 +27,9 @@ Visualization::Visualization(){
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
     }
-    mNeuronSize=10;
+    mNeuronSize=.25;
     mSynapseSnapToEdge=true;
-    mScale=1.0;
+    mScale=100.0;
     mOffset=Vector3f(0,0,0);
 }
 void Visualization::update() {
@@ -54,7 +54,7 @@ void Visualization::initialize( Brain*b) {
     this->mBrain=b;
     BoundingBox3f3f bounds = b->getBounds();
     if (bounds==BoundingBox3f3f::null()) {
-        bounds=BoundingBox3f3f(Vector3f(-1000,-1000,-1),Vector3f(1000,1000,1));
+        bounds=BoundingBox3f3f(Vector3f(-128,-128,-1),Vector3f(128,128,1));
     }
     Vector3f diag=bounds.diag();
     float ratiox=diag.x/mGraphics->getWidth();
@@ -157,6 +157,7 @@ void drawRect(Vector3f lower_left,Vector3f upper_right) {
     glVertex3f(lower_left.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,lower_left.y,upper_right.z);
+    printf ("drawing from %f %f to %f %f\n",lower_left.x,lower_left.y,upper_right.x,upper_right.y);
 }
 void drawRectOutline(Vector3f lower_left,Vector3f upper_right, float halfx,float halfy) {
     glVertex3f(lower_left.x,lower_left.y-halfy,upper_right.z);
@@ -184,7 +185,7 @@ int stringWidth(const std::string &dat, bool addspace, bool removespace) {
 
 bool Visualization::getNeuronWidthHeight(const std::string &text, float&wid,float&hei,bool selected) {    
     float minh=10;
-    bool drawText=(text[0]==' '||(text[0]>=lowest_special_char&&text[0]<=highest_special_char));
+    bool drawText=text.length()&&(text[0]==' '||(text[0]>=lowest_special_char&&text[0]<=highest_special_char));
     float neuronsize=mNeuronSize*mScale;
     float neuronheight=neuronsize;
     float neuronwidth=neuronsize;
@@ -249,6 +250,16 @@ void Visualization::getSynapseStartEnd(Neuron * start, bool startIsSelected, Neu
   B+=enddelta;
 }
 
+void Visualization::drawNeuronBody(Neuron*n) {
+    Vector3f center=n->getLocation();
+    center.z=0;
+    float wid=0;
+    float hei=0;
+    bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
+    printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
+    drawRect((center-Vector3f(wid/2,hei/2,0))*mScale,(center+Vector3f(wid/2,hei/2,0))*mScale);
+}
+
 void Visualization::drawNeuron(Neuron*n) {
     drawNeuronBody(n);
 }
@@ -257,23 +268,16 @@ void Visualization::draw() {
     //printf ("of %f %f %f %f\n",mOffset.x,mOffset.y,mOffset.z,mScale);
     glTranslatef(mOffset.x,mOffset.y,0);
     // Anti-Clockwise Winding
-    glBegin(GL_TRIANGLES);
-    glVertex3f(0,0,.5);
-    glVertex3f(100,0,.5);
-    glVertex3f(0,100,.5);
-    glVertex3f(0,0,-.5);
-    glVertex3f(100,0,-.5);
-    glVertex3f(0,100,-.5);
-
-
-    glVertex3f(0,0,-.5);
-    glVertex3f(0,100,-.5);
-    glVertex3f(100,0,-.5);
-    glVertex3f(0,0,.5);
-    glVertex3f(0,100,.5);
-    glVertex3f(100,0,.5);
-    glEnd();
-    
+    printf ("start draw\n");
+    glBegin(GL_QUADS);
+    for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),
+             ie=mBrain->mAllNeurons.end();
+         i!=ie;
+         ++i) {
+        drawNeuron(*i);
+    }
+    glEnd(); 
+    printf ("estart draw\n");   
 }
 Visualization::~Visualization() {
     {

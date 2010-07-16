@@ -24,8 +24,10 @@ public:
     float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
-	std::set<Neuron *>mAllNeurons;
-	std::set<Synapse *>mAllSynapses;
+    typedef std::set<Neuron*> NeuronSet;
+	NeuronSet mAllNeurons;
+    typedef std::set<Neuron*> SynapseSet;
+	SynapseSet mAllSynapses;
     BoundingBox3f3f getBounds()const;
     void tick();
 	void processSynapse();
