@@ -277,7 +277,7 @@ void testProteinEnvironment() {
    assert(grow_leaf_count==.5);
    assert(grow_neuron_count==0);
    assert(other_count==0);
-   return;//UNCOMMENT TO GET FAILING TEST
+   //return;//UNCOMMENT TO GET FAILING TEST
    const Gene * grow_neuron_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
                                               GROW_NEURON);
    const Gene * combined_grow_leaf_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
@@ -286,11 +286,10 @@ void testProteinEnvironment() {
                                                   GROW_LEAF);
    const Gene * second_grow_leaf_gene = &pe->retrieveGene(Vector3f(-0.5,-0.5,-0.5),
                                                    GROW_LEAF);
-   assert(grow_neuron_gene->target_region(0).minx()==5);
-   assert(combined_grow_leaf_gene->target_region(0).minx()==5||
-          combined_grow_leaf_gene->target_region(0).minx()==-5);
-   assert(first_grow_leaf_gene->target_region(0).minx()==5);
-   assert(second_grow_leaf_gene->target_region(0).minx()==-5);
+   //assert(grow_neuron_gene->target_region(0).minx()==5);
+   //assert(combined_grow_leaf_gene->target_region(0).minx()==5||combined_grow_leaf_gene->target_region(0).minx()==-5);
+   //assert(first_grow_leaf_gene->target_region(0).minx()==5);
+   //assert(second_grow_leaf_gene->target_region(0).minx()==-5);
 
    delete pe;
 }
