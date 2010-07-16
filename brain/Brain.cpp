@@ -10,8 +10,6 @@
 namespace Elysia {
 
 /**
- *	Brain::Brain
- *
  *  @param ProteinEnvironment *proteinMap - a base protein map for the brain
  *
  *	Description:	Creates a new Brain instance using a defined protein map as a base.
@@ -26,8 +24,6 @@ Brain::Brain (ProteinEnvironment *proteinMap){
 }
 
 /**
- *	Brain::tick()
- *
  *	Description:	One "tick" of the brain simulation code, where the following occurs:
  *					 - processNeuron() called
  *					 - processSynapes() called
@@ -48,8 +44,6 @@ void Brain::tick(){
 
 
 /**
- *	Brain::processNeuron()
- *
  *	Description:	Updates all neurons in the neuron list for this brain, then clears the list of
  *					active neurons
 **/
@@ -63,8 +57,6 @@ void Brain::processNeuron(){
 }
 
 /**
- *	Brain::processSynapes()
- *
  *	Description:	Iterates through brain's associates synapses and updates all of them using
  *					the Synapse class residualFire() method
 **/
@@ -77,8 +69,6 @@ void Brain::processSynapse(){
 }
 
 /**
- *	Brain::inactivateSynapse
- *
  *	@param Synapse *inactiveSynapse - synapse to remove
  *
  *	Description:	Removes a synapse from the synapse list and updates it.
@@ -89,8 +79,6 @@ void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 }
 
 /**
- *	Brain::inactivateNeuron
- *
  *	@param Neuron *inactiveNeuron - an inactive neuron to remove
  *
  *	Description:	Removes an unused neuron from the neuron list and updates
@@ -101,8 +89,6 @@ void Brain::inactivateNeuron(Neuron *inactiveNeuron){
 }
 
 /**
- *	std::list<Synapse *>::iterator Brain::activateSynapse
- *
  *	@param Synapse *activeSynapse - a synapse to activate
  *	@return	the beginning element of the active synapses list for this brain
  *
@@ -114,8 +100,6 @@ std::list<Synapse *>::iterator Brain::activateSynapse(Synapse *activeSynapse){
     return mActiveSynapses.begin();
 }
 /**
- *	std::list<Neuron *>::iterator Brain::activateNeuron
- *
  *	@param Neuron *activeNeuron - a neuron to activate
  *	@return	the beginning element of the active neuron list for this brain
  *
@@ -128,9 +112,7 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
 }
 
 /**
- *	Brain::~Brain()
- *
- *	Description:	Brain destructor
+ *	Brain destructor
 **/
 Brain::~Brain() {
 	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){

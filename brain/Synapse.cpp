@@ -13,8 +13,6 @@ namespace Elysia {
 	class Neuron;
 
 /**
- *	Synapse::Synapse(CellComponent * parent)
- *
  *	@param CellComponent * parent - parent cell for synapse
  *
  *	Description:	Instantiates new Synapse object from parent component
@@ -30,8 +28,6 @@ Synapse::Synapse(CellComponent * parent){
 }
 
 /**
- *	bool Synapse::detach()
- *
  *	@returns TRUE on success, otherwise false
  *
  *	Description:	Tries to deatch this synapse from some recipient neuron.
@@ -46,8 +42,6 @@ bool Synapse::detach(){
 }
 
 /**
- *	Synapse::connect()
- *	
  *	Description:	Detaches the synapse from a recipient neuron if it's connected to one already.
  *					Then finds the nearest neuron to it and attaches the synapse to it with connection
  *					strength 1.0
@@ -67,14 +61,12 @@ void Synapse::connect(){
 }
 
 /**
- *	bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval)
- *
  *	@param Elysia::Genome::Gene gene - provides a target region size
  *	@param float age - age of target
  *	@param Vectore3f& retval - returned coordinates that should be randomized
  *	@returns TRUE on success, FALSE on failure
  *	
- *	Description:	
+ *	Description:	Umm... I don't know.  I think it makes cheeseburgers
 **/
 bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
     int numregions;
@@ -105,8 +97,6 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
 }
 
 /**
- *	Synapse::fireSynapse()
- *
  *	Description:	If the firing counter is not set, fire the synapse.
 **/
 void Synapse::fireSynapse(){
@@ -120,8 +110,6 @@ void Synapse::fireSynapse(){
 }
 
 /**
- *	Synapse::residualFire()
- *
  *	Description:	If the firing counter is positive, decrement it; deactivate the synapse if the firing counter is 
  *					then zero, then activate the brain component from the parent branch with mSignalWeight.
  *					If the firing counter is zero... what the hell does assert(this) do anyway?  
@@ -140,8 +128,6 @@ void Synapse::residualFire(){
 }
 
 /**
- *	void Synapse::develop(const ActivityStats& stats)
- *
  *	@param const ActivityStats& stats - activity statistics
  *
  *	Description:	If the neuron is in its early states then give it some initial strengthening or weakening.
@@ -192,8 +178,6 @@ void Synapse::develop(const ActivityStats& stats){
 }
 
 /**
- *	Synapse::visualizeSynapse(FILE *dendriteTree, size_t parent)
- *
  *	@param FILE *dendriteTree - output file
  *	@param size_t parent - size of parent 
  *

@@ -11,7 +11,12 @@ template <class T, class U> class pair {public:
 };}
 */
 
-//Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome (and simplify)
+/**
+ *	@param const Elysia::Genome::Genome& genes - some genes to be read into the main zone list
+ *	@returns pointer to this object
+ *
+ *	Description:	Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome (and simplify)
+**/
 ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::Genome& genes){
     //Zones start out as representing 1 gene (can be overlapping)
     //Since they can represent a collection of genes,
@@ -52,8 +57,6 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
 }
 
 /**
- *	float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e)
- *
  *	@param Elysia::Genome::Effect e - given effect
  *	@returns magnitude of given effect
  *
@@ -74,8 +77,6 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
 }
 
 /**
- *	float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e)
- *
  *	@param const Vector3f &location - some location
  *	@param const Elysia::Genome::Effect &effect - some effect
  *	@returns effect's density
@@ -98,8 +99,6 @@ float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, cons
 }
 
 /**
- *	std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location)
- *
  *	@param const Vector3f &location - some location
  *	@returns vector of proteins
  *
@@ -123,8 +122,6 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
 }
 
 /**
- *	void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age)
- *
  *	@param const float age - current age
  *
  *	Description:	Update ALL the mSoup (densities) for the next timestep, (given the current age)
@@ -134,8 +131,6 @@ void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age
 }
 
 /**
- *	static bool okArea(const BoundingBox3f3f&input) 
- *
  *	@param const BoundingBox3f3f &input - bounding box area to check
  *	@returns boolean
  *
@@ -146,8 +141,6 @@ static bool okArea(const BoundingBox3f3f&input) {
 }
 
 /**
- *	template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const BoundingBox<T>&b) 
- *
  *	@param const BoundingBox<T> &a - one bounding box
  *	@param const BoundingBox<T> &b - another bounding box
  *	@returns another bounding box
@@ -162,8 +155,16 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
    return retval;
 }
 
-//Combine genes into a single-shared region
- SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, const SimpleProteinEnvironment::ProteinZone&b , const BoundingBox3f3f &bbox) {
+/**
+ *	@param const SimpleProteinEnvironment::ProteinZone &a - first gene to combine
+ *	@param const SimpleProteinEnvironment::ProteinZone &b - second gene to combine
+ *	@param const BoundingBox3f3f &bbox - region they should share
+ *	@returns the combined genes in a region
+ *
+ *	Description:	Combine genes into a single-shared region
+**/
+ SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::combineZone(const SimpleProteinEnvironment::ProteinZone &a, 
+																			 const SimpleProteinEnvironment::ProteinZone &b, const BoundingBox3f3f &bbox) {
    ProteinZone retval;
    retval.mBounds=bbox;
    //Combine the genes into a shared, common sized, region
@@ -172,18 +173,35 @@ template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const Boundi
    return retval;
 }
 
-//Relocate a zone to a new box location
+/**
+ *	@param ProteinZone a - some zone
+ *	@param const BoundingBox3f3f &bbox - a new box location
+ *	@returns the zone that was added
+ *
+ *	Description:	Relocate a zone to a new box location
+**/
 SimpleProteinEnvironment::ProteinZone SimpleProteinEnvironment::relocateZone(ProteinZone a, const BoundingBox3f3f &bbox) { //generate a box of type a
    a.mBounds=bbox;
    return a;
 }
 
-//Merge 2 zones of same gene type
+/**
+ *	@param ProteinZone &a - address of first zone
+ *	@param const ProteinZone &b - constant reference to second zone
+ *
+ *	Description:	Merge 2 zones of same gene type
+**/
 void SimpleProteinEnvironment::combineZonesFromSameGene(ProteinZone &a, const ProteinZone&b) {  
    a.mBounds.mergeIn(b.mBounds);
 }
 
-//Combine 2 zones by dividing it up into parts before reassembling them
+/**
+ *	@param const ProteinZone &a - first zone
+ *	@param const ProteinZone &b - second zone
+ *	@param std::vector<ProteinZone> &output - resultant zone vector
+ *
+ *	Description:	Combine 2 zones by dividing it up into parts before reassembling them
+**/
 void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output) {
     // Assume any combination of 2 zones will results in 9 subsections
     // Figure out using the intersections points how to generate the subsections
@@ -251,8 +269,11 @@ void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZ
   }
 }
 
-//Split and simplify large zone definitions into smaller component zones for calculations (given list of all zones)
-//Return a list of zones (post-split)
+/**
+ *	@param std::vector<ProteinZone> mMainZoneList - main zone list
+ *
+ *	Description:	Split and simplify large zone definitions into smaller component zones for calculations.
+**/
 void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZoneList){
 	std::vector<ProteinZone> mLocalZoneList;
 	std::vector<ProteinZone> mSwapZoneList;
@@ -314,9 +335,17 @@ void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZo
 	}//end while
 }
 
-//Rebuild the zone list such that it exclude the 2 zones currently in question
-//This allows us to throw out the 2 zones and add their replacements
-void SimpleProteinEnvironment::rebuildZones(std::vector<ProteinZone>::const_iterator a,std::vector<ProteinZone>::const_iterator b, const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output) {
+/**
+ *	@param std::vector<ProteinZone>::const_iterator a - first zone to exclude
+ *	@param std::vector<ProteinZone>::const_iterator b - second zone to exclude
+ *	@param const std::vector<ProteinZone> &input - reference to input list
+ *	@param std::vector<ProteinZone> &output - resultant list
+ *
+ *	Description:	Rebuild the zone list such that it exclude the 2 zones currently in question, which allows us
+ *					to throw out the two zones and add their replacements
+**/
+void SimpleProteinEnvironment::rebuildZones(std::vector<ProteinZone>::const_iterator a,std::vector<ProteinZone>::const_iterator b, 
+											const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output) {
     // Create a new list excluding the current 2 zones
 	for (std::vector<ProteinZone>::const_iterator i=input.begin(),ie=input.end();i!=ie;++i) {
 		if( (i != a)&&(i != b) ){
@@ -327,8 +356,6 @@ void SimpleProteinEnvironment::rebuildZones(std::vector<ProteinZone>::const_iter
 }
 
 /**
- *	void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZoneList, 
- *                                       std::vector<ProteinZone> &mMainZoneList)
  *
  *	@param const std::vector<ProteinZone> &mSubZoneList - zone sub-list
  *	@param std::vector<ProteinZone> &mMainZoneList - zone main list
@@ -345,16 +372,20 @@ void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZon
 	return;
 }
 
-//Zone management functions to remove zones from the main list (given sub-list, and main-list)
-//Return new main-list
+/**
+ *
+ *	@param std::vector<ProteinZone> mSubZoneList - zone sub-list
+ *	@param std::vector<ProteinZone> mMainZoneList - main zone list
+ *	@returns new main list
+ *
+ *	Description:	Removes some zones from the main list, then returns the new main list
+**/
 void SimpleProteinEnvironment::removeZones(  std::vector<ProteinZone> mSubZoneList, 
                                             std::vector<ProteinZone> mMainZoneList){
     //Find and remove all matching entries in the sub-list out of the main-list
 }
 
 /**
- *	SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
- *                                                       std::vector<ProteinZone> mMainZoneList)
  *	
  *	@param const Vector3f queryPoint - given point 
  *	@param std::vector<ProteinZone> mMainZoneList - list of zones
@@ -379,7 +410,6 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 }
 
 /**
- *	const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect)
  *
  *	@param const Vector3f &location - location where effect takes place
  *	@param const Elysia::Genome::Effect &effect - the effect
@@ -403,7 +433,7 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
 }
 
 /**
- *	Destructor
+ *	
 **/
 SimpleProteinEnvironment::~SimpleProteinEnvironment(){
 }

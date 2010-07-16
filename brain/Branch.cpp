@@ -7,8 +7,6 @@
 namespace Elysia {
 
 /**
- *	Branch::Branch
- *
  *	@param CellComponent *parent - parent branch of this branch
  *
  *	Description:	Constructor for Branch class.  Sets the parent CellComponent to
@@ -20,17 +18,13 @@ Branch::Branch(CellComponent * parent) {
 }
 
 /**
- *	ProteinDensity&Branch::getProteinDensityStructure()
- *	
- *	@return protein density structure of the parent component of this branch
+ *	@returns protein density structure of the parent component of this branch
 **/
 ProteinDensity&Branch::getProteinDensityStructure() {
     return mParentComponent->getProteinDensityStructure();
 }
 
 /**
- *	Branch::activateComponent
- *
  *	@param Brain &brain - address of a brain in memory
  *	@param float signal - numerical signal level to add to brain activity
  *
@@ -55,8 +49,6 @@ void Branch::activateComponent(Brain&brain, float signal){
 }
 
 /**
- *	Branch::passDevelopmentSignal
- *
  *	@param float signal - signal to pass to parent component
  *
  *	Description:	If the activity is above a threshold, then add weight to the signal.
@@ -71,8 +63,6 @@ void Branch::passDevelopmentSignal(float signal){
 }
 
 /**
- *	Branch::developSynapse
- *
  *	@param const ActivityStats& stats - activity statistics for this synapse
  *
  *	Description:	For all the child synapses of this branch, call their develop() methods. 
@@ -94,8 +84,6 @@ void Branch::developSynapse(const ActivityStats& stats){
 
 
 /**
- *	Branch::visualizeTree
- *
  *	@param FILE *dendriteTree - output file for visualization
  *	@param size_t parent  - size of the parent branch
  *
@@ -121,8 +109,6 @@ void Branch::visualizeTree(FILE *dendriteTree, size_t parent){
 }
 
 /**
- *	Branch::growSynapse
- *
  *	Description:	Grows a new synapse on the branch
 **/
 void Branch::growSynapse(void){

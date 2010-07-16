@@ -4,8 +4,6 @@
 namespace Elysia {
 
 /**
- *	Vector3f randomWithinBbox(const BoundingBox3f3f&bb)
- *	
  *	@param const BoundingBox3f3f &bb - a bound on the random distribution
  *	@returns a 3-float vector with a random position in some box
 **/
@@ -26,8 +24,6 @@ public:
 };
 
 /**
- *	BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox &tbb)
- *	
  *	@param const Elysia::Genome::TemporalBoundingBox &tbb - source bounding box
  *	@returns a 3-float vector converted from a TemporalBoundingBox type
 **/
@@ -41,8 +37,6 @@ BoundingBox3f3f convertBB(const Elysia::Genome::TemporalBoundingBox&tbb) {
 }
 
 /**
- *	bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb)
- *	
  *	@param float age - age of some bounding box
  *	@param const Elysia::Genome::TemporalBoundingBox &tbb - bounding box to check
  *	@returns TRUE or FALSE (see description)
@@ -63,8 +57,6 @@ bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb) {
 }
 
 /**
- *	ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &eligibleBoxes)
- *	
  *	@param float age - age of some bounding box
  *	@param std::vector<BoundingBox3f3f> &eligibleBoxes - vector of eligible bounding boxes
  *
@@ -83,8 +75,6 @@ void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &el
 }
 
 /**
- *	Vector3f ProteinDensity::getRandomTargetPointByArea(float age)
- *	
  *	@param float age - age of some bounding box
  *	@returns a 3d vector of random points
  *
@@ -113,8 +103,6 @@ Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
 }
 
 /**
- *	Vector3f ProteinDensity::getRandomTargetPointByRegion(float age)
- *	
  *	@param float age - age of some bounding box
  *	@returns a 3d vector of random points
  *

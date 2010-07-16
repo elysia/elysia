@@ -14,8 +14,6 @@ public:
 
 namespace Elysia {
 /**
- *	Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neuron* exclude)
- *
  *	@param const Vector3f &queryPoint - point where to begin search
  *	@param Neuron *exclude - pointer to neuron which you don't want to return (i.e. itself)
  *	@returns nearest neighbor
@@ -38,8 +36,6 @@ Neuron* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Neu
 }
 
 /**
- *	SimpleSpatialSearch::addNeighbor(Neuron* neuron)
- *
  *	@param Neuron *neuron - pointer to neuron to insert
  * 
  *	Description:	Function to *add* neighbor/point to local copy of list
@@ -49,8 +45,6 @@ void SimpleSpatialSearch::addNeighbor(Neuron* neuron){
 }
 
 /**
- *	SimpleSpatialSearch::removeNeighbor(Neuron* neuron)
- *
  *	@param Neuron *neuron - pointer to neuron to remove
  * 
  *	Description:	Function to *remove* neighbor/point from local copy of list
@@ -60,8 +54,6 @@ void SimpleSpatialSearch::removeNeighbor(Neuron* neuron){
 }
 
 /**
- *	SimpleSpatialSearch::moveNeighbor(Neuron*)
- *
  *	@param Neuron *neuron - pointer to neuron to remove
  * 
  *	Description:	Function to *update* neighbor/point to local copy of list
