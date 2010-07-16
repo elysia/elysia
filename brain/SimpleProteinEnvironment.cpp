@@ -396,7 +396,7 @@ void SimpleProteinEnvironment::removeZones(  std::vector<ProteinZone> mSubZoneLi
  *					Return THE zone from the list that is inside the point, or fail
 **/
 SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
-                                                        std::vector<ProteinZone> mMainZoneList){
+                                                        const std::vector<ProteinZone> &mainZoneList){
 	int i;
 	static ProteinZone myFail;
 	size_t numMainZones=mMainZoneList.size();
@@ -424,7 +424,7 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   float checkvalue;
   int foundone;
   static Elysia::Genome::Gene retval;
-  SimpleProteinEnvironment::ProteinZone localzone;
+  SimpleProteinEnvironment::ProteinZone *localzone;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
   std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
   
@@ -432,31 +432,29 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   totalvalue = getProteinDensity(location, effect);
   
   //Get the zone associated with that location
-  localzone = resideInZones(location, mMainZoneList);
+  localzone = &resideInZones(location, mMainZoneList);
   
-  foundone = 0;
   movingchancecheck = 0;
-  randomchance = rand()/(float)RAND_MAX;
+  randomchance = rand()/((float)RAND_MAX+1.0);
   
   //Loop through all the genes in the zone and find the contribution of each gene
-  for (i=localzone.mGeneSoup.begin(),ie=localzone.mGeneSoup.end();i!=ie;++i) {
+  for (i=localzone->mGeneSoup.begin(),ie=localzone->mGeneSoup.end();i!=ie;++i) {
     for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
       
       if (j->first==effect) {
         
         checkvalue = j->second;
-        
+        float delta= ((j->second)/totalvalue);
         //Effect matches, now is the effect contribution bounds capture the chance?
-        if (randomchance>movingchancecheck && randomchance<(movingchancecheck+((j->second)/totalvalue))) {
+        if (randomchance>=movingchancecheck && randomchance<movingchancecheck+delta) {
           //Captured
           
-          foundone = 1;
-          
-          retval = i->mGenes;
-        }else{
-          //Move lowerbound up
-          movingchancecheck = movingchancecheck + ((j->second)/totalvalue);
+          return i->mGenes;
         }
+        
+          //Move lowerbound up
+        movingchancecheck += delta;
+        
       }
     }
   }
