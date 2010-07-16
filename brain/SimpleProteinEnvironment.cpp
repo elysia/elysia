@@ -327,6 +327,8 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   float totalvalue;
   float randomchance;
   float movingchancecheck;
+  float checkvalue;
+  int foundone;
   static Elysia::Genome::Gene retval;
   SimpleProteinEnvironment::ProteinZone localzone;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
@@ -338,16 +340,24 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   //Get the zone associated with that location
   localzone = resideInZones(location, mMainZoneList);
   
+  foundone = 0;
   movingchancecheck = 0;
-  randomchance = rand();
+  randomchance = rand()/(float)RAND_MAX;
   
   //Loop through all the genes in the zone and find the contribution of each gene
   for (i=localzone.mGeneSoup.begin(),ie=localzone.mGeneSoup.end();i!=ie;++i) {
     for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
+      
       if (j->first==effect) {
+        
+        checkvalue = j->second;
+        
         //Effect matches, now is the effect contribution bounds capture the chance?
         if (randomchance>movingchancecheck && randomchance<(movingchancecheck+((j->second)/totalvalue))) {
           //Captured
+          
+          foundone = 1;
+          
           retval = i->mGenes;
         }else{
           //Move lowerbound up
