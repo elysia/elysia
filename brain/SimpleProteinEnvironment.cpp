@@ -85,7 +85,8 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
  *					Return float of the effect's density
 **/
 float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&effect) {
-  float density=0;
+  float density;
+  density = 0;
   ///loop through all protein zones
   for (std::vector<ProteinZone>::iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
     //if our test point is in the zone
@@ -417,18 +418,48 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
  *	Description:	Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
 **/
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
+  float totalvalue;
+  float randomchance;
+  float movingchancecheck;
+  float checkvalue;
+  int foundone;
   static Elysia::Genome::Gene retval;
   SimpleProteinEnvironment::ProteinZone localzone;
-  //Find THE zone that location belongs to; may need to be expanded later to cross multiple zones
+  std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
+  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
+  
+  //Get the total effect at a location
+  totalvalue = getProteinDensity(location, effect);
+  
+  //Get the zone associated with that location
   localzone = resideInZones(location, mMainZoneList);
-
-  std::vector< std::pair<Elysia::Genome::Effect,float> >::const_iterator i,ie;
-  //for (i=localzone.mSoup.begin(),ie=localzone.mSoup.end();i!=ie;++i) {
-	//  if (i->first==effect) {
-	//	  //How to find the gene responsible for this effect?  Return that gene!
-	//  }
-  //}
-
+  
+  foundone = 0;
+  movingchancecheck = 0;
+  randomchance = rand()/(float)RAND_MAX;
+  
+  //Loop through all the genes in the zone and find the contribution of each gene
+  for (i=localzone.mGeneSoup.begin(),ie=localzone.mGeneSoup.end();i!=ie;++i) {
+    for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
+      
+      if (j->first==effect) {
+        
+        checkvalue = j->second;
+        
+        //Effect matches, now is the effect contribution bounds capture the chance?
+        if (randomchance>movingchancecheck && randomchance<(movingchancecheck+((j->second)/totalvalue))) {
+          //Captured
+          
+          foundone = 1;
+          
+          retval = i->mGenes;
+        }else{
+          //Move lowerbound up
+          movingchancecheck = movingchancecheck + ((j->second)/totalvalue);
+        }
+      }
+    }
+  }
   return retval;
 }
 
