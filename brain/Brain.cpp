@@ -124,5 +124,15 @@ Brain::~Brain() {
         delete *i;
     }
 }
+/**
+ * @return the bounds of all genes in the brain, i.e. where the farthest neurons may spout
+ */
+BoundingBox3f3f Brain::getBounds()const{
+    
+    
+//    return BoundingBox3f3f(Vector3f(0,00,00),Vector3f(1000,1000,1000));
+    return mProteinMap->getBounds();
+}
+
 }
 

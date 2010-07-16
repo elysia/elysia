@@ -438,4 +438,20 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
 SimpleProteinEnvironment::~SimpleProteinEnvironment(){
 }
 
+
+BoundingBox3f3f SimpleProteinEnvironment::getBounds()const{
+    BoundingBox3f3f retval(BoundingBox3f3f::null());
+    bool first=true;
+    for (std::vector<ProteinZone>::const_iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
+        if (first)
+            retval=i->getBoundingBox();
+        else
+            retval=retval.merge(i->getBoundingBox());
+        //for (std::vector<GeneSoupStruct>::iterator j=i->mGeneSoup.begin(),je=i->mGeneSoup.end();j!=je;++j) {
+            
+        //}
+    }
+    return retval;
+}
+
 }

@@ -62,6 +62,7 @@ public:
   virtual const Elysia::Genome::Gene& retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect);
 
                              
+  virtual BoundingBox3f3f getBounds()const;
   ~SimpleProteinEnvironment();
 };
 }

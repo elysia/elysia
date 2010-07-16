@@ -50,6 +50,14 @@ void Reshape(int w, int h) {
     gDisplayWidth=w;
     gDisplayHeight=h;
 }
+
+int GraphicsSystem::getWidth()const{
+    return gDisplayWidth;
+
+}
+int GraphicsSystem::getHeight()const{
+    return gDisplayHeight;
+}
 void Display(void) {
     if (!gKillGraphics) {
         glViewport(0,0,gDisplayWidth,gDisplayHeight);
@@ -71,10 +79,13 @@ void Display(void) {
                     int wlim=gToRender.size()/heightPartition;
                     if (gToRender.size()%heightPartition) wlim++;
                     for (int w=0;w<wlim;++w,++i) { 
-                        /*glViewport(w*gDisplayWidth/wlim,
+                        glViewport(w*gDisplayWidth/wlim,
                           h*gDisplayHeight/heightPartition,
                           (w+1)*gDisplayWidth/wlim,
-                          (h+1)*gDisplayHeight/heightPartition);*/
+                          (h+1)*gDisplayHeight/heightPartition);
+                        glMatrixMode(GL_MODELVIEW);
+                        glLoadIdentity();
+                        glScalef(wlim/(float)(gDisplayWidth),heightPartition/(float)(gDisplayHeight),1.0);
                         if (i<(int)gToRender.size())
                             gToRender[i]->draw();
                     }

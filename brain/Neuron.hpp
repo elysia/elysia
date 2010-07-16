@@ -56,7 +56,7 @@ public:
     void tick();
     const Vector3f& getLocation()const {return mNeuronLocation;}
 	ProteinDensity& getProteinDensityStructure();
-
+    std::string getName() const {return std::string();}
     void removeSynapse(Synapse*synapse);
     void attachSynapse(Synapse*synapse);
     void activateComponent(Brain&, float signal);

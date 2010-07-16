@@ -26,7 +26,7 @@ public:
     std::list<Synapse *>mActiveSynapses;
 	std::set<Neuron *>mAllNeurons;
 	std::set<Synapse *>mAllSynapses;
-
+    BoundingBox3f3f getBounds()const;
     void tick();
 	void processSynapse();
 	void processNeuron();

@@ -20,6 +20,7 @@ public:
   virtual const Elysia::Genome::Gene& retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect)=0;
   ///This function returns the entire list (repetitions allowed) of proteins in an area. This is useful when a neuron needs to know a bunch of properties of the area and can search through the vector of returned effects and densities
   virtual std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location)=0;
+  virtual BoundingBox3f3f getBounds()const=0;
   virtual ~ProteinEnvironment(){}
 };
 }
