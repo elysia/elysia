@@ -6,9 +6,9 @@
 #define _INITIAL_STRENGTHEN_	0.04f
 #define _INITIAL_WEAKEN_		-0.01f
 #define _CHANGE_SIZE_			0.1f
-#define _MAX_STRENGHTEN_		0.1f
+#define _MAX_STRENGTHEN_		0.1f
 #define _MAX_WEAKEN_			-0.04f
-#define _STRENGHTHEN_RANGE_		2.0f
+#define _STRENGTHEN_RANGE_		2.0f
 
 namespace Elysia {
 class CellComponent;
