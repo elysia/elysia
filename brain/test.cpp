@@ -254,11 +254,11 @@ void testProteinEnvironment() {
    
    ProteinEnvironment * pe=new SimpleProteinEnvironment;
    pe->initialize(twoOverlappingGenes);
-   std::vector<std::pair<Elysia::Genome::Effect, float> > combinedResult=pe->getCompleteProteinDensity(Vector3f(.5,.5,.5));
+   std::vector<std::pair<Elysia::Genome::Effect, float> > combinedResult=pe->getCompleteProteinDensity(Vector3f(.5,.5,0));
    //check that firstResult matches expectations
-   std::vector<std::pair<Elysia::Genome::Effect, float> > firstResult=pe->getCompleteProteinDensity(Vector3f(1.5,1.5,1.5));
+   std::vector<std::pair<Elysia::Genome::Effect, float> > firstResult=pe->getCompleteProteinDensity(Vector3f(1.5,1.5,0));
    //check that secondResult matches expectations
-   std::vector<std::pair<Elysia::Genome::Effect, float> > secondResult=pe->getCompleteProteinDensity(Vector3f(-.5,-.5,-.5));
+   std::vector<std::pair<Elysia::Genome::Effect, float> > secondResult=pe->getCompleteProteinDensity(Vector3f(-.5,-.5,0));
    float grow_leaf_count=0;
    float grow_neuron_count=0;
    float other_count=0;
@@ -278,19 +278,19 @@ void testProteinEnvironment() {
    assert(grow_neuron_count==0);
    assert(other_count==0);
    //return;//UNCOMMENT TO GET FAILING TEST
-   const Gene * grow_neuron_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+   const Gene * grow_neuron_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0),
                                               GROW_NEURON);
-   const Gene * combined_grow_leaf_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0.5),
+   const Gene * combined_grow_leaf_gene = &pe->retrieveGene(Vector3f(0.5,0.5,0),
                                                      GROW_LEAF);
-   const Gene * first_grow_leaf_gene = &pe->retrieveGene(Vector3f(1.5,1.5,1.5),
+   const Gene * first_grow_leaf_gene = &pe->retrieveGene(Vector3f(1.5,1.5,0),
                                                   GROW_LEAF);
-   const Gene * second_grow_leaf_gene = &pe->retrieveGene(Vector3f(-0.5,-0.5,-0.5),
+   const Gene * second_grow_leaf_gene = &pe->retrieveGene(Vector3f(-0.5,-0.5,0),
                                                    GROW_LEAF);
    assert(grow_neuron_gene->target_region(0).minx()==5);
 
-   //assert(combined_grow_leaf_gene->target_region(0).minx()==5||combined_grow_leaf_gene->target_region(0).minx()==-5);
-   //assert(first_grow_leaf_gene->target_region(0).minx()==5);
-   //assert(second_grow_leaf_gene->target_region(0).minx()==-5);
+   assert(combined_grow_leaf_gene->target_region(0).minx()==5||combined_grow_leaf_gene->target_region(0).minx()==-5);
+   assert(first_grow_leaf_gene->target_region(0).minx()==5);
+   assert(second_grow_leaf_gene->target_region(0).minx()==-5);
 
    delete pe;
 }

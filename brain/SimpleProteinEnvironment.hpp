@@ -45,7 +45,7 @@ public:
   ///Combine 2 zones by dividing it up into parts before reassembling them
   void chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output);
   ///Split and simplify large zone definitions into smaller component zones for calculations (given list of all zones)
-  void zoneIntersection(std::vector<ProteinZone> mMainZoneList);
+  void zoneIntersection(std::vector<ProteinZone>& mMainZoneList);
   ///Rebuild the zone list such that it exclude the 2 zones currently in question
   void rebuildZones(std::vector<ProteinZone>::const_iterator a, std::vector<ProteinZone>::const_iterator b, const std::vector<ProteinZone> &input, std::vector<ProteinZone> &output);
 

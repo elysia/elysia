@@ -275,7 +275,7 @@ void SimpleProteinEnvironment::chopZonePair(const ProteinZone &a, const ProteinZ
  *
  *	Description:	Split and simplify large zone definitions into smaller component zones for calculations.
 **/
-void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone> mMainZoneList){
+void SimpleProteinEnvironment::zoneIntersection(std::vector<ProteinZone>& mMainZoneList){
 	std::vector<ProteinZone> mLocalZoneList;
 	std::vector<ProteinZone> mSwapZoneList;
 	mLocalZoneList = mMainZoneList;
