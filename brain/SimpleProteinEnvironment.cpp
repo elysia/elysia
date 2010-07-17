@@ -421,8 +421,6 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
   float totalvalue;
   float randomchance;
   float movingchancecheck;
-  float checkvalue;
-  int foundone;
   static Elysia::Genome::Gene retval;
   SimpleProteinEnvironment::ProteinZone *localzone;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
@@ -443,7 +441,6 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
       
       if (j->first==effect) {
         
-        checkvalue = j->second;
         float delta= ((j->second)/totalvalue);
         //Effect matches, now is the effect contribution bounds capture the chance?
         if (randomchance>=movingchancecheck && randomchance<movingchancecheck+delta) {
