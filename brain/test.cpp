@@ -142,7 +142,6 @@ void testDevelopment(){
 		createdList.push_back(n);
 	}
 
-
 	for(float i=0;i<2*neuronNumber;i++){
 		Neuron *n = createdList[i];
         n->developSynapse(n->getActivityStats());       
@@ -154,8 +153,7 @@ void testDevelopment(){
 	for(int j=0; j<10; j++){
 		for(float i=0;i<neuronNumber;i++){
 			Neuron *n = createdList[i];
-			if(j== 0 && i==0){n->activateComponent(*brain,100);}
-			//if(j== 2){brain->inactivateNeuron(n);}
+			if(j==0 && i==0){n->activateComponent(*brain,100);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
@@ -300,9 +298,9 @@ void testProteinEnvironment() {
 int runtest(){
     //Elysia::testTwoConnectedNeurons();
 	Elysia::testDevelopment();
-    Elysia::testProteinEnvironment();
+    //Elysia::testProteinEnvironment();
     if (0) for (int i=0;i<30000;++i) {
-        Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
+        //Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
 //        usleep(10);        
     }
 	//getchar();
