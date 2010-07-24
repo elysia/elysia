@@ -27,6 +27,13 @@ Synapse::Synapse(CellComponent * parent){
     mWhere=mBrain->activeSynapseListSentinel();
 }
 
+Synapse::~Synapse(){
+	bool a=detach();
+	if(!a){
+		assert(this);
+	}
+}
+
 /**
  *	@returns TRUE on success, otherwise false
  *

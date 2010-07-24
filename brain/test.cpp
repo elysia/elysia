@@ -78,7 +78,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 2;
+	int neuronNumber = 3;
 
 	for(int i=0;i<neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior

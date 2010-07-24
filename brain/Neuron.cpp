@@ -18,6 +18,11 @@ namespace Elysia {
 Neuron::~Neuron() {
     delete mProteinDensity;
     mBrain->getSpatialSearch()->removeNeighbor(this);
+	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i){
+		delete *i;
+	}
 }
 
 /**
