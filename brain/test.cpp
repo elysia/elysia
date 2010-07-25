@@ -298,9 +298,9 @@ void testProteinEnvironment() {
 int runtest(){
     //Elysia::testTwoConnectedNeurons();
 	Elysia::testDevelopment();
-    //Elysia::testProteinEnvironment();
+    Elysia::testProteinEnvironment();
     if (0) for (int i=0;i<30000;++i) {
-        //Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
+        Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
 //        usleep(10);        
     }
 	//getchar();
