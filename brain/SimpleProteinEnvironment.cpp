@@ -87,16 +87,40 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
 float SimpleProteinEnvironment::getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&effect) {
   float density;
   density = 0;
+  bool first=true;
   ///loop through all protein zones
   for (std::vector<ProteinZone>::iterator i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
     //if our test point is in the zone
     if (i->getBoundingBox().contains(location)) {
         //then accumulate the matching effect (if present) into final result
         density+=i->getSpecificProteinDensity(effect);
+        assert(first);
+        first=false;
+#ifdef NDEBUG
+        return density;//early exit, no overlapping zones
+#endif
     }
   }
   //and return the result
   return density;
+}
+
+SimpleProteinEnvironment::ProteinZone& SimpleProteinEnvironment::getZone(iterator it) {
+    return mMainZoneList[it.which];
+}
+const SimpleProteinEnvironment::ProteinZone&SimpleProteinEnvironment::getZone(iterator it) const{
+    return mMainZoneList[it.which];
+}
+/**
+ *	@param iterator - a pointer to a zone
+ *	@param const Elysia::Genome::Effect &effect - some effect
+ *	@returns effect's density
+ *
+ *	Description:	Get protein density at a location in sequence (given sequence, and protein effect interested in)
+ *					Return float of the effect's density
+**/
+float SimpleProteinEnvironment::getProteinDensity(iterator it, const Elysia::Genome::Effect&effect) {
+    return getZone(it).getSpecificProteinDensity(effect);
 }
 
 /**
@@ -110,6 +134,7 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
   //loop through all the zones
   std::vector< ProteinZone >::const_iterator i,ie;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator j,je;
+  bool first=true;
   for (i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
     //if our test point is in the zone
     if (i->getBoundingBox().contains(location)) {
@@ -117,7 +142,30 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
       for (j=i->mGeneSoup.begin(),je=i->mGeneSoup.end();j!=je;++j){
         proteins.insert(proteins.end(),j->mSoup.begin(),j->mSoup.end());
       }
+      assert(first);
+      first=false;
+#ifdef NDEBUG
+        return proteins;//early exit, no overlapping zones
+#endif
     }
+  }
+  return proteins;
+}
+
+
+/**
+ *	@param const Vector3f &location - some location
+ *	@returns vector of proteins
+ *
+ *	Description:	Find all the proteins at a given point (given location) (repetitions allowed)
+**/
+std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(iterator it){
+    ProteinZone*where=&getZone(it);
+  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair > proteins;
+  std::vector< ProteinZone::GeneSoupStruct >::const_iterator j,je;
+  //Append the effects (i.e. mSoup) to the end of the returned proteins
+  for (j=where->mGeneSoup.begin(),je=where->mGeneSoup.end();j!=je;++j){
+      proteins.insert(proteins.end(),j->mSoup.begin(),j->mSoup.end());
   }
   return proteins;
 }
@@ -410,6 +458,8 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 	return myFail;
 }
 
+
+
 /**
  *
  *	@param const Vector3f &location - location where effect takes place
@@ -419,19 +469,37 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
 **/
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
   float totalvalue;
-  float randomchance;
-  float movingchancecheck;
-  static Elysia::Genome::Gene retval;
   SimpleProteinEnvironment::ProteinZone *localzone;
-  std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
-  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
-  
-  //Get the total effect at a location
-  totalvalue = getProteinDensity(location, effect);
-  
+    
   //Get the zone associated with that location
   localzone = &resideInZones(location, mMainZoneList);
-  
+  return retrieveGeneHelper(localzone,effect);
+}
+
+/**
+ *
+ *	@param const iterator it - which unique protein zone is in question
+ *	@param const Elysia::Genome::Effect &effect - the effect
+ *
+ *	Description:	Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this protein zone
+**/
+const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(iterator it, const Elysia::Genome::Effect&effect){
+  float totalvalue;
+  return retrieveGeneHelper(&getZone(it),effect);
+}
+
+const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGeneHelper(ProteinZone *localzone, const Elysia::Genome::Effect&effect){
+
+  float randomchance;
+  float totalvalue;
+  float movingchancecheck;
+  static Elysia::Genome::Gene retval;
+  std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
+  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
+
+  //Get the total effect at a location
+  totalvalue = localzone->getSpecificProteinDensity(effect);
+
   movingchancecheck = 0;
   randomchance = rand()/((float)RAND_MAX+1.0);
   
@@ -480,4 +548,22 @@ BoundingBox3f3f SimpleProteinEnvironment::getBounds()const{
     return retval;
 }
 
+
+ProteinEnvironment::iterator SimpleProteinEnvironment::begin() const{
+    iterator retval;
+    retval.which=0;
+    return retval;
+}
+ProteinEnvironment::iterator SimpleProteinEnvironment::end() const{
+    iterator retval;
+    retval.which=mMainZoneList.size();
+    return retval;
+}
+void SimpleProteinEnvironment::increment(iterator *it) const{
+    it->which++;
+}
+
+BoundingBox3f3f SimpleProteinEnvironment::getBoundingBox(iterator it)const {
+    return getZone(it).getBoundingBox();
+}
 }
