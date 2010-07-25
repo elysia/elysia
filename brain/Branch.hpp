@@ -15,6 +15,7 @@ class BRAIN_CORE_EXPORT Branch:  public CellComponent{
     float mSignalWeight;
     
    public:
+   ~Branch();
    virtual Neuron*getParentNeuron(){return mParentComponent->getParentNeuron();}
 
     Branch(CellComponent*parent);

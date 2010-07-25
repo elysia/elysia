@@ -24,6 +24,7 @@ class BRAIN_CORE_EXPORT Synapse{
 	std::list<Synapse*>::iterator mWhere;
     friend class Brain;
 public:
+	~Synapse();
     float mSignalWeight;
     int mFiringWindow;		//How long this synapse stays active for
     int mFiringCounter;     //Starts at mFiringWindow and counts down to 0 (then synapse deactivates)

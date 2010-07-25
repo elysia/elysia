@@ -14,8 +14,22 @@ namespace Elysia {
 **/
 Branch::Branch(CellComponent * parent) {
     mParentComponent=parent;
-	mSignalWeight = 1.0f;
+	mSignalWeight = 2.0f;
 }
+
+Branch::~Branch() {
+	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
+         i!=ie;
+         ++i){
+		delete *i;
+	}
+	for(std::vector<Synapse*>::iterator j=mChildSynapses.begin(),je=mChildSynapses.end();
+         j!=je;
+		 ++j){
+		 delete *j;
+	}
+}
+
 
 /**
  *	@returns protein density structure of the parent component of this branch

@@ -73,9 +73,6 @@ int main(int argc, char **argv) {
 
     
 
-	//Generate Neurons have to touch all neurons in development and all neurons firing
-	//Have to touch all synapses, could only touch all active synapses with a vector
-
 	
 
     getchar();
