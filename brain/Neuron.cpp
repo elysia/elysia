@@ -16,7 +16,6 @@ namespace Elysia {
  *	Description:	Deletes the protein density from memory and removes this neuron from the nearest-neighbor search
 **/
 Neuron::~Neuron() {
-	//TODO Send a detach signal to all synapses presently attached
     for (std::ptrdiff_t i=(std::ptrdiff_t)mConnectedSynapses.size()-1;i>=0;--i) {
         mConnectedSynapses[i]->detach();
     }
