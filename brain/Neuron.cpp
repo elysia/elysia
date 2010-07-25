@@ -17,6 +17,10 @@ namespace Elysia {
 **/
 Neuron::~Neuron() {
 	//TODO Send a detach signal to all synapses presently attached
+    for (std::ptrdiff_t i=(std::ptrdiff_t)mConnectedSynapses.size()-1;i>=0;--i) {
+        mConnectedSynapses[i]->detach();
+    }
+    assert(mConnectedSynapses.size()==0);
     delete mProteinDensity;
     mBrain->getSpatialSearch()->removeNeighbor(this);
 	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
