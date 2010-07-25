@@ -16,6 +16,7 @@ namespace Elysia {
  *	Description:	Deletes the protein density from memory and removes this neuron from the nearest-neighbor search
 **/
 Neuron::~Neuron() {
+	//TODO Send a detach signal to all synapses presently attached
     delete mProteinDensity;
     mBrain->getSpatialSearch()->removeNeighbor(this);
 	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
@@ -47,6 +48,13 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     //mWhere=mBrain->activateNeuron(this); //JUST FOR TESTING REMOVE ME LATER
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);
     mBrain->getSpatialSearch()->addNeighbor(this);
+	mBaseBranchiness = BaseBranchiness;
+    mTipBranchiness = TipBranchiness;
+    mTreeDepth = TreeDepth;
+	/* These are not yet used
+    mBaseThreshold;
+    mTipThreshold;
+	*/
 }
 
 /**

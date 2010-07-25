@@ -30,15 +30,15 @@ private:
      * \param target is the DendriteTip that should be activated
      * \returns whether the signal successfully passed through the inter-neuron gap
      */
-    float BaseBranchiness;
-    float TipBranchiness;
-    float TreeDepth;
-    float BaseThreshold;
-    float TipThreshold;
-    float FiringTime;			//Holding signal could be done solely on the synapse. Presently unused
-    float ReceptivityTime;
-    float LearningResponsiveness;
-    float InhibitionSignal;
+    float mBaseBranchiness;
+    float mTipBranchiness;
+    float mTreeDepth;
+    float mBaseThreshold;
+    float mTipThreshold;
+    float mFiringTime;			//Holding signal could be done solely on the synapse. Presently unused
+    float mReceptivityTime;
+    float mLearningResponsiveness;
+    float mInhibitionSignal;
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;

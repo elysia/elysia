@@ -78,7 +78,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 3;
+	int neuronNumber = 4;
 
 	for(int i=0;i<neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
@@ -153,7 +153,7 @@ void testDevelopment(){
 	for(int j=0; j<10; j++){
 		for(float i=0;i<neuronNumber;i++){
 			Neuron *n = createdList[i];
-			if(j==0 && i==0){n->activateComponent(*brain,100);}
+			if(j==0){n->activateComponent(*brain,100);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
