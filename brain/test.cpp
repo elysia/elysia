@@ -19,6 +19,8 @@ void testTwoConnectedNeurons() {
 	dendriteTree = fopen("Dendritic_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
 	int neuronNumber = 2;
+	
+
 	for(int i=0;i<neuronNumber;i++){
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
@@ -48,6 +50,7 @@ void testTwoConnectedNeurons() {
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
 		createdList.push_back(n);
 		}
+
 	for(float i=0;i<neuronNumber;i++){
 		Neuron *n = createdList[i];
         n->developSynapse(n->getActivityStats());       
@@ -70,6 +73,38 @@ void testTwoConnectedNeurons() {
 	fclose(dendriteTree);
     delete brain;
 }
+
+
+//Target is axon, Source is dendrite (?)
+Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float sx, float sy, float sz, float range){
+		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
+        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        sourcebb->set_minx(sx-range);
+        sourcebb->set_miny(sy-range);
+        sourcebb->set_minz(1);
+
+        sourcebb->set_maxx(sx+range);
+        sourcebb->set_maxy(sy+range);
+        sourcebb->set_maxz(1);
+
+        targetbb->set_minx(locx-range);
+        targetbb->set_miny(locy-range);
+        targetbb->set_minz(1);
+
+        targetbb->set_maxx(locx+range);
+        targetbb->set_maxy(locy+range);
+        targetbb->set_maxz(1);
+
+		Vector3f v;
+		v.x = locx;
+		v.y = locy;
+		v.z = 1;
+		Neuron *n;
+		srand(time(NULL));
+		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene));
+		return n;
+	}
 
 void testDevelopment(){
 	ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
@@ -129,8 +164,6 @@ void testDevelopment(){
         targetbb->set_maxx(i+1);
         targetbb->set_maxy(i+1);
         targetbb->set_maxz(i+1);
-
-        
 
 		Vector3f v;
 		v.x = i;
