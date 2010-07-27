@@ -46,7 +46,6 @@ void testTwoConnectedNeurons() {
 		v.y = i;
 		v.z = 1;
 		Neuron *n;
-		srand(time(NULL));
 		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
 		createdList.push_back(n);
 		}
@@ -77,15 +76,16 @@ void testTwoConnectedNeurons() {
 
 //Target is axon, Source is dendrite (?)
 Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float sx, float sy, float sz, float range){
+		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
-        sourcebb->set_minx(sx-range);
-        sourcebb->set_miny(sy-range);
+        sourcebb->set_minx(sx-range*random);
+        sourcebb->set_miny(sy-range*random);
         sourcebb->set_minz(1);
 
-        sourcebb->set_maxx(sx+range);
-        sourcebb->set_maxy(sy+range);
+        sourcebb->set_maxx(sx+range*random);
+        sourcebb->set_maxy(sy+range*random);
         sourcebb->set_maxz(1);
 
         targetbb->set_minx(locx-range);
@@ -97,8 +97,8 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float 
         targetbb->set_maxz(1);
 
 		Vector3f v;
-		v.x = locx;
-		v.y = locy;
+		v.x = locx+range*random;
+		v.y = locy+range*random;
 		v.z = 1;
 		Neuron *n;
 		srand(time(NULL));
@@ -108,71 +108,22 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float 
 
 void testDevelopment(){
 	ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
-
+	srand(time(NULL));
 	Brain *brain= new Brain(myProteinEnvironment);
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
 	int neuronNumber = 4;
-
+	
+	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-        Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
-        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
-        sourcebb->set_minx(50+i);
-        sourcebb->set_miny(50+i);
-        sourcebb->set_minz(50+i);
-
-        sourcebb->set_maxx(150+i);
-        sourcebb->set_maxy(150+i);
-        sourcebb->set_maxz(150+i);
-
-        targetbb->set_minx(i);
-        targetbb->set_miny(i);
-        targetbb->set_minz(i);
-
-        targetbb->set_maxx(i+1);
-        targetbb->set_maxy(i+1);
-        targetbb->set_maxz(i+1);
-
-		Vector3f v;
-		v.x = i;
-		v.y = i;
-		v.z = i;
-		Neuron *n;
-		srand(time(NULL));
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
+		Neuron* n = placeTestNeuron(brain, 10, 10, 1, 100, 100, 1, 5); 
 		createdList.push_back(n);
 	}
-
-		for(int i=100;i<100+neuronNumber;i++){
-        Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
-        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
-        sourcebb->set_minx(0);
-        sourcebb->set_miny(0);
-        sourcebb->set_minz(0);
-
-        sourcebb->set_maxx(20);
-        sourcebb->set_maxy(20);
-        sourcebb->set_maxz(20);
-
-        targetbb->set_minx(i);
-        targetbb->set_miny(i);
-        targetbb->set_minz(i);
-
-        targetbb->set_maxx(i+1);
-        targetbb->set_maxy(i+1);
-        targetbb->set_maxz(i+1);
-
-		Vector3f v;
-		v.x = i;
-		v.y = i;
-		v.z = i;
-		Neuron *n;
-		srand(time(NULL));
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-		createdList.push_back(n);
+	//Region 2
+	for(int i=0;i<neuronNumber;i++){
+		Neuron* n = placeTestNeuron(brain, 100, 100, 1, 10, 10, 1, 5); 
+		createdList.push_back(n); 
 	}
 
 	for(float i=0;i<2*neuronNumber;i++){
