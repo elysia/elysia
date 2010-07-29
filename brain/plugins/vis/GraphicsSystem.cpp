@@ -120,27 +120,30 @@ void myfunc() {
     const char *argv[1];
     argv[0]="elysia";
     int argc=1;
-    if (gKillGraphics ){
-        gKillGraphics=false;
-    }else {
-        glutInit(&argc, (char**)argv);
+    {
+        boost::unique_lock<boost::mutex> lok(Elysia::gRenderLock);
+        if (gKillGraphics ){
+            gKillGraphics=false;
+        }else {
+            glutInit(&argc, (char**)argv);
+            
+        }
+        glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+        glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
+        //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+        gGlutWindowId=glutCreateWindow("This is the window title");
+        glutDisplayFunc(Elysia::Display);
+        glutReshapeFunc(Elysia::Reshape);
+        glutTimerFunc(0,Timer,0);
         
-    }
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-    glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
-    //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
-	gGlutWindowId=glutCreateWindow("This is the window title");
-	glutDisplayFunc(Elysia::Display);
-    glutReshapeFunc(Elysia::Reshape);
-	glutTimerFunc(0,Timer,0);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
     
-	// Enable Front Face
-	//glEnable(GL_CULL_FACE);
-    atexit(Deinitialize);
+        // Enable Front Face
+        //glEnable(GL_CULL_FACE);
+        atexit(Deinitialize);
+    }
 	glutMainLoop();
 
     for (int i=0;i<10;++i) {
