@@ -74,7 +74,7 @@ void testTwoConnectedNeurons() {
 }
 
 
-//Target is axon, Source is dendrite (?)
+//Target is axon, Source is dendrite
 Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float sx, float sy, float sz, float range){
 		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
