@@ -79,7 +79,7 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float 
 		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+        Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
         sourcebb->set_minx(sx-range*random);
         sourcebb->set_miny(sy-range*random);
         sourcebb->set_minz(1);
