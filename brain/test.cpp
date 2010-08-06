@@ -41,6 +41,7 @@ void testTwoConnectedNeurons() {
         targetbb->set_maxy(1-i);
         targetbb->set_maxz(2);
 
+
 		Vector3f v;
 		v.x = i;
 		v.y = i;
@@ -113,7 +114,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 4;
+	int neuronNumber = 1000;
 	
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
@@ -131,10 +132,10 @@ void testDevelopment(){
         n->developSynapse(n->getActivityStats());       
         size_t parent;
         parent = 0;
-        n->visualizeTree(dendriteTree, parent);
+        //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<10; j++){
+	for(int j=0; j<100; j++){
 		for(float i=0;i<neuronNumber;i++){
 			Neuron *n = createdList[i];
 			if(j==0){n->activateComponent(*brain,100);}
