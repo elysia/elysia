@@ -7,6 +7,15 @@
 #include "SimpleSpatialSearch.hpp"
 #include "BrainPlugins.hpp"
 #include "BrainPlugin.hpp"
+
+#define INPUT_NEURONS			100
+#define INPUT_REGION_MINX		0.0f
+#define INPUT_REGION_MAXX		5.0f
+#define INPUT_REGION_MINY		0.0f
+#define INPUT_REGION_MAXY		5.0f
+#define INPUT_REGION_SPACING	0.01f	//This also implies max neuron of (min-max)^2/spacing
+#define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
+
 namespace Elysia {
 
 /**
@@ -21,8 +30,8 @@ Brain::Brain (ProteinEnvironment *proteinMap){
     mSpatialSearch=new SimpleSpatialSearch;
     mAge=0;
     BrainPlugins::constructAll(this).swap(mPlugins);
+	createInputRegion(INPUT_NEURONS);
 }
-
 /**
  *	Description:	One "tick" of the brain simulation code, where the following occurs:
  *					 - processNeuron() called
@@ -126,6 +135,60 @@ Brain::~Brain() {
         delete *i;
     }
 }
+
+Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
+	Genome::Gene gene;
+    Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
+    Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
+    sourcebb->set_minx(0);
+    sourcebb->set_miny(0);
+    sourcebb->set_minz(0);
+    sourcebb->set_maxx(0);
+    sourcebb->set_maxy(0);
+    sourcebb->set_maxz(0);
+    targetbb->set_minx(x-spread);
+    targetbb->set_miny(y-spread);
+    targetbb->set_minz(1);
+    targetbb->set_maxx(x+spread);
+    targetbb->set_maxy(y+spread);
+    targetbb->set_maxz(1);
+	Vector3f v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	Neuron *n;
+	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, v,gene)); 
+	return n;
+}
+
+void Brain::createInputRegion(int neurons){
+	//At present, reserved location of input lobe is <0,0,0> to <5,5,0> neurons are added at 0.01 increments
+	float minx = INPUT_REGION_MINX;
+	float maxx = INPUT_REGION_MAXX;
+	float miny = INPUT_REGION_MINY;
+	float maxy = INPUT_REGION_MAXY;
+	float spacing = INPUT_REGION_SPACING;
+	float spread = INPUT_AXON_SPREAD;
+
+	if(neurons > (maxx-minx)*(maxy-miny)/spacing){
+		assert(this);
+	}
+	Neuron* n;
+	float x=minx;
+	float y=miny;
+
+	for(int i=0;i<neurons;i++){
+		n = createInputNeuron(x,y,0,spread);
+		mInputNeurons.push_back(n);
+		x += spacing;
+		if(x >= maxx){
+			x = minx;
+			y += spacing;
+		}
+	}
+}
+
+
 /**
  * @return the bounds of all genes in the brain, i.e. where the farthest neurons may spout
  */

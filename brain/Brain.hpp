@@ -19,11 +19,15 @@ public:
      * Brain constructor
      * \param proteinMap the map of where proteins are being deployed in the brain so that neurons may grow appropriately. Brain takes ownership of pointer and destroys it
      */
+
+	
     Brain (ProteinEnvironment *proteinMap);
     SimTime mCurTime;					
     float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
+	std::list<Neuron *>mInputNeurons;		//These have no dendritic tree and are directly activated by the world
+	std::list<Neuron *>mOutputNeurons;		//These have no axons and I'll decide how they should behave later
     typedef std::set<Neuron*> NeuronSet;
 	NeuronSet mAllNeurons;
     typedef std::set<Neuron*> SynapseSet;
@@ -39,7 +43,9 @@ public:
     void inactivateNeuron(Neuron *inactiveNeuron);
     std::list<Synapse *>::iterator activeSynapseListSentinel(){return mActiveSynapses.end();}
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
-    ProteinEnvironment* getProteinEnvironment() {
+    Neuron* createInputNeuron(float x, float y, float z, float spread);
+	void createInputRegion(int neurons);
+	ProteinEnvironment* getProteinEnvironment() {
         return mProteinMap;
     }
     SpatialSearch *getSpatialSearch(){

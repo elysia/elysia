@@ -14,7 +14,7 @@ namespace Elysia {
 **/
 Branch::Branch(CellComponent * parent) {
     mParentComponent=parent;
-	mSignalWeight = 2.0f;
+	mSignalWeight = 1.0f;
 }
 
 Branch::~Branch() {
