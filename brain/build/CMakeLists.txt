@@ -343,6 +343,8 @@ SET(BRAINSANDBOX_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp
+  ${BRAIN_SOURCE_DIR}/test_sequence.cpp
+  ${BRAIN_SOURCE_DIR}/test_sequence.hpp
 )
 SET(BRAIN_PLUGIN_DIR ${BRAIN_SOURCE_DIR}/plugins)
 
