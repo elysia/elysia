@@ -16,6 +16,9 @@
 #define INPUT_REGION_SPACING	0.01f	//This also implies max neuron of (min-max)^2/spacing
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
 
+#include <boost/math/distributions/uniform.hpp>
+#include <boost/random.hpp>
+
 namespace Elysia {
 
 /**
@@ -29,9 +32,46 @@ Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
     mSpatialSearch=new SimpleSpatialSearch;
     mAge=0;
+    makeInitialNeurons();
     BrainPlugins::constructAll(this).swap(mPlugins);
 	createInputRegion(INPUT_NEURONS);
 }
+
+void Brain::makeInitialNeurons() {
+    for (ProteinEnvironment::iterator i=mProteinMap->begin();
+         i!=mProteinMap->end();
+         ++i) {
+        Elysia::Genome::Effect growEffect=Elysia::Genome::GROW_NEURON;
+        float neuronDensity =i.getProteinDensity(growEffect);
+        BoundingBox3f3f bounds = i.getBoundingBox();
+        float area = bounds.across().x*bounds.across().y;
+        float expectedNumNeurons=neuronDensity*area;
+        boost::minstd_rand randGen(i.hash());
+        boost::uniform_real<> uni_dist(0.0f,1.0f);
+        boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
+        if (expectedNumNeurons-floor(expectedNumNeurons)<uniform()) {
+            expectedNumNeurons=ceil(expectedNumNeurons);
+        }else {
+            expectedNumNeurons=floor(expectedNumNeurons);
+        }
+        size_t numNeurons=(size_t)expectedNumNeurons;
+        for (size_t n=0;n<numNeurons;++n) {
+            this->addNeuron(bounds, i.retrieveGene(growEffect));
+        }
+        //FIXME add numNeurons to the count in this protein zone so we can add/remove more later
+    }
+}
+
+Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene) {
+    Vector3f v = generationArea.min();
+    v.x+=generationArea.across().x*(rand()/(double)RAND_MAX);
+    v.y+=generationArea.across().y*(rand()/(double)RAND_MAX);
+    v.z+=generationArea.across().z*(rand()/(double)RAND_MAX);
+    Neuron * n= new Neuron(this, 2, 3, 4, v, gene);
+    mAllNeurons.insert(n);
+    return n;
+}
+
 /**
  *	Description:	One "tick" of the brain simulation code, where the following occurs:
  *					 - processNeuron() called

@@ -46,11 +46,10 @@ void testTwoConnectedNeurons() {
 		Vector3f v;
 		v.x = i;
 		v.y = i;
-		v.z = 1;
-		Neuron *n;
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
-		createdList.push_back(n);
-		}
+		v.z = 0;
+		Neuron *n=brain->addNeuron(BoundingBox3f3f(v,v),gene);
+        createdList.push_back(n);
+    }
 
 	for(int i=0;i<neuronNumber;i++){
 		Neuron *n = createdList[i];
@@ -85,7 +84,7 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float 
         sourcebb->set_minx(sx-range*random);
         sourcebb->set_miny(sy-range*random);
         sourcebb->set_minz(1);
-
+        
         sourcebb->set_maxx(sx+range*random);
         sourcebb->set_maxy(sy+range*random);
         sourcebb->set_maxz(1);
@@ -104,7 +103,8 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float 
 		v.z = 1;
 		Neuron *n;
 		srand(time(NULL));
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene));
+        BoundingBox3f3f bb(Vector3f(locx,locy,0),range);
+        n=brain->addNeuron(bb,gene);
 		return n;
 	}
 

@@ -28,6 +28,12 @@ public:
         bool operator ==(const iterator&other) const{
             return other.which==which&&other.parent==parent;
         }
+        bool operator !=(const iterator&other) const{
+            return !(*this==other);
+        }
+        size_t hash() const {
+            return which;
+        }
         BoundingBox3f3f getBoundingBox() const {
             return parent->getBoundingBox(*this);
         }

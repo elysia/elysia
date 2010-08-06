@@ -14,6 +14,7 @@ class BRAIN_CORE_EXPORT Brain {
     ///creature maturity from 0(just born) to 1(adult)
     float mAge;
     std::vector<BrainPlugin*> mPlugins;
+    void makeInitialNeurons();
 public:
     /**
      * Brain constructor
@@ -36,6 +37,7 @@ public:
     void tick();
 	void processSynapse();
 	void processNeuron();
+    Neuron *addNeuron(const BoundingBox3f3f &generationArea, const Genome::Gene &);
     ~Brain();
     std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);
     std::list<Neuron *>::iterator activateNeuron(Neuron *activeNeuron);
