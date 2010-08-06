@@ -21,7 +21,8 @@ void testTwoConnectedNeurons() {
 	int neuronNumber = 2;
 	
 
-	for(int i=0;i<neuronNumber;i++){
+	for(int j=0;j<neuronNumber;j++){
+        float i=(float)j;
         Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
@@ -51,7 +52,7 @@ void testTwoConnectedNeurons() {
 		createdList.push_back(n);
 		}
 
-	for(float i=0;i<neuronNumber;i++){
+	for(int i=0;i<neuronNumber;i++){
 		Neuron *n = createdList[i];
         n->developSynapse(n->getActivityStats());       
         size_t parent;
@@ -60,7 +61,7 @@ void testTwoConnectedNeurons() {
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 	for(int j=0; j<10; j++){
-		for(float i=0;i<neuronNumber;i++){
+		for(int i=0;i<neuronNumber;i++){
 			Neuron *n = createdList[i];
 			if(j== 0 && i==0){n->activateComponent(*brain,100);}
 			//if(j== 2){brain->inactivateNeuron(n);}
