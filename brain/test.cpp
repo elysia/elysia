@@ -115,7 +115,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 1000;
+	int neuronNumber = 100;
 	
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){

@@ -60,7 +60,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mTipBranchiness = TipBranchiness;
     mTreeDepth = TreeDepth;
     ProteinEnvironment::iterator iter=brain->getProteinEnvironment()->getIterator(mNeuronLocation);
-    assert(iter!=brain->getProteinEnvironment()->end());
+    //assert(iter!=brain->getProteinEnvironment()->end());		//Commented out for test, since we are not making genes in the standard way during testing
     if (iter!=brain->getProteinEnvironment()->end()) {
         mBrain->incrementNumNeurons(iter);//increment density count
     }

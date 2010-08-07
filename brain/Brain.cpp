@@ -242,6 +242,12 @@ void Brain::createInputRegion(int neurons){
 	}
 }
 
+void Brain::fireInputNeuron(int neuronNumber){
+	Neuron* n= mInputNeurons[neuronNumber];
+	this -> activateNeuron(n);
+}
+
+
 
 /**
  * @return the bounds of all genes in the brain, i.e. where the farthest neurons may spout

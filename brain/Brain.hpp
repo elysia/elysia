@@ -40,8 +40,8 @@ public:
     float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
-	std::list<Neuron *>mInputNeurons;		//These have no dendritic tree and are directly activated by the world
-	std::list<Neuron *>mOutputNeurons;		//These have no axons and I'll decide how they should behave later
+	std::vector<Neuron *>mInputNeurons;		    //These have no dendritic tree and are directly activated by the world
+	std::vector<Neuron *>mOutputNeurons;		//These have no axons and I'll decide how they should behave later
     typedef std::set<Neuron*> NeuronSet;
 	NeuronSet mAllNeurons;
     typedef std::set<Neuron*> SynapseSet;
@@ -60,6 +60,7 @@ public:
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
     Neuron* createInputNeuron(float x, float y, float z, float spread);
 	void createInputRegion(int neurons);
+	void Brain::fireInputNeuron(int neuronNumber);
 	ProteinEnvironment* getProteinEnvironment() {
         return mProteinMap;
     }
