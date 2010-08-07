@@ -151,8 +151,6 @@ void testDevelopment(){
 }
 
 
-
-
 void testResultHelper(const std::vector<std::pair<Elysia::Genome::Effect, float> >&combinedResult, float*grow_leaf_count,float*grow_neuron_count,float*other_count){
    using namespace Elysia::Genome;
     *grow_neuron_count=0;

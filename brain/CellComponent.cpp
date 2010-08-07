@@ -31,12 +31,16 @@ CellComponent::CellComponent() {
 **/
 
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, 
-									  float baseBranchiness, float tipBranchiness, float treeDepth, int depth) {
+									  float baseBranchiness, float tipBranchiness, float treeDepth, float baseThreshold, float tipThreshold, int depth) {
     float branchiness;
     if(depth>treeDepth/2+parentRandomDepthDeterminer){
         branchiness = tipBranchiness;
+		mThreshold = tipThreshold;
     }
-    else{branchiness = baseBranchiness;}
+    else{
+		branchiness = baseBranchiness;
+		mThreshold = baseThreshold;
+	}
 
     assert(branchiness<(1<<23) );//using floats in a manner that will not cooperate with floats after a few millions
     size_t childSize=mChildBranches.size();
@@ -69,7 +73,7 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
        mChildBranches.pop_back();
     }    
     for (size_t i=0;i<mChildBranches.size();++i) {
-        mChildBranches[i]->syncBranchDensity(parentRandomBranchDeterminer, parentRandomDepthDeterminer, baseBranchiness, tipBranchiness, treeDepth, depth + 1);
+        mChildBranches[i]->syncBranchDensity(parentRandomBranchDeterminer, parentRandomDepthDeterminer, baseBranchiness, tipBranchiness, treeDepth, baseThreshold, tipThreshold, depth + 1);
     }
 }
 

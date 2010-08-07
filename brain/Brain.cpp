@@ -81,7 +81,7 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
     v.x+=generationArea.across().x*(rand()/(double)RAND_MAX);
     v.y+=generationArea.across().y*(rand()/(double)RAND_MAX);
     v.z+=generationArea.across().z*(rand()/(double)RAND_MAX);
-    Neuron * n= new Neuron(this, 2, 3, 4, v, gene);
+    Neuron * n= new Neuron(this, 2, 3, 4, 2, 2, v, gene);
     mAllNeurons.insert(n);
     return n;
 }
@@ -211,7 +211,7 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
 	v.y = y;
 	v.z = z;
 	Neuron *n;
-	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, v,gene)); 
+	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene)); 
 	return n;
 }
 

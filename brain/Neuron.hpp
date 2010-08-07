@@ -49,7 +49,7 @@ private:
     virtual Neuron*getParentNeuron(){return this;}
 
 public:
-    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&spawningGene);
+    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&spawningGene);
     ~Neuron();
     void fire();
     ///Simulates one millisecond of neural time

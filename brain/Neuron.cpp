@@ -46,7 +46,7 @@ Neuron::~Neuron() {
  *					The branch density is synched based upon some random parameters and some base parameters, as well as a defined tree depth
  *					This neuron is added to the nearest neighbor spatial search
 **/
-Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
     mDevelopmentCounter = 0;
@@ -54,7 +54,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     //mWhere=mBrain->activateNeuron(this); //JUST FOR TESTING REMOVE ME LATER
-    this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, 0);
+    this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, BaseThreshold, TipThreshold, 0);
     mBrain->getSpatialSearch()->addNeighbor(this);
 	mBaseBranchiness = BaseBranchiness;
     mTipBranchiness = TipBranchiness;
@@ -64,10 +64,8 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     if (iter!=brain->getProteinEnvironment()->end()) {
         mBrain->incrementNumNeurons(iter);//increment density count
     }
-	/* These are not yet used
-    mBaseThreshold;
-    mTipThreshold;
-	*/
+    mBaseThreshold = BaseThreshold;
+    mTipThreshold = TipThreshold;
 }
 
 /**

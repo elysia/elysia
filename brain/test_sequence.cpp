@@ -50,7 +50,7 @@ void testTwoConnectedNeurons_seq() {
 		v.y = i;
 		v.z = 1;
 		Neuron *n;
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene)); 
+		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene)); 
 		createdList.push_back(n);
 	} // for
 
@@ -109,7 +109,7 @@ Neuron* placeTestSeqNeuron(Brain* brain, float locx, float locy, float locz, flo
 	v.z = 1;
 	Neuron *n;
 	srand((unsigned int)time(NULL));
-	brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, v,gene));
+	brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene));
 	return n;
 }
 
