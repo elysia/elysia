@@ -10,7 +10,7 @@
 #include "SimpleProteinEnvironment.hpp"
 #include <time.h>
 
-typedef std::vector<std::pair<Elysia::Genome::Effect, float>> CombinedResults;
+typedef std::vector<std::pair<Elysia::Genome::Effect, float> > CombinedResults;
 
 namespace Elysia {
 

@@ -60,7 +60,7 @@ public:
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
     Neuron* createInputNeuron(float x, float y, float z, float spread);
 	void createInputRegion(int neurons);
-	void Brain::fireInputNeuron(int neuronNumber);
+	void fireInputNeuron(int neuronNumber);
 	ProteinEnvironment* getProteinEnvironment() {
         return mProteinMap;
     }
