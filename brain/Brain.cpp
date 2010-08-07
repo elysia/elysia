@@ -32,32 +32,46 @@ Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
     mSpatialSearch=new SimpleSpatialSearch;
     mAge=0;
+	createInputRegion(INPUT_NEURONS);
     makeInitialNeurons();
     BrainPlugins::constructAll(this).swap(mPlugins);
-	createInputRegion(INPUT_NEURONS);
 }
 
+void Brain::syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::iterator environmentIterator){
+    Elysia::Genome::Effect growEffect=Elysia::Genome::GROW_NEURON;
+    float neuronDensity =environmentIterator.getProteinDensity(growEffect);
+    BoundingBox3f3f bounds = environmentIterator.getBoundingBox();
+    float area = bounds.across().x*bounds.across().y;
+    float expectedNumNeurons=neuronDensity*area;
+    boost::minstd_rand randGen(index);
+    boost::uniform_real<> uni_dist(0.0f,1.0f);
+    boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
+    if (expectedNumNeurons-floor(expectedNumNeurons)<uniform()) {
+        expectedNumNeurons=ceil(expectedNumNeurons);
+    }else {
+        expectedNumNeurons=floor(expectedNumNeurons);
+    }
+    int numNeurons=(unsigned int)expectedNumNeurons;
+    if (numNeurons<mNumNeurons[index]) {
+        //FIXME: do we want to delete excess neurons
+    }
+    for (int n=mNumNeurons[index];n<numNeurons;++n) {
+        this->addNeuron(bounds, environmentIterator.retrieveGene(growEffect));
+    }
+    if (mNumNeurons[index]!=numNeurons) {
+        fprintf(stderr,"The index count isn't equal to the sync count:\nthis could happen if a neuron lies at the exact edge of a lobe,\nso don't panic, but verify that this is indeed the case\nand the wrong count got updated for that neuron");
+    }
+}
+
+
+
 void Brain::makeInitialNeurons() {
+    unsigned int index=0;
     for (ProteinEnvironment::iterator i=mProteinMap->begin();
          i!=mProteinMap->end();
-         ++i) {
-        Elysia::Genome::Effect growEffect=Elysia::Genome::GROW_NEURON;
-        float neuronDensity =i.getProteinDensity(growEffect);
-        BoundingBox3f3f bounds = i.getBoundingBox();
-        float area = bounds.across().x*bounds.across().y;
-        float expectedNumNeurons=neuronDensity*area;
-        boost::minstd_rand randGen(i.hash());
-        boost::uniform_real<> uni_dist(0.0f,1.0f);
-        boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
-        if (expectedNumNeurons-floor(expectedNumNeurons)<uniform()) {
-            expectedNumNeurons=ceil(expectedNumNeurons);
-        }else {
-            expectedNumNeurons=floor(expectedNumNeurons);
-        }
-        size_t numNeurons=(size_t)expectedNumNeurons;
-        for (size_t n=0;n<numNeurons;++n) {
-            this->addNeuron(bounds, i.retrieveGene(growEffect));
-        }
+         ++i,++index) {
+        mNumNeurons[i.uid()]=0;
+        syncEnvironmentNeurons(index,i);
         //FIXME add numNeurons to the count in this protein zone so we can add/remove more later
     }
 }

@@ -31,7 +31,7 @@ public:
         bool operator !=(const iterator&other) const{
             return !(*this==other);
         }
-        size_t hash() const {
+        size_t uid() const {
             return which;
         }
         BoundingBox3f3f getBoundingBox() const {
@@ -65,6 +65,8 @@ public:
   virtual float getProteinDensity(iterator it, const Elysia::Genome::Effect&)=0;
   ///This function looks through the genes present in the location and their densities and selects the gene most likely to have contributed to the desored effects' density at the moment.
   virtual const Elysia::Genome::Gene& retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect)=0;
+  /// returns an iterator to the location specified by the vector3f
+  virtual ProteinEnvironment::iterator getIterator(const Vector3f& where)=0;
   ///This function looks through the genes present in the location and their densities and selects the gene most likely to have contributed to the desored effects' density at the moment.
   virtual const Elysia::Genome::Gene& retrieveGene(iterator location, const Elysia::Genome::Effect&effect)=0;
   ///This function returns the entire list (repetitions allowed) of proteins in an area. This is useful when a neuron needs to know a bunch of properties of the area and can search through the vector of returned effects and densities

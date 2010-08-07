@@ -50,6 +50,8 @@ public:
   BoundingBox3f3f getBoundingBox(iterator )const;
   ///Initialize the main-zone-list by reading the genes and creating 1 zone per gene from Genome (and simplify)
   ProteinEnvironment& initialize(const Elysia::Genome::Genome&genes);
+  /// returns an iterator to the location specified by the vector3f
+  ProteinEnvironment::iterator getIterator(const Vector3f& where);
   ///Get protein density at a location (given location, and protein effect interested in)
   float getProteinDensity(const Vector3f &location, const Elysia::Genome::Effect&);
   ///Get protein density at a location (given location, and protein effect interested in)

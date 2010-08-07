@@ -75,6 +75,16 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
   }
   return retval;
 }
+ProteinEnvironment::iterator SimpleProteinEnvironment::getIterator(const Vector3f& queryPoint){
+    iterator retval;
+    for(size_t i=0;i<mMainZoneList.size();++i){
+        if (mMainZoneList[i].mBounds.contains(queryPoint)) {
+            retval.which=i;
+            return retval;
+        }
+    }
+    return end();
+}
 
 /**
  *	@param const Vector3f &location - some location

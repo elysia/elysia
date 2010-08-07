@@ -16,6 +16,11 @@ namespace Elysia {
  *	Description:	Deletes the protein density from memory and removes this neuron from the nearest-neighbor search
 **/
 Neuron::~Neuron() {
+    ProteinEnvironment::iterator iter = mBrain->getProteinEnvironment()->getIterator(mNeuronLocation);
+    assert(iter!=mBrain->getProteinEnvironment()->end());
+    if (iter!=mBrain->getProteinEnvironment()->end()) {
+        mBrain->decrementNumNeurons(iter);//decrement density count
+    }
     for (std::ptrdiff_t i=(std::ptrdiff_t)mConnectedSynapses.size()-1;i>=0;--i) {
         mConnectedSynapses[i]->detach();
     }
@@ -54,6 +59,11 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
 	mBaseBranchiness = BaseBranchiness;
     mTipBranchiness = TipBranchiness;
     mTreeDepth = TreeDepth;
+    ProteinEnvironment::iterator iter=brain->getProteinEnvironment()->getIterator(mNeuronLocation);
+    assert(iter!=brain->getProteinEnvironment()->end());
+    if (iter!=brain->getProteinEnvironment()->end()) {
+        mBrain->incrementNumNeurons(iter);//increment density count
+    }
 	/* These are not yet used
     mBaseThreshold;
     mTipThreshold;
