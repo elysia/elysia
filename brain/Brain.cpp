@@ -43,7 +43,7 @@ void Brain::syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::itera
     BoundingBox3f3f bounds = environmentIterator.getBoundingBox();
     float area = bounds.across().x*bounds.across().y;
     float expectedNumNeurons=neuronDensity*area;
-    boost::minstd_rand randGen(index);
+    boost::minstd_rand randGen(1+index);//needs to be >0
     boost::uniform_real<> uni_dist(0.0f,1.0f);
     boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
     if (expectedNumNeurons-floor(expectedNumNeurons)<uniform()) {

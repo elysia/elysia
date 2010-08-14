@@ -16,7 +16,7 @@ int gGlutWindowId=0;
 std::tr1::shared_ptr<boost::thread> gRenderThread;
 namespace Elysia {
 std::vector<Visualization*> gToRender;
-boost::mutex *gRenderLock= new boost::mutex;
+std::auto_ptr<boost::mutex>gRenderLock (new boost::mutex);
 boost::condition_variable gRenderCompleteCondition;
 boost::condition_variable gRenderCondition;
 
@@ -115,6 +115,13 @@ void Timer(int extra)
             gShutdownComplete=true;
         }
 	}
+
+void Idly() {
+    if (!gInvalidDisplayFunction) {
+        glutPostRedisplay();
+    }
+}
+
 volatile bool myfuncInitialized=false;
 void myfunc() {
         // Enable Front Face
@@ -138,7 +145,8 @@ void myfunc() {
         glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
 
         gGlutWindowId=glutCreateWindow("This is the window title");
-        glutIdleFunc(Elysia::Display);
+        glutIdleFunc(Idly);
+        glutDisplayFunc(Elysia::Display);
         glutReshapeFunc(Elysia::Reshape);
 //        glutTimerFunc(0,Timer,0);
         

@@ -11,7 +11,7 @@
 #include "Neuron.hpp"
 #include "Brain.hpp"
 namespace Elysia {
-extern boost::mutex *gRenderLock;
+extern std::auto_ptr<boost::mutex >gRenderLock;
 extern boost::condition_variable gRenderCondition;
 extern boost::condition_variable gRenderCompleteCondition;
 
