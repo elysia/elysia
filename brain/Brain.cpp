@@ -13,7 +13,7 @@
 #define INPUT_REGION_MAXX		5.0f
 #define INPUT_REGION_MINY		0.0f
 #define INPUT_REGION_MAXY		5.0f
-#define INPUT_REGION_SPACING	0.01f	//This also implies max neuron of (min-max)^2/spacing
+#define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of (min-max)^2/spacing
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
 
 #include <boost/math/distributions/uniform.hpp>
@@ -80,8 +80,9 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
     Vector3f v = generationArea.min();
     v.x+=generationArea.across().x*(rand()/(double)RAND_MAX);
     v.y+=generationArea.across().y*(rand()/(double)RAND_MAX);
-    v.z+=generationArea.across().z*(rand()/(double)RAND_MAX);
-    Neuron * n= new Neuron(this, 2, 3, 4, 2, 2, v, gene);
+	v.z=0;	 //Fixing z to 0 for now.
+    //v.z+=generationArea.across().z*(rand()/(double)RAND_MAX); 
+	Neuron *n = new Neuron(this, 2, 3, 4, 1, 1, v, gene);
     mAllNeurons.insert(n);
     return n;
 }
@@ -202,10 +203,10 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
     sourcebb->set_maxz(0);
     targetbb->set_minx(x-spread);
     targetbb->set_miny(y-spread);
-    targetbb->set_minz(1);
+    targetbb->set_minz(0);
     targetbb->set_maxx(x+spread);
     targetbb->set_maxy(y+spread);
-    targetbb->set_maxz(1);
+    targetbb->set_maxz(0);
 	Vector3f v;
 	v.x = x;
 	v.y = y;

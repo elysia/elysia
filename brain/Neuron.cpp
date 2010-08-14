@@ -72,7 +72,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
  *	Description:	Fires neuron into all synapses connected to it
 **/
 void Neuron::fire() {
-	//printf("fire");
+	printf("fire");
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {

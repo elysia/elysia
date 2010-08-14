@@ -28,19 +28,19 @@ void testTwoConnectedNeurons() {
         Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
         sourcebb->set_minx(i);
         sourcebb->set_miny(i);
-        sourcebb->set_minz(i);
+        sourcebb->set_minz(0);
 
         sourcebb->set_maxx(i);
         sourcebb->set_maxy(i);
-        sourcebb->set_maxz(i);
+        sourcebb->set_maxz(0);
 
         targetbb->set_minx(i);
         targetbb->set_miny(i);
-        targetbb->set_minz(i);
+        targetbb->set_minz(0);
 
         targetbb->set_maxx(1-i);
         targetbb->set_maxy(1-i);
-        targetbb->set_maxz(2);
+        targetbb->set_maxz(0);
 
 
 		Vector3f v;
@@ -76,33 +76,32 @@ void testTwoConnectedNeurons() {
 
 
 //Target is axon, Source is dendrite
-Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float locz, float sx, float sy, float sz, float range){
+Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy, float range){
 		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
-        sourcebb->set_minx(sx-range*random);
-        sourcebb->set_miny(sy-range*random);
-        sourcebb->set_minz(1);
+        sourcebb->set_minx(sx-range);
+        sourcebb->set_miny(sy-range);
+        sourcebb->set_minz(0);
         
-        sourcebb->set_maxx(sx+range*random);
-        sourcebb->set_maxy(sy+range*random);
-        sourcebb->set_maxz(1);
+        sourcebb->set_maxx(sx+range);
+        sourcebb->set_maxy(sy+range);
+        sourcebb->set_maxz(0);
 
         targetbb->set_minx(locx-range);
         targetbb->set_miny(locy-range);
-        targetbb->set_minz(1);
+        targetbb->set_minz(0);
 
         targetbb->set_maxx(locx+range);
         targetbb->set_maxy(locy+range);
-        targetbb->set_maxz(1);
+        targetbb->set_maxz(0);
 
 		Vector3f v;
-		v.x = locx+range*random;
-		v.y = locy+range*random;
-		v.z = 1;
+		v.x = locx;		//+range*random;
+		v.y = locy;		//+range*random;
+		v.z = 0;
 		Neuron *n;
-		srand(time(NULL));
         BoundingBox3f3f bb(Vector3f(locx,locy,0),range);
         n=brain->addNeuron(bb,gene);
 		return n;
@@ -115,16 +114,17 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 100;
+	int neuronNumber = 3;
 	
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 10, 10, 1, 100, 100, 1, 5); 
+		Neuron* n = placeTestNeuron(brain, 30, 30, 100, 100, 5); 
 		createdList.push_back(n);
 	}
+
 	//Region 2
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 100, 100, 1, 10, 10, 1, 5); 
+		Neuron* n = placeTestNeuron(brain, 100, 100, 30, 30, 5); 
 		createdList.push_back(n); 
 	}
 
@@ -137,7 +137,7 @@ void testDevelopment(){
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
 	for(int j=0; j<100; j++){
-		for(float i=0;i<neuronNumber;i++){
+		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			if(j==0){n->activateComponent(*brain,100);}
 			n->tick();

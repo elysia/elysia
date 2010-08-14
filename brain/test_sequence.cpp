@@ -108,7 +108,6 @@ Neuron* placeTestSeqNeuron(Brain* brain, float locx, float locy, float locz, flo
 	v.y = locy+range*random;
 	v.z = 1;
 	Neuron *n;
-	srand((unsigned int)time(NULL));
 	brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene));
 	return n;
 }
