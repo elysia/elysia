@@ -17,7 +17,7 @@ namespace Elysia {
 **/
 Neuron::~Neuron() {
     ProteinEnvironment::iterator iter = mBrain->getProteinEnvironment()->getIterator(mNeuronLocation);
-    assert(iter!=mBrain->getProteinEnvironment()->end());
+    //assert(iter!=mBrain->getProteinEnvironment()->end()); commented uot for test since we are not making genes in the standard way
     if (iter!=mBrain->getProteinEnvironment()->end()) {
         mBrain->decrementNumNeurons(iter);//decrement density count
     }

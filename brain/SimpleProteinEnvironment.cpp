@@ -80,6 +80,7 @@ ProteinEnvironment::iterator SimpleProteinEnvironment::getIterator(const Vector3
     for(size_t i=0;i<mMainZoneList.size();++i){
         if (mMainZoneList[i].mBounds.contains(queryPoint)) {
             retval.which=i;
+            retval.parent=this;
             return retval;
         }
     }
@@ -562,11 +563,15 @@ BoundingBox3f3f SimpleProteinEnvironment::getBounds()const{
 ProteinEnvironment::iterator SimpleProteinEnvironment::begin() const{
     iterator retval;
     retval.which=0;
+    const ProteinEnvironment * thus=this;
+    retval.parent=const_cast<ProteinEnvironment*>(thus);
     return retval;
 }
 ProteinEnvironment::iterator SimpleProteinEnvironment::end() const{
     iterator retval;
     retval.which=mMainZoneList.size();
+    const ProteinEnvironment * thus=this;
+    retval.parent=const_cast<ProteinEnvironment*>(thus);
     return retval;
 }
 void SimpleProteinEnvironment::increment(iterator *it) const{

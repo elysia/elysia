@@ -13,8 +13,8 @@ namespace Elysia { namespace Genome {
 class BRAIN_CORE_EXPORT ProteinEnvironment {
 public:
     class iterator{
-        ProteinEnvironment *parent;
     public:
+        ProteinEnvironment *parent;
         int which;
         iterator operator++(int) {
             iterator retval=*this;
