@@ -16,7 +16,7 @@ int gGlutWindowId=0;
 std::tr1::shared_ptr<boost::thread> gRenderThread;
 namespace Elysia {
 std::vector<Visualization*> gToRender;
-boost::mutex gRenderLock;
+boost::mutex *gRenderLock= new boost::mutex;
 boost::condition_variable gRenderCompleteCondition;
 boost::condition_variable gRenderCondition;
 
@@ -24,7 +24,7 @@ boost::condition_variable gRenderCondition;
 void Deinitialize() {
     if (gKillGraphics) {
         {
-            boost::unique_lock<boost::mutex> renderLock(Elysia::gRenderLock);    
+            boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);    
             Elysia::gToRender.clear();
             Elysia::gRenderCondition.notify_one();
             Elysia::gRenderCompleteCondition.notify_one();
@@ -33,7 +33,7 @@ void Deinitialize() {
         gKillGraphics=false;
         fflush(stdout);
         fflush(stderr);
-        while(!gShutdownComplete);
+//        while(!gShutdownComplete);
 #ifdef _WIN32
         Sleep(1000);
 #else
@@ -63,7 +63,7 @@ void Display(void) {
         glViewport(0,0,gDisplayWidth,gDisplayHeight);
         glClear(GL_COLOR_BUFFER_BIT);
         {
-            boost::unique_lock<boost::mutex> lok(gRenderLock);
+            boost::unique_lock<boost::mutex> lok(*gRenderLock);
             gRenderCompleteCondition.notify_one();
             if (gToRender.size()) {
                 gRenderCondition.wait(lok);
@@ -93,7 +93,7 @@ void Display(void) {
             }
         }
         {
-            boost::unique_lock<boost::mutex> lok(gRenderLock);
+            boost::unique_lock<boost::mutex> lok(*gRenderLock);
             gRenderCompleteCondition.notify_one();
         }
         glFlush();
@@ -115,35 +115,39 @@ void Timer(int extra)
             gShutdownComplete=true;
         }
 	}
-
+volatile bool myfuncInitialized=false;
 void myfunc() {
+        // Enable Front Face
+        //glEnable(GL_CULL_FACE);
+        atexit(Deinitialize);
     const char *argv[1];
     argv[0]="elysia";
     int argc=1;
+    static bool firstTime=true;
     {
-        boost::unique_lock<boost::mutex> lok(Elysia::gRenderLock);
+        boost::unique_lock<boost::mutex> lok(*Elysia::gRenderLock);
         if (gKillGraphics ){
             gKillGraphics=false;
         }else {
-            glutInit(&argc, (char**)argv);
             
         }
+        if (firstTime)
+            glutInit(&argc, (char**)argv);
+        firstTime=false;
         glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
         glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
-        //glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE,GLUT_ACTION_GLUTMAINLOOP_RETURNS);
+
         gGlutWindowId=glutCreateWindow("This is the window title");
-        glutDisplayFunc(Elysia::Display);
+        glutIdleFunc(Elysia::Display);
         glutReshapeFunc(Elysia::Reshape);
-        glutTimerFunc(0,Timer,0);
+//        glutTimerFunc(0,Timer,0);
         
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
-    
-        // Enable Front Face
-        //glEnable(GL_CULL_FACE);
-        atexit(Deinitialize);
+        Elysia::gRenderCondition.notify_one();
     }
+    myfuncInitialized=true;
 	glutMainLoop();
 
     for (int i=0;i<10;++i) {
@@ -158,7 +162,10 @@ GraphicsSystem::GraphicsSystem () {
         mRenderThread=gRenderThread;
         gKillGraphics=false;
     }else {
+        boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);    
+        
         std::tr1::shared_ptr<boost::thread> x(new boost::thread(&myfunc));
+        gRenderCondition.wait(renderLock);        
         mRenderThread=gRenderThread=x;
         gKillGraphics=false;
 

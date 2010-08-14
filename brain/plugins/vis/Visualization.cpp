@@ -11,7 +11,7 @@
 #include "Neuron.hpp"
 #include "Brain.hpp"
 namespace Elysia {
-extern boost::mutex gRenderLock;
+extern boost::mutex *gRenderLock;
 extern boost::condition_variable gRenderCondition;
 extern boost::condition_variable gRenderCompleteCondition;
 
@@ -23,7 +23,7 @@ BrainPlugin* makeVisualization(Brain*b) {
     return v;
 }
 Visualization::Visualization(){
-    boost::unique_lock<boost::mutex> renderLock(gRenderLock);
+    boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
     }
@@ -34,12 +34,12 @@ Visualization::Visualization(){
 }
 void Visualization::update() {
     {
-        boost::unique_lock<boost::mutex> renderLock(gRenderLock);    
+        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);    
         gRenderCondition.notify_one();
     }
 
     {
-        boost::unique_lock<boost::mutex> renderLock(gRenderLock);    
+        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);    
         gRenderCompleteCondition.wait(renderLock);
     }
 }
@@ -281,7 +281,7 @@ void Visualization::draw() {
 }
 Visualization::~Visualization() {
     {
-        boost::unique_lock<boost::mutex> renderLock(gRenderLock);
+        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
         std::vector<Visualization*>::iterator where=std::find(gToRender.begin(),gToRender.end(),this);
         if (where!=gToRender.end()) {
             gToRender.erase(where);
