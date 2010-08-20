@@ -204,4 +204,5 @@ void Neuron::tick(){
 	}
 	mActivity = 0;
 }
+
 }

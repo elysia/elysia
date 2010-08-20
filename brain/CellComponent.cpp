@@ -30,6 +30,14 @@ CellComponent::CellComponent() {
  *						 based on the new parameters (either creating new branches or killing existing ones
 **/
 
+/**
+*	Description:	Sets the neuron's activity to a value. Presently useful for exciting input neurons
+*					Which lack synapses to get excited in the normal way.
+**/
+void CellComponent::setActivity(float activity){
+	mActivity = activity;
+}
+
 void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, 
 									  float baseBranchiness, float tipBranchiness, float treeDepth, float baseThreshold, float tipThreshold, int depth) {
     float branchiness;

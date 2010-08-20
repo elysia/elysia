@@ -65,6 +65,7 @@ public:
 	ActivityStats& getActivityStats(){ return *this; }
 	void developSynapse(const ActivityStats& stats);
 	void visualizeTree(FILE *dendriteTree, size_t parent);
+	
 	Brain* getBrain() {return mBrain;}
 };
 }

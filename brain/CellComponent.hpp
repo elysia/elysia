@@ -13,8 +13,8 @@ class ActivityStats;
 class Brain;
 class BRAIN_CORE_EXPORT CellComponent{
 protected:
-    float mActivity;                   
     float mThreshold;                  //How much activity is required to fire
+    float mActivity;                   
     int   mDevelopmentStage;                        //0 = development, 1=mature
 	SimTime   mLastActivity;				//timestep of last signal
 protected:
@@ -31,6 +31,7 @@ public:
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, float baseThreshold, float tipThreshold, int depth);
 	virtual void passDevelopmentSignal(float signal)=0;
 	virtual void developSynapse(const ActivityStats& stats)=0;
+	void setActivity(float activity);
 };
 
 }

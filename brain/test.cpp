@@ -114,11 +114,11 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 3;
-	
+	int neuronNumber = 2;
+
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 30, 30, 100, 100, 5); 
+		Neuron* n = placeTestNeuron(brain, 30, 30, 2, 2, 5); 
 		createdList.push_back(n);
 	}
 
@@ -143,6 +143,9 @@ void testDevelopment(){
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
+		for(int k=0;k<100;k+=2){
+			brain->fireInputNeuron(k);
+			}
 		
 		brain ->tick();
 	}

@@ -13,7 +13,7 @@
 #define INPUT_REGION_MAXX		5.0f
 #define INPUT_REGION_MINY		0.0f
 #define INPUT_REGION_MAXY		5.0f
-#define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of (min-max)^2/spacing
+#define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of ((max-min)/spacing)^2
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
 
 #include <boost/math/distributions/uniform.hpp>
@@ -173,6 +173,7 @@ std::list<Synapse *>::iterator Brain::activateSynapse(Synapse *activeSynapse){
  *					and returns the front element of the list
 **/
 std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
+  activeNeuron->mActivity=5.0f;
   mActiveNeurons.push_front(activeNeuron);
   return mActiveNeurons.begin();
 }
@@ -245,6 +246,7 @@ void Brain::createInputRegion(int neurons){
 
 void Brain::fireInputNeuron(int neuronNumber){
 	Neuron* n= mInputNeurons[neuronNumber];
+	n->setActivity(5);
 	this -> activateNeuron(n);
 }
 
