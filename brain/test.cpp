@@ -139,13 +139,14 @@ void testDevelopment(){
 	for(int j=0; j<100; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
-			if(j==0){n->activateComponent(*brain,100);}
+			//if(j==0){n->activateComponent(*brain,100);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
 		
 		brain ->tick();
 	}
+	//brain->fireInputNeuron(2);
 	fclose(dendriteTree);
     delete brain;
 }
