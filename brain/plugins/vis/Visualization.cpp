@@ -157,7 +157,7 @@ void drawRect(Vector3f lower_left,Vector3f upper_right) {
     glVertex3f(lower_left.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,lower_left.y,upper_right.z);
-    printf ("drawing from %f %f to %f %f\n",lower_left.x,lower_left.y,upper_right.x,upper_right.y);
+    //printf ("drawing from %f %f to %f %f\n",lower_left.x,lower_left.y,upper_right.x,upper_right.y);
 }
 void drawRectOutline(Vector3f lower_left,Vector3f upper_right, float halfx,float halfy) {
     glVertex3f(lower_left.x,lower_left.y-halfy,upper_right.z);
@@ -256,8 +256,8 @@ void Visualization::drawNeuronBody(Neuron*n) {
     float wid=0;
     float hei=0;
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
-    printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
-    drawRect((center-Vector3f(wid/2,hei/2,0))*mScale,(center+Vector3f(wid/2,hei/2,0))*mScale);
+    //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
+    drawRect((center+mOffset-Vector3f(wid/2,hei/2,0))*mScale,(center+mOffset+Vector3f(wid/2,hei/2,0))*mScale);
 }
 
 void Visualization::drawNeuron(Neuron*n) {
@@ -265,8 +265,6 @@ void Visualization::drawNeuron(Neuron*n) {
 }
 
 void Visualization::draw() {
-    //printf ("of %f %f %f %f\n",mOffset.x,mOffset.y,mOffset.z,mScale);
-    glTranslatef(mOffset.x,mOffset.y,0);
     // Anti-Clockwise Winding
     printf ("start draw\n");
     glBegin(GL_QUADS);
