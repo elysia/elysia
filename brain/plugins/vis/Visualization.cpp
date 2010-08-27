@@ -198,7 +198,10 @@ bool Visualization::getNeuronWidthHeight(const std::string &text, float&wid,floa
         neuronheight=mNeuronSize*mScale;
         drawText=false;
     }
-  
+    if (neuronheight<1) {
+        neuronheight=1;
+        neuronwidth=1;
+    }
     if (drawText) textwidth=stringWidth(text,true,true);
     
     if (drawText&&neuronwidth<textwidth){
@@ -257,15 +260,38 @@ void Visualization::drawNeuronBody(Neuron*n) {
     float hei=0;
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
-    drawRect((center+mOffset-Vector3f(wid/2,hei/2,0))*mScale,(center+mOffset+Vector3f(wid/2,hei/2,0))*mScale);
+    Vector3f scaledCenter=getNeuronLocation(n);
+    drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
 }
 
 void Visualization::drawNeuron(Neuron*n) {
     drawNeuronBody(n);
 }
 
+
+void Visualization::doInput() {
+    if (glutKeyDown['a']) {
+        mOffset.x-=mScale;
+    }
+    if (glutKeyDown['d']) {
+        mOffset.x+=mScale;
+    }
+    if (glutKeyDown['s']) {
+        mOffset.y-=mScale;
+    }
+    if (glutKeyDown['w']) {
+        mOffset.y+=mScale;
+    }
+    if (glutKeyDown['q']) {
+        mScale*=.95;
+    }
+    if (glutKeyDown['e']) {
+        mScale*=1.05;
+    }
+}
 void Visualization::draw() {
     // Anti-Clockwise Winding
+    doInput();
     printf ("start draw\n");
     glBegin(GL_QUADS);
     for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),

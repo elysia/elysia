@@ -17,6 +17,7 @@ class Visualization:public BrainPlugin  {
     void getSynapseStartEnd(Neuron * start, bool startIsSelected, Neuron * end, bool endIsSelected, Vector3f& A, Vector3f &B);
     void drawNeuronBody(Neuron*n);
     void drawNeuron(Neuron*n);
+    void doInput();
 public:
     Visualization();
     void draw();

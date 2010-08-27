@@ -104,6 +104,8 @@ void Display(void) {
         glutDestroyWindow(gGlutWindowId);
     }
 }
+int glutKeyDown[256]={0};
+int glutSpecialKeyDown[256]={0};
 }
 void Timer(int extra)
 	{
@@ -120,7 +122,12 @@ void Idly() {
         glutPostRedisplay();
     }
 }
-
+void kbd(unsigned char key, int x, int y) {
+    Elysia::glutKeyDown[key]=1;
+}
+void kbdUp(unsigned char key, int x, int y) {
+    Elysia::glutKeyDown[key]=0;
+}
 volatile bool myfuncInitialized=false;
 void myfunc() {
         // Enable Front Face
@@ -143,10 +150,12 @@ void myfunc() {
         glutInitWindowSize(Elysia::gDisplayWidth,Elysia::gDisplayHeight);
 
         gGlutWindowId=glutCreateWindow("This is the window title");
-        glutIdleFunc(Idly);
+        //glutIdleFunc(Idly);
         glutDisplayFunc(Elysia::Display);
         glutReshapeFunc(Elysia::Reshape);
-//        glutTimerFunc(0,Timer,0);
+        glutKeyboardFunc(&kbd);
+        glutKeyboardUpFunc(&kbdUp);
+        glutTimerFunc(0,Timer,0);
         
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
