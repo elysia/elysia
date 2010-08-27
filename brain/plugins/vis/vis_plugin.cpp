@@ -1,6 +1,7 @@
 #include "../../Platform.hpp"
 #include "BrainPlugins.hpp"
 #include "Visualization.hpp"
+#include "GraphicsSystem.hpp"
 static int core_plugin_refcount = 0;
 
 SIRIKATA_PLUGIN_EXPORT_C void init() {
@@ -9,6 +10,7 @@ SIRIKATA_PLUGIN_EXPORT_C void init() {
 }
 
 SIRIKATA_PLUGIN_EXPORT_C void destroy() {
+    Elysia::Deinitialize();
     core_plugin_refcount--;
 }
 

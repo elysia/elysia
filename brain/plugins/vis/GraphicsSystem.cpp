@@ -20,9 +20,8 @@ std::auto_ptr<boost::mutex>gRenderLock (new boost::mutex);
 boost::condition_variable gRenderCompleteCondition;
 boost::condition_variable gRenderCondition;
 
-}
+
 void Deinitialize() {
-    if (gKillGraphics) {
         {
             boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);    
             Elysia::gToRender.clear();
@@ -39,7 +38,7 @@ void Deinitialize() {
 #else
         sleep(1);//need to sleep to allow the gl context to destroy itself (mac requires the main thread exit by itself after the window is destroyed)
 #endif
-    }
+}
 }
 void GlutNop(){}
 
@@ -126,7 +125,6 @@ volatile bool myfuncInitialized=false;
 void myfunc() {
         // Enable Front Face
         //glEnable(GL_CULL_FACE);
-        atexit(Deinitialize);
     const char *argv[1];
     argv[0]="elysia";
     int argc=1;

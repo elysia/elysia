@@ -37,6 +37,7 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
 
 int main(int argc, char **argv) {
     bool loadvis=true;
+    void (*destroy)()=NULL;
     for (int i=0;i<argc;++i) {
       if (strcmp(argv[i],"-nogfx")==0) {
         loadvis=false;
@@ -49,6 +50,7 @@ int main(int argc, char **argv) {
       }else {
         void (*init)();
         init=(void(*)())vis.symbol("init");
+        destroy=(void(*)())vis.symbol("destroy");
         (*init)();
       }
     }
@@ -59,7 +61,9 @@ int main(int argc, char **argv) {
     Elysia::Genome::Genome genes;
     if (argc>1) {
 		if(0 == strcmp(argv[1],"-test")){
-			return runtest();
+			int retval= runtest();
+            (*destroy)();
+            return retval;
 		}
         bool retval=loadFile(argv[1],genes);
         if (!retval) {
@@ -74,7 +78,7 @@ int main(int argc, char **argv) {
     
 
 	
-
+    (*destroy)();
     getchar();
 
 	
