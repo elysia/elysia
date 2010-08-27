@@ -65,9 +65,9 @@ bool isActiveBB(float age, const Elysia::Genome::TemporalBoundingBox&tbb) {
  *					bounding boxes
 **/
 void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &eligibleBoxes){
-    int num_regions=this->mGene.target_region_size();
+    int num_regions=this->mGene.dendrite_region_size();
     for(int i=0;i<num_regions;++i) {
-        const Elysia::Genome::TemporalBoundingBox *tbb = &mGene.target_region(i);
+        const Elysia::Genome::TemporalBoundingBox *tbb = &mGene.dendrite_region(i);
         if (isActiveBB(age,*tbb)) {
             eligibleBoxes.push_back( convertBB(*tbb));
         }
@@ -83,11 +83,11 @@ void ProteinDensity::getTargetBounds(float age, std::vector<BoundingBox3f3f> &el
  *					one item in eligibleBoxes, then a random coordinate is returned from there, otherwise return 0,0,0
 **/
 Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
-    int num_regions=this->mGene.target_region_size();
+    int num_regions=this->mGene.dendrite_region_size();
     if (num_regions) {
         int num_tries=2;
         for (int i=0;i<num_tries;++i) {
-            const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(rand()%num_regions);
+            const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.dendrite_region(rand()%num_regions);
             if (isActiveBB(age,*tbb)) {
                 return randomWithinBbox(convertBB(*tbb));
             }
@@ -111,9 +111,9 @@ Vector3f ProteinDensity::getRandomTargetPointByArea(float age) {
 Vector3f ProteinDensity::getRandomTargetPointByRegion(float age) {
     std::vector<std::pair<float,BoundingBox3f3f> >eligibleBoxes;
     float totalArea=0;
-    int num_regions=this->mGene.target_region_size();
+    int num_regions=this->mGene.dendrite_region_size();
     for(int i=0;i<num_regions;++i) {
-        const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.target_region(i);
+        const Elysia::Genome::TemporalBoundingBox*tbb=&mGene.dendrite_region(i);
         
         if (isActiveBB(age,*tbb)) {
             float area=(tbb->maxx()-tbb->minx())*

@@ -85,7 +85,7 @@ Neuron* placeTestSeqNeuron(Brain* brain, float locx, float locy, float locz, flo
 	float random = rand()/(float)RAND_MAX;	// some random position offset
 	Genome::Gene gene;						// FIXME set source and target regions to match the desired behavior
     Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-    Genome::TemporalBoundingBox *targetbb=gene.add_target_region();
+    Genome::TemporalBoundingBox *targetbb=gene.add_dendrite_region();
     
 	sourcebb->set_minx(sx-range*random);
     sourcebb->set_miny(sy-range*random);
@@ -201,15 +201,15 @@ void testSeqProteinEnvironment() {
 
    *firstGene.add_bounds()=firstRegion;
 
-   Elysia::Genome::TemporalBoundingBox firstTargetRegion;
-   firstTargetRegion.set_minx(5);
-   firstTargetRegion.set_miny(5);
-   firstTargetRegion.set_minz(5);
-   firstTargetRegion.set_maxx(8);
-   firstTargetRegion.set_maxy(8);
-   firstTargetRegion.set_maxz(8);
+   Elysia::Genome::TemporalBoundingBox firstDendriteRegion;
+   firstDendriteRegion.set_minx(5);
+   firstDendriteRegion.set_miny(5);
+   firstDendriteRegion.set_minz(5);
+   firstDendriteRegion.set_maxx(8);
+   firstDendriteRegion.set_maxy(8);
+   firstDendriteRegion.set_maxz(8);
 
-   *firstGene.add_target_region()=firstTargetRegion;
+   *firstGene.add_dendrite_region()=firstDendriteRegion;
    Elysia::Genome::Gene secondGene;
    Elysia::Genome::Protein secondProtein;
    secondProtein.set_protein_code(GROW_LEAF);
@@ -224,15 +224,15 @@ void testSeqProteinEnvironment() {
    secondRegion.set_maxz(1);
    *secondGene.add_bounds()=secondRegion;
 
-   Elysia::Genome::TemporalBoundingBox secondTargetRegion;
-   secondTargetRegion.set_minx(-5);
-   secondTargetRegion.set_miny(-5);
-   secondTargetRegion.set_minz(-5);
-   secondTargetRegion.set_maxx(3);
-   secondTargetRegion.set_maxy(3);
-   secondTargetRegion.set_maxz(3);
+   Elysia::Genome::TemporalBoundingBox secondDendriteRegion;
+   secondDendriteRegion.set_minx(-5);
+   secondDendriteRegion.set_miny(-5);
+   secondDendriteRegion.set_minz(-5);
+   secondDendriteRegion.set_maxx(3);
+   secondDendriteRegion.set_maxy(3);
+   secondDendriteRegion.set_maxz(3);
 
-   *secondGene.add_target_region()=secondTargetRegion;
+   *secondGene.add_dendrite_region()=secondDendriteRegion;
 
 
    *father->add_genes()=firstGene;
@@ -272,11 +272,11 @@ void testSeqProteinEnvironment() {
                                                   GROW_LEAF);
    const Gene * second_grow_leaf_gene = &pe->retrieveGene(Vector3f(-0.5,-0.5,0),
                                                    GROW_LEAF);
-   assert(grow_neuron_gene->target_region(0).minx()==5);
+   assert(grow_neuron_gene->dendrite_region(0).minx()==5);
 
-   assert(combined_grow_leaf_gene->target_region(0).minx()==5||combined_grow_leaf_gene->target_region(0).minx()==-5);
-   assert(first_grow_leaf_gene->target_region(0).minx()==5);
-   assert(second_grow_leaf_gene->target_region(0).minx()==-5);
+   assert(combined_grow_leaf_gene->dendrite_region(0).minx()==5||combined_grow_leaf_gene->dendrite_region(0).minx()==-5);
+   assert(first_grow_leaf_gene->dendrite_region(0).minx()==5);
+   assert(second_grow_leaf_gene->dendrite_region(0).minx()==-5);
 
    delete pe;
 }

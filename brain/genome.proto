@@ -54,7 +54,7 @@ message Gene {
   repeated Protein internal_proteins=3;
   repeated TemporalBoundingBox bounds=4;
   repeated ConditionClause conjunction=5;
-  repeated TemporalBoundingBox target_region=6;
+  repeated TemporalBoundingBox dendrite_region=6;
 }
 
 message Chromosome {
