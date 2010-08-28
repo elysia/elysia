@@ -552,6 +552,7 @@ BoundingBox3f3f SimpleProteinEnvironment::getBounds()const{
             retval=i->getBoundingBox();
         else
             retval=retval.merge(i->getBoundingBox());
+        first=false;
         //for (std::vector<GeneSoupStruct>::iterator j=i->mGeneSoup.begin(),je=i->mGeneSoup.end();j!=je;++j) {
             
         //}
