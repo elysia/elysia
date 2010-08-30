@@ -1,5 +1,6 @@
 #include <Platform.hpp>
 #include "GraphicsSystem.hpp"
+#include "MainThread.hpp"
 #ifdef __APPLE__
 #include "glut.h"
 #else
@@ -102,6 +103,10 @@ void Display(void) {
     if (gShutDown ) {
         gInvalidDisplayFunction=true;
         glutDestroyWindow(gGlutWindowId);
+#ifdef __APPLE__
+    exit(0);
+#endif
+
     }
 }
 int glutKeyDown[256]={0};
@@ -178,10 +183,9 @@ GraphicsSystem::GraphicsSystem () {
         gKillGraphics=false;
     }else {
         boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);    
-        
-        std::tr1::shared_ptr<boost::thread> x(new boost::thread(&myfunc));
+        mRenderThread=gRenderThread=MainThread::wrestMainThread(&myfunc);
+        //std::tr1::shared_ptr<boost::thread> x(new boost::thread(&myfunc));
         gRenderCondition.wait(renderLock);        
-        mRenderThread=gRenderThread=x;
         gKillGraphics=false;
 
     }

@@ -10,7 +10,7 @@
 #include "SimpleProteinEnvironment.hpp"
 #include "SharedLibrary.hpp"
 #include "test.hpp"
-
+#include "MainThread.hpp"
 bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     FILE * fp=fopen(fileName,"rb");
     if (!fp) return false;
@@ -34,15 +34,9 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
         return retval.ParseFromArray(&*data.begin(),fileSize);
     }
 }
-
-int main(int argc, char **argv) {
-    bool loadvis=true;
-    void (*destroy)()=NULL;
-    for (int i=0;i<argc;++i) {
-      if (strcmp(argv[i],"-nogfx")==0) {
-        loadvis=false;
-      }
-    }
+void nilDestroy() {}
+int asyncMain(int argc, char**argv, bool loadvis) {
+    void (*destroy)()=&nilDestroy;
     if (loadvis) {
       Elysia::SharedLibrary vis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
       if (!vis.load()) {
@@ -62,7 +56,8 @@ int main(int argc, char **argv) {
     if (argc>1) {
 		if(0 == strcmp(argv[1],"-test")){
 			int retval= runtest();
-            (*destroy)();
+            if (destroy)
+                (*destroy)();
             return retval;
 		}
         bool retval=loadFile(argv[1],genes);
@@ -74,7 +69,7 @@ int main(int argc, char **argv) {
     }
     Elysia::Brain brain(&(new Elysia::SimpleProteinEnvironment)->initialize(genes));
 	//std::vector<Branch *>BranchestoWipe;
-    for (size_t i=0;i<100000;++i) {
+    for (size_t i=0;i<1000;++i) {
         brain.tick();
     }
     
@@ -85,4 +80,27 @@ int main(int argc, char **argv) {
 	
 
 	return 0;
+}
+
+int main(int argc, char **argv) {
+    bool loadvis=true;
+    for (int i=0;i<argc;++i) {
+      if (strcmp(argv[i],"-nogfx")==0) {
+        loadvis=false;
+      }
+    }
+    std::tr1::shared_ptr<boost::thread> formerMain;
+    if (
+#ifdef __APPLE__
+    loadvis
+#else
+    false
+#endif
+        )
+
+    {
+        formerMain=Elysia::MainThread::giveUpMain(std::tr1::bind(asyncMain,argc,argv,true));
+        
+    }else return asyncMain(argc,argv,loadvis);
+    return 0;
 }
