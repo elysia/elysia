@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     }
     Elysia::Brain brain(&(new Elysia::SimpleProteinEnvironment)->initialize(genes));
 	//std::vector<Branch *>BranchestoWipe;
-    for (size_t i=0;i<10000000000;++i) {
+    for (size_t i=0;i<100000;++i) {
         brain.tick();
     }
     
