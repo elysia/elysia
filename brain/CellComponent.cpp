@@ -85,4 +85,12 @@ void CellComponent::syncBranchDensity(float parentRandomBranchDeterminer, float 
     }
 }
 
+
+std::vector<Branch*>::const_iterator CellComponent::childBegin()const{
+    return mChildBranches.begin();
+}
+std::vector<Branch*>::const_iterator CellComponent::childEnd()const{
+    return mChildBranches.end();
+}
+
 }
