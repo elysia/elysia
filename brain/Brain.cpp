@@ -101,11 +101,9 @@ void Brain::tick(){
     ++mCurTime;
     mAge+=1.0e-6;//fixme this is probably not correct: we probably need genes to do this
     if (mAge>1.0) mAge=1.0;
-	/*
     for(std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
         (*i)->update();
     }
-	*/
 }
 
 

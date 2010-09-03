@@ -32,7 +32,9 @@ public:
 	virtual void passDevelopmentSignal(float signal)=0;
 	virtual void developSynapse(const ActivityStats& stats)=0;
 	void setActivity(float activity);
+    typedef std::vector<Branch*>::const_iterator ChildIterator;
+    ChildIterator childBegin()const;
+    ChildIterator childEnd()const;
 };
-
 }
 #endif

@@ -8,5 +8,8 @@ public:
     GraphicsSystem();
     ~GraphicsSystem();
 };
+extern int glutKeyDown[256];
+extern int glutSpecialKeyDown[256];
+
 void Deinitialize();
 }

@@ -8,6 +8,7 @@
 #include "GL/glut.h"
 //#include <GL/freeglut.h>
 #endif
+#include "Branch.hpp"
 #include "Neuron.hpp"
 #include "Brain.hpp"
 namespace Elysia {
@@ -157,7 +158,7 @@ void drawRect(Vector3f lower_left,Vector3f upper_right) {
     glVertex3f(lower_left.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,upper_right.y,upper_right.z);
     glVertex3f(upper_right.x,lower_left.y,upper_right.z);
-    printf ("drawing from %f %f to %f %f\n",lower_left.x,lower_left.y,upper_right.x,upper_right.y);
+    //printf ("drawing from %f %f to %f %f\n",lower_left.x,lower_left.y,upper_right.x,upper_right.y);
 }
 void drawRectOutline(Vector3f lower_left,Vector3f upper_right, float halfx,float halfy) {
     glVertex3f(lower_left.x,lower_left.y-halfy,upper_right.z);
@@ -198,7 +199,10 @@ bool Visualization::getNeuronWidthHeight(const std::string &text, float&wid,floa
         neuronheight=mNeuronSize*mScale;
         drawText=false;
     }
-  
+    if (neuronheight<1) {
+        neuronheight=1;
+        neuronwidth=1;
+    }
     if (drawText) textwidth=stringWidth(text,true,true);
     
     if (drawText&&neuronwidth<textwidth){
@@ -250,25 +254,80 @@ void Visualization::getSynapseStartEnd(Neuron * start, bool startIsSelected, Neu
   B+=enddelta;
 }
 
-void Visualization::drawNeuronBody(Neuron*n) {
+Vector3f Visualization::drawNeuronBody(Neuron*n) {
     Vector3f center=n->getLocation();
     center.z=0;
     float wid=0;
     float hei=0;
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
-    printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
-    drawRect((center-Vector3f(wid/2,hei/2,0))*mScale,(center+Vector3f(wid/2,hei/2,0))*mScale);
+    //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
+    Vector3f scaledCenter=getNeuronLocation(n);
+    drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
+    return scaledCenter+Vector3f(0,hei/2,0);
+}
+
+void drawParallelogramLineSegment(const Vector3f &source, const Vector3f &dest, double width) {
+    width*=.5;
+    glVertex3f(source.x-width,source.y,source.z);
+    glVertex3f(dest.x-width,dest.y,dest.z);
+    glVertex3f(dest.x+width,dest.y,dest.z);
+    glVertex3f(source.x+width,source.y,source.z);
+}
+
+void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrite, Vector3f top, float scale) {
+    CellComponent::ChildIterator i=dendrite->childBegin(),ie=dendrite->childEnd(),b;
+    size_t size = ie-i;
+    b=i;    
+    if (scale<10.0) scale=0.0;
+    float width = scale*.125/size;
+    float height = mScale*5;
+    if (height<1.0) height=1.0;
+    if (width<2.0) width=2.0;
+    for (;i!=ie;++i) {
+        Vector3f dest = Vector3f(top.x-scale*.25+scale*(i-b)/((double)size),
+                                 top.y+height,
+                                 top.z);
+        if (scale)
+            drawParallelogramLineSegment(top,dest,width);
+        const CellComponent *nextInLine = *i;
+        drawDendrites(n,nextInLine,dest,scale*.5);
+    }
 }
 
 void Visualization::drawNeuron(Neuron*n) {
-    drawNeuronBody(n);
+    Vector3f top = drawNeuronBody(n);
+    bool drawDendrites=true;
+    if (drawDendrites) {
+        this->drawDendrites(n, n, top, mScale*20);
+    }
+    
 }
 
+
+void Visualization::doInput() {
+    float speed=20;
+    if (glutKeyDown['d']) {
+        mOffset.x-=speed/mScale;
+    }
+    if (glutKeyDown['a']) {
+        mOffset.x+=speed/mScale;
+    }
+    if (glutKeyDown['w']) {
+        mOffset.y-=speed/mScale;
+    }
+    if (glutKeyDown['s']) {
+        mOffset.y+=speed/mScale;
+    }
+    if (glutKeyDown['q']) {
+        mScale*=.95;
+    }
+    if (glutKeyDown['e']) {
+        mScale*=1.05;
+    }
+}
 void Visualization::draw() {
-    //printf ("of %f %f %f %f\n",mOffset.x,mOffset.y,mOffset.z,mScale);
-    glTranslatef(mOffset.x,mOffset.y,0);
     // Anti-Clockwise Winding
-    printf ("start draw\n");
+    doInput();
     glBegin(GL_QUADS);
     for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),
              ie=mBrain->mAllNeurons.end();
@@ -277,7 +336,6 @@ void Visualization::draw() {
         drawNeuron(*i);
     }
     glEnd(); 
-    printf ("estart draw\n");   
 }
 Visualization::~Visualization() {
     {
