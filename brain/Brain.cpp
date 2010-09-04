@@ -193,19 +193,21 @@ Brain::~Brain() {
 Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
 	Genome::Gene gene;
     Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-    Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
-    sourcebb->set_minx(0);
-    sourcebb->set_miny(0);
+    Genome::TemporalBoundingBox *dendritebb=gene.add_bounds();
+    sourcebb->set_minx(x-spread);
+    sourcebb->set_miny(y-spread);
     sourcebb->set_minz(0);
-    sourcebb->set_maxx(0);
-    sourcebb->set_maxy(0);
+    sourcebb->set_maxx(x+spread);
+    sourcebb->set_maxy(y+spread);
     sourcebb->set_maxz(0);
-    targetbb->set_minx(x-spread);
-    targetbb->set_miny(y-spread);
-    targetbb->set_minz(0);
-    targetbb->set_maxx(x+spread);
-    targetbb->set_maxy(y+spread);
-    targetbb->set_maxz(0);
+
+    dendritebb->set_minx(0);
+    dendritebb->set_miny(0);
+    dendritebb->set_minz(0);
+    dendritebb->set_maxx(0);
+    dendritebb->set_maxy(0);
+    dendritebb->set_maxz(0);
+
 	Vector3f v;
 	v.x = x;
 	v.y = y;
@@ -246,6 +248,7 @@ void Brain::fireInputNeuron(int neuronNumber){
 	Neuron* n= mInputNeurons[neuronNumber];
 	n->setActivity(5);
 	this -> activateNeuron(n);
+	printf("input");
 }
 
 

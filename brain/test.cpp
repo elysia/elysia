@@ -11,90 +11,28 @@
 #include <time.h>
 
 namespace Elysia {
-void testTwoConnectedNeurons() {
-    ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
-
-	Brain *brain= new Brain(myProteinEnvironment);
-	FILE *dendriteTree=NULL;
-	dendriteTree = fopen("Dendritic_Tree.txt", "w");
-	std::vector<Neuron *> createdList;
-	int neuronNumber = 2;
-	
-
-	for(int j=0;j<neuronNumber;j++){
-        float i=(float)j;
-        Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
-        Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
-        Genome::TemporalBoundingBox *targetbb=gene.add_bounds();
-        sourcebb->set_minx(i);
-        sourcebb->set_miny(i);
-        sourcebb->set_minz(0);
-
-        sourcebb->set_maxx(i);
-        sourcebb->set_maxy(i);
-        sourcebb->set_maxz(0);
-
-        targetbb->set_minx(i);
-        targetbb->set_miny(i);
-        targetbb->set_minz(0);
-
-        targetbb->set_maxx(1-i);
-        targetbb->set_maxy(1-i);
-        targetbb->set_maxz(0);
 
 
-		Vector3f v;
-		v.x = i;
-		v.y = i;
-		v.z = 0;
-		Neuron *n=brain->addNeuron(BoundingBox3f3f(v,v),gene);
-        createdList.push_back(n);
-    }
 
-	for(int i=0;i<neuronNumber;i++){
-		Neuron *n = createdList[i];
-        n->developSynapse(n->getActivityStats());       
-        size_t parent;
-        parent = 0;
-        n->visualizeTree(dendriteTree, parent);
-		//const Vector3f &location):  mNeuronLocation(location){));
-	}
-	for(int j=0; j<10; j++){
-		for(int i=0;i<neuronNumber;i++){
-			Neuron *n = createdList[i];
-			if(j== 0 && i==0){n->activateComponent(*brain,100);}
-			//if(j== 2){brain->inactivateNeuron(n);}
-			n->tick();
-		//const Vector3f &location):  mNeuronLocation(location){));
-		}
-		
-		brain ->tick();
-	}
-	fclose(dendriteTree);
-    delete brain;
-}
-
-
-//Target is axon, Source is dendrite
 Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy, float range){
 		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
         Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
         Genome::TemporalBoundingBox *dendritebb=gene.add_dendrite_region();
-        sourcebb->set_minx(sx-range);
-        sourcebb->set_miny(sy-range);
+        sourcebb->set_minx(locx-range);
+        sourcebb->set_miny(locy-range);
         sourcebb->set_minz(0);
         
-        sourcebb->set_maxx(sx+range);
-        sourcebb->set_maxy(sy+range);
+        sourcebb->set_maxx(locx+range);
+        sourcebb->set_maxy(locy+range);
         sourcebb->set_maxz(0);
 
-        dendritebb->set_minx(locx-range);
-        dendritebb->set_miny(locy-range);
+        dendritebb->set_minx(sx-range);
+        dendritebb->set_miny(sy-range);
         dendritebb->set_minz(0);
 
-        dendritebb->set_maxx(locx+range);
-        dendritebb->set_maxy(locy+range);
+        dendritebb->set_maxx(sx+range);
+        dendritebb->set_maxy(sy+range);
         dendritebb->set_maxz(0);
 
 		Vector3f v;
@@ -114,17 +52,17 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 2;
+	int neuronNumber = 100;
 
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 30, 30, 2, 2, 5); 
+		Neuron* n = placeTestNeuron(brain, 30, 30, 0.5, 0.5, 0.5); 
 		createdList.push_back(n);
 	}
 
 	//Region 2
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 100, 100, 30, 30, 5); 
+		Neuron* n = placeTestNeuron(brain, 100, 100, 60, 60, 5); 
 		createdList.push_back(n); 
 	}
 
