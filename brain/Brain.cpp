@@ -98,6 +98,7 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
 void Brain::tick(){
 	processNeuron();
 	processSynapse();
+	developAllNeurons();
     ++mCurTime;
     mAge+=1.0e-6;//fixme this is probably not correct: we probably need genes to do this
     if (mAge>1.0) mAge=1.0;
@@ -105,6 +106,13 @@ void Brain::tick(){
         (*i)->update();
     }
 }
+
+void Brain::developAllNeurons(){
+	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
+		(*i)->developSynapse((*i)->getActivityStats());
+	}
+}
+
 
 
 /**

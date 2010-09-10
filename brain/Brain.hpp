@@ -50,6 +50,7 @@ public:
     void tick();
 	void processSynapse();
 	void processNeuron();
+	void developAllNeurons();
     Neuron *addNeuron(const BoundingBox3f3f &generationArea, const Genome::Gene &);
     ~Brain();
     std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);
