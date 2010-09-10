@@ -81,6 +81,9 @@ int asyncMain(int argc, char**argv, bool loadvis) {
 
 	return 0;
 }
+void asyncMainWrapper(int argc, char**argv, bool loadvis) {
+    asyncMain(argc,argv,loadvis);
+}
 
 int main(int argc, char **argv) {
     bool loadvis=true;
@@ -99,7 +102,7 @@ int main(int argc, char **argv) {
         )
 
     {
-        formerMain=Elysia::MainThread::giveUpMain(std::tr1::bind(asyncMain,argc,argv,true));
+        formerMain=Elysia::MainThread::giveUpMain(std::tr1::bind(asyncMainWrapper,argc,argv,true));
         
     }else return asyncMain(argc,argv,loadvis);
     return 0;
