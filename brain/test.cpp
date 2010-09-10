@@ -84,7 +84,7 @@ void testDevelopment(){
 		for(int k=0;k<100;k+=2){
 			brain->fireInputNeuron(k);
 			}
-		
+		printf("%i",j);
 		brain ->tick();
 	}
 	//brain->fireInputNeuron(2);

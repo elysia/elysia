@@ -66,13 +66,21 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     }
     mBaseThreshold = BaseThreshold;
     mTipThreshold = TipThreshold;
+
+	if(BaseBranchiness + TipBranchiness == 0){
+		type = 0;
+	}
+	else{type = 1;}
+	
 }
 
 /**
  *	Description:	Fires neuron into all synapses connected to it
 **/
 void Neuron::fire() {
+	if(type == 1){
 	printf("fire");
+	}
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;
          ++i) {
