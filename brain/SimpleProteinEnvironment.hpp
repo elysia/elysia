@@ -24,9 +24,10 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
     const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
     float getSpecificProteinDensity(Elysia::Genome::Effect); 
     ///"Complicated" function to update the soup for the next time iteration
-    void updateSoupToNextSoup(const float age);
+    static void updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age);
   };
   std::vector<ProteinZone> mMainZoneList;
+  //Need outter function to handle update looping
   
 private:
   ///Combine genes into a single-shared region
@@ -72,7 +73,10 @@ public:
                std::vector<ProteinZone> &mMainZoneList);
   void removeZones(std::vector<ProteinZone> mSubZoneList,
                   std::vector<ProteinZone> mMainZoneList);
-
+    
+  ///Update the zones to the next time step
+  void updateAllEnvironmentSoup(float age);
+  
   ///Function to find the zone that a single point reside in
   ProteinZone &resideInZones(const Vector3f queryPoint, 
                              const std::vector<ProteinZone> &mMainZoneList);
