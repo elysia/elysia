@@ -26,6 +26,12 @@ class BRAIN_CORE_EXPORT Branch:  public CellComponent{
 	virtual void passDevelopmentSignal(float signal);
 	void developSynapse(const ActivityStats& stats);
 	void visualizeTree(FILE *dendriteTree, size_t parent);
+    typedef std::vector<Synapse*>::iterator SynapseIterator;
+    typedef std::vector<Synapse*>::const_iterator SynapseConstIterator;
+    SynapseIterator childSynapseBegin(){ return mChildSynapses.begin();}
+    SynapseIterator childSynapseEnd(){ return mChildSynapses.end();}
+    SynapseConstIterator childSynapseBegin()const{ return mChildSynapses.begin();}
+    SynapseConstIterator childSynapseEnd()const{ return mChildSynapses.end();}
 };
 
 }

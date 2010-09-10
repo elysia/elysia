@@ -11,6 +11,7 @@
 #include "Branch.hpp"
 #include "Neuron.hpp"
 #include "Brain.hpp"
+#include "Synapse.hpp"
 namespace Elysia {
 extern std::auto_ptr<boost::mutex >gRenderLock;
 extern boost::condition_variable gRenderCondition;
@@ -274,6 +275,14 @@ void drawParallelogramLineSegment(const Vector3f &source, const Vector3f &dest, 
     glVertex3f(source.x+width,source.y,source.z);
 }
 
+void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3f top, float scale) {
+    for (Branch::SynapseConstIterator i=dendrite->childSynapseBegin(),ie=dendrite->childSynapseEnd();i!=ie;++i) {
+        Neuron * destination = (*i)->mRecipientNeuron;
+        if (destination) {
+            arrow(destination->getLocation(),top,10);
+        }
+    }
+}
 void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrite, Vector3f top, float scale) {
     CellComponent::ChildIterator i=dendrite->childBegin(),ie=dendrite->childEnd(),b;
     size_t size = ie-i;
@@ -292,6 +301,13 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
         const CellComponent *nextInLine = *i;
         drawDendrites(n,nextInLine,dest,scale*.5);
     }
+    {
+        const Branch * b = dynamic_cast<const Branch*>(dendrite);
+        if (b) {
+            drawBranch(n,b,top,scale);
+        }
+    }
+
 }
 
 void Visualization::drawNeuron(Neuron*n) {
