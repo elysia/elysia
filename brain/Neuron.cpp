@@ -27,8 +27,9 @@ Neuron::~Neuron() {
 	mBrain->inactivateNeuron(this);
 	mBrain->deleteNeuron(this);
     assert(mConnectedSynapses.size()==0);
-    delete mProteinDensity;
     mBrain->getSpatialSearch()->removeNeighbor(this);
+    mBrain->notifyPluginsNeuronDestruction(this);
+    delete mProteinDensity;
 	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
          i!=ie;
          ++i){

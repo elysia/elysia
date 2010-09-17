@@ -243,7 +243,11 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
 	this->mDevelopingNeurons.insert(n);
 	return n;
 }
-
+void Brain::notifyPluginsNeuronDestruction(Neuron * mfd){
+    for (std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i){
+        (*i)->notifyNeuronDestruction(mfd);
+    }
+}
 void Brain::createInputRegion(int neurons){
 	//At present, reserved location of input lobe is <0,0,0> to <5,5,0> neurons are added at 0.01 increments
 	float minx = INPUT_REGION_MINX;

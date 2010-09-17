@@ -89,7 +89,9 @@ static void arrow (float ox,float oy, float oz, float ex, float ey, float ez, fl
   glVertex3f(ex,ey,ez);
   glVertex3f(ex-6*dx-3*idx,ey-6*dy-3*idy,ez);
 }
-
+void Visualization::postInputEvent(const Event&evt){
+    mInputEvents.push_back(evt);
+}
 static void selectionArrow(Vector3f start, Vector3f finish, float thickness, float *col=selectiondefaultcol) {
 
   float zero[4]={0,0,0,0};
@@ -323,33 +325,97 @@ void Visualization::drawNeuron(Neuron*n) {
     }
     
 }
+Visualization::InputStateMachine::InputStateMachine() {
+    memset(mKeyDown,0,sizeof(mKeyDown));
+    memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
+    memset(mMouseButtons,0,sizeof(mMouseButtons));
+}
+void Visualization::InputStateMachine::processPersistentState(const Visualization::Event&evt) {
+    const Visualization::Event* i=&evt;
+    mMouseX=i->mouseX;
+    mMouseY=i->mouseY;
+    switch(i->event) {
+      case Event::MOUSE_CLICK:
+        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+            mMouseButtons[i->button]=1;
+        }
+        break;
+      case Event::MOUSE_UP:
+        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+            mMouseButtons[i->button]=0;
+        }
+        break;
+      case Event::KEYBOARD:
+        mKeyDown[i->button]=1;
+        break;
+      case Event::KEYBOARD_UP:
+        mKeyDown[i->button]=0;
+        break;
+      case Event::KEYBOARD_SPECIAL:
+        if (i->button<256)
+            mSpecialKeyDown[i->button]=1;
+        break;
+      case Event::KEYBOARD_SPECIAL_UP:
+        if (i->button<256)
+            mSpecialKeyDown[i->button]=0;
+        break;
+      case Event::MOUSE_DRAG:
+        break;
+      case Event::MOUSE_MOVE:
+        break;
+    }
+
+}
+
+void Visualization::InputStateMachine::processEvent(Visualization*parent, const Event&evt) {
+}
 
 
 void Visualization::doInput() {
+    std::vector<Event> inputEvents;
+    mInputEvents.swap(inputEvents);
+    for (std::vector<Event>::iterator i=inputEvents.begin(),ie=inputEvents.end();i!=ie;++i) {
+        mInput.processPersistentState(*i);
+        mInput.processEvent(this,*i);
+    }
     float speed=20;
-    if (glutKeyDown['d']) {
+    if (mInput.mKeyDown['d']) {
         mOffset.x-=speed/mScale;
     }
-    if (glutKeyDown['a']) {
+    if (mInput.mKeyDown['a']) {
         mOffset.x+=speed/mScale;
     }
-    if (glutKeyDown['w']) {
+    if (mInput.mKeyDown['w']) {
         mOffset.y-=speed/mScale;
     }
-    if (glutKeyDown['s']) {
+    if (mInput.mKeyDown['s']) {
         mOffset.y+=speed/mScale;
     }
-    if (glutKeyDown['q']) {
+    if (mInput.mKeyDown['q']) {
         mScale*=.95;
     }
-    if (glutKeyDown['e']) {
+    if (mInput.mKeyDown['e']) {
         mScale*=1.05;
     }
 }
+void Visualization::purgeMarkedForDeathNeurons() {
+   
+    for (std::vector<Neuron*>::iterator i=mfd.begin(),ie=mfd.end();i!=ie;++i) {
+        SelectedNeuronMap::iterator where =mSelectedNeurons.find(*i);
+        if (where!=mSelectedNeurons.end()) {
+            mSelectedNeurons.erase(where);
+        }
+    }
+}
+
 void Visualization::draw() {
-    // Anti-Clockwise Winding
+    purgeMarkedForDeathNeurons();
     doInput();
     glBegin(GL_QUADS);
+    glVertex3f(mInput.mMouseX,mInput.mMouseY,0);
+    glVertex3f(mInput.mMouseX,mInput.mMouseY-10,0);
+    glVertex3f(mInput.mMouseX-6,mInput.mMouseY-12,0);
+    glVertex3f(mInput.mMouseX-12,mInput.mMouseY-10,0);
     for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),
              ie=mBrain->mAllNeurons.end();
          i!=ie;
@@ -370,4 +436,8 @@ Visualization::~Visualization() {
     mGraphics=std::tr1::shared_ptr<GraphicsSystem>();
 
 }
+void Visualization::notifyNeuronDestruction(Neuron*n){
+    mfd.push_back(n);
+}
+
 }
