@@ -153,8 +153,10 @@ void Brain::processSynapse(){
  *	Description:	Removes a synapse from the synapse list and updates it.
 **/
 void Brain::inactivateSynapse(Synapse *inactiveSynapse){
-	mActiveSynapses.erase(inactiveSynapse->mWhere);
-	inactiveSynapse->mWhere=activeSynapseListSentinel();
+    if (inactiveSynapse->mWhere!=activeSynapseListSentinel()) {
+        mActiveSynapses.erase(inactiveSynapse->mWhere);
+        inactiveSynapse->mWhere=activeSynapseListSentinel();
+    }
 }
 
 
@@ -170,8 +172,10 @@ void Brain::deleteSynapse(Synapse *deletedSynapse){
  *	Description:	Removes an unused neuron from the neuron list and updates
 **/
 void Brain::inactivateNeuron(Neuron *inactiveNeuron){
-	mActiveNeurons.erase(inactiveNeuron->mWhere);
-	inactiveNeuron->mWhere=activeNeuronListSentinel();
+    if (inactiveNeuron->mWhere!=activeNeuronListSentinel()) {
+        mActiveNeurons.erase(inactiveNeuron->mWhere);
+        inactiveNeuron->mWhere=activeNeuronListSentinel();
+    }
 }
 
 void Brain::deleteNeuron(Neuron *deletedNeuron){
