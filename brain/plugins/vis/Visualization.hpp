@@ -6,6 +6,9 @@ class GraphicsSystem;
 class Neuron;
 class Branch;
 class Visualization:public BrainPlugin  {
+    int mKeyDown[256];
+    int mSpecialKeyDown[256];
+    int mMouseButtons[5];
     ///Neurons marked for death by the main plugin
     std::vector<Neuron*> mfd;
     std::tr1::shared_ptr<GraphicsSystem> mGraphics;
@@ -28,6 +31,7 @@ class Visualization:public BrainPlugin  {
     typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
     SelectedNeuronMap mSelectedNeurons;
     void purgeMarkedForDeathNeurons();
+
 public:
     Visualization();
     void draw();
@@ -52,6 +56,11 @@ public:
         int modCodes;
     };
     void postInputEvent(const Event&evt);
+private:    
+    //process a single event and make it adjust the input state machine
+    void processEvent(struct Event&evt);
+
+    std::vector<Event>mInputEvents;
 };
 BrainPlugin* makeVisualization(Brain*b);
 }

@@ -182,6 +182,7 @@ void Idly() {
     }
 }
 void kbdOrSpecial(unsigned char key, int x, int y, bool special) {
+    boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);
     using namespace Elysia;
     Visualization::Event evt;
     evt.event=special?Visualization::Event::KEYBOARD_SPECIAL:Visualization::Event::KEYBOARD;
@@ -197,6 +198,7 @@ void kbdOrSpecial(unsigned char key, int x, int y, bool special) {
     glutKeyDown[key]=1;
 }
 void kbdOrSpecialUp(int key, int x, int y, bool special) {
+    boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);
     using namespace Elysia;
     Visualization::Event evt;
     evt.event=special?Visualization::Event::KEYBOARD_SPECIAL_UP:Visualization::Event::KEYBOARD_UP;
@@ -214,6 +216,7 @@ void kbdOrSpecialUp(int key, int x, int y, bool special) {
 }
 static size_t elysiaMouseLastDrag=0;
 void mouseFunc(int button, int up, int x, int y) {
+    boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);
     using namespace Elysia;
     Visualization::Event evt;
     evt.event=(up==GLUT_UP?Visualization::Event::MOUSE_UP:Visualization::Event::MOUSE_CLICK);
@@ -237,6 +240,7 @@ void mouseFunc(int button, int up, int x, int y) {
     }
 }
 void mouseDrag(int x, int y) {
+    boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);
     using namespace Elysia;
     Visualization::Event evt;
     evt.event=Visualization::Event::MOUSE_DRAG;
@@ -253,6 +257,7 @@ void mouseDrag(int x, int y) {
 }
 
 void mouseMove(int x, int y) {
+    boost::unique_lock<boost::mutex> renderLock(*Elysia::gRenderLock);
     using namespace Elysia;
     Visualization::Event evt;
     evt.event=Visualization::Event::MOUSE_DRAG;

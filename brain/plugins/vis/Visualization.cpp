@@ -25,6 +25,9 @@ BrainPlugin* makeVisualization(Brain*b) {
     return v;
 }
 Visualization::Visualization(){
+    memset(mKeyDown,0,sizeof(mKeyDown));
+    memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
+    memset(mMouseButtons,0,sizeof(mMouseButtons));
     boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
@@ -90,7 +93,7 @@ static void arrow (float ox,float oy, float oz, float ex, float ey, float ez, fl
   glVertex3f(ex-6*dx-3*idx,ey-6*dy-3*idy,ez);
 }
 void Visualization::postInputEvent(const Event&evt){
-
+    mInputEvents.push_back(evt);
 }
 static void selectionArrow(Vector3f start, Vector3f finish, float thickness, float *col=selectiondefaultcol) {
 
@@ -325,26 +328,63 @@ void Visualization::drawNeuron(Neuron*n) {
     }
     
 }
+void Visualization::processEvent(struct Event&evt) {
+}
 
 
 void Visualization::doInput() {
+    std::vector<Event> inputEvents;
+    mInputEvents.swap(inputEvents);
+    for (std::vector<Event>::iterator i=inputEvents.begin(),ie=inputEvents.end();i!=ie;++i) {
+        switch(i->event) {
+          case Event::MOUSE_CLICK:
+            if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+                mMouseButtons[i->button]=1;
+            }
+            break;
+          case Event::MOUSE_UP:
+            if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+                mMouseButtons[i->button]=0;
+            }
+            break;
+          case Event::KEYBOARD:
+            //amKeyDown[i->button]=1;
+            break;
+          case Event::KEYBOARD_UP:
+            //mKeyDown[i->button]=0;
+            break;
+          case Event::KEYBOARD_SPECIAL:
+            if (i->button<256)
+                mSpecialKeyDown[i->button]=1;
+            break;
+          case Event::KEYBOARD_SPECIAL_UP:
+            if (i->button<256)
+                mSpecialKeyDown[i->button]=0;
+            break;
+          case Event::MOUSE_DRAG:
+            break;
+          case Event::MOUSE_MOVE:
+            break;
+        }
+        processEvent(*i);
+    }
     float speed=20;
-    if (glutKeyDown['d']) {
+    if (mKeyDown['d']) {
         mOffset.x-=speed/mScale;
     }
-    if (glutKeyDown['a']) {
+    if (mKeyDown['a']) {
         mOffset.x+=speed/mScale;
     }
-    if (glutKeyDown['w']) {
+    if (mKeyDown['w']) {
         mOffset.y-=speed/mScale;
     }
-    if (glutKeyDown['s']) {
+    if (mKeyDown['s']) {
         mOffset.y+=speed/mScale;
     }
-    if (glutKeyDown['q']) {
+    if (mKeyDown['q']) {
         mScale*=.95;
     }
-    if (glutKeyDown['e']) {
+    if (mKeyDown['e']) {
         mScale*=1.05;
     }
 }
