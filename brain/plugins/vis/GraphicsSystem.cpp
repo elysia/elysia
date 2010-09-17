@@ -86,6 +86,7 @@ float getLowerRightY(size_t whichSystem) {
     return (whichSystem/wid)*gDisplayHeight+gDisplayHeight/getHeightPartition();
 }
 void getCoordsFromMouse(size_t whichWindow, int x, int y, float&newCoordX, float&newCoordY) {
+    y = gDisplayHeight-y;
     size_t i=whichWindow;
     float xl=getUpperLeftX(i);
     float yl=getUpperLeftY(i);
@@ -97,6 +98,7 @@ void getCoordsFromMouse(size_t whichWindow, int x, int y, float&newCoordX, float
 size_t getSystemWindowAndCoordsFromMouse(int x, int y, float&newCoordX, float&newCoordY) {
     int origx=x;
     int origy=y;
+    y = gDisplayHeight-y;
     if (x>=gDisplayWidth) x=gDisplayWidth-1;
     if (y>=gDisplayHeight) y=gDisplayHeight-1;
     if (x<0) x=0;

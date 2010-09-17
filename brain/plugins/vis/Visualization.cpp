@@ -25,9 +25,6 @@ BrainPlugin* makeVisualization(Brain*b) {
     return v;
 }
 Visualization::Visualization(){
-    memset(mKeyDown,0,sizeof(mKeyDown));
-    memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
-    memset(mMouseButtons,0,sizeof(mMouseButtons));
     boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
@@ -328,7 +325,49 @@ void Visualization::drawNeuron(Neuron*n) {
     }
     
 }
-void Visualization::processEvent(struct Event&evt) {
+Visualization::InputStateMachine::InputStateMachine() {
+    memset(mKeyDown,0,sizeof(mKeyDown));
+    memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
+    memset(mMouseButtons,0,sizeof(mMouseButtons));
+}
+void Visualization::InputStateMachine::processPersistentState(const Visualization::Event&evt) {
+    const Visualization::Event* i=&evt;
+    mMouseX=i->mouseX;
+    mMouseY=i->mouseY;
+    switch(i->event) {
+      case Event::MOUSE_CLICK:
+        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+            mMouseButtons[i->button]=1;
+        }
+        break;
+      case Event::MOUSE_UP:
+        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+            mMouseButtons[i->button]=0;
+        }
+        break;
+      case Event::KEYBOARD:
+        mKeyDown[i->button]=1;
+        break;
+      case Event::KEYBOARD_UP:
+        mKeyDown[i->button]=0;
+        break;
+      case Event::KEYBOARD_SPECIAL:
+        if (i->button<256)
+            mSpecialKeyDown[i->button]=1;
+        break;
+      case Event::KEYBOARD_SPECIAL_UP:
+        if (i->button<256)
+            mSpecialKeyDown[i->button]=0;
+        break;
+      case Event::MOUSE_DRAG:
+        break;
+      case Event::MOUSE_MOVE:
+        break;
+    }
+
+}
+
+void Visualization::InputStateMachine::processEvent(Visualization*parent, const Event&evt) {
 }
 
 
@@ -336,55 +375,26 @@ void Visualization::doInput() {
     std::vector<Event> inputEvents;
     mInputEvents.swap(inputEvents);
     for (std::vector<Event>::iterator i=inputEvents.begin(),ie=inputEvents.end();i!=ie;++i) {
-        switch(i->event) {
-          case Event::MOUSE_CLICK:
-            if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
-                mMouseButtons[i->button]=1;
-            }
-            break;
-          case Event::MOUSE_UP:
-            if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
-                mMouseButtons[i->button]=0;
-            }
-            break;
-          case Event::KEYBOARD:
-            //amKeyDown[i->button]=1;
-            break;
-          case Event::KEYBOARD_UP:
-            //mKeyDown[i->button]=0;
-            break;
-          case Event::KEYBOARD_SPECIAL:
-            if (i->button<256)
-                mSpecialKeyDown[i->button]=1;
-            break;
-          case Event::KEYBOARD_SPECIAL_UP:
-            if (i->button<256)
-                mSpecialKeyDown[i->button]=0;
-            break;
-          case Event::MOUSE_DRAG:
-            break;
-          case Event::MOUSE_MOVE:
-            break;
-        }
-        processEvent(*i);
+        mInput.processPersistentState(*i);
+        mInput.processEvent(this,*i);
     }
     float speed=20;
-    if (mKeyDown['d']) {
+    if (mInput.mKeyDown['d']) {
         mOffset.x-=speed/mScale;
     }
-    if (mKeyDown['a']) {
+    if (mInput.mKeyDown['a']) {
         mOffset.x+=speed/mScale;
     }
-    if (mKeyDown['w']) {
+    if (mInput.mKeyDown['w']) {
         mOffset.y-=speed/mScale;
     }
-    if (mKeyDown['s']) {
+    if (mInput.mKeyDown['s']) {
         mOffset.y+=speed/mScale;
     }
-    if (mKeyDown['q']) {
+    if (mInput.mKeyDown['q']) {
         mScale*=.95;
     }
-    if (mKeyDown['e']) {
+    if (mInput.mKeyDown['e']) {
         mScale*=1.05;
     }
 }
@@ -402,6 +412,10 @@ void Visualization::draw() {
     purgeMarkedForDeathNeurons();
     doInput();
     glBegin(GL_QUADS);
+    glVertex3f(mInput.mMouseX,mInput.mMouseY,0);
+    glVertex3f(mInput.mMouseX,mInput.mMouseY-10,0);
+    glVertex3f(mInput.mMouseX-6,mInput.mMouseY-12,0);
+    glVertex3f(mInput.mMouseX-12,mInput.mMouseY-10,0);
     for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),
              ie=mBrain->mAllNeurons.end();
          i!=ie;

@@ -6,9 +6,6 @@ class GraphicsSystem;
 class Neuron;
 class Branch;
 class Visualization:public BrainPlugin  {
-    int mKeyDown[256];
-    int mSpecialKeyDown[256];
-    int mMouseButtons[5];
     ///Neurons marked for death by the main plugin
     std::vector<Neuron*> mfd;
     std::tr1::shared_ptr<GraphicsSystem> mGraphics;
@@ -58,9 +55,19 @@ public:
     void postInputEvent(const Event&evt);
 private:    
     //process a single event and make it adjust the input state machine
-    void processEvent(struct Event&evt);
 
     std::vector<Event>mInputEvents;
+    class InputStateMachine {
+    public:
+        int mKeyDown[256];
+        int mSpecialKeyDown[256];
+        int mMouseButtons[5];
+        float mMouseX;
+        float mMouseY;
+        void processPersistentState(const Visualization::Event&evt);
+        void processEvent(Visualization*parent, const Visualization::Event&evt);
+        InputStateMachine();
+    }mInput;
 };
 BrainPlugin* makeVisualization(Brain*b);
 }
