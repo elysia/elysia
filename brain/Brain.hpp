@@ -21,6 +21,7 @@ class BRAIN_CORE_EXPORT Brain {
     ProteinEnvironment::iterator mEnvironmentIteration;
     void syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::iterator environmentIterator);
 public:
+    void notifyPluginsNeuronDestruction(Neuron * mfd);
     void incrementNumNeurons(ProteinEnvironment::iterator i){
         mNumNeurons[i.uid()]++;
     }

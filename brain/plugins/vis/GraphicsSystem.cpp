@@ -58,6 +58,62 @@ int GraphicsSystem::getWidth()const{
 int GraphicsSystem::getHeight()const{
     return gDisplayHeight;
 }
+int getHeightPartition() {
+    int heightPartition=1;
+    if (gToRender.size()>3) {
+        heightPartition=2;
+    }
+    if (gToRender.size()>10) {
+        heightPartition=3;
+    }
+    return heightPartition;
+}
+int getWidthPartition() {
+    return gToRender.size()/getHeightPartition()+(gToRender.size()%getHeightPartition()?1:0);
+}
+float getUpperLeftX(size_t whichSystem) {
+    return (whichSystem%getWidthPartition())*gDisplayWidth;
+}
+float getLowerRightX(size_t whichSystem) {
+    int wid=getWidthPartition();
+    return (whichSystem%wid)*gDisplayWidth+gDisplayWidth/wid;
+}
+float getUpperLeftY(size_t whichSystem) {
+    return (whichSystem/getWidthPartition())*gDisplayHeight;
+}
+float getLowerRightY(size_t whichSystem) {
+    int wid=getWidthPartition();
+    return (whichSystem/wid)*gDisplayHeight+gDisplayHeight/getHeightPartition();
+}
+void getCoordsFromMouse(size_t whichWindow, int x, int y, float&newCoordX, float&newCoordY) {
+    size_t i=whichWindow;
+    float xl=getUpperLeftX(i);
+    float yl=getUpperLeftY(i);
+    float xu=getLowerRightX(i);
+    float yu=getLowerRightY(i);
+    newCoordX=(float)(x-(xl+xu)/2);
+    newCoordY=(float)(y-(yl+yu)/2);
+}
+size_t getSystemWindowAndCoordsFromMouse(int x, int y, float&newCoordX, float&newCoordY) {
+    int origx=x;
+    int origy=y;
+    if (x>=gDisplayWidth) x=gDisplayWidth-1;
+    if (y>=gDisplayHeight) y=gDisplayHeight-1;
+    if (x<0) x=0;
+    if (y<0) y=0;
+    for (size_t i=0;i<gToRender.size();++i) {
+        float xl=getUpperLeftX(i);
+        float yl=getUpperLeftY(i);
+        float xu=getLowerRightX(i);
+        float yu=getLowerRightY(i);
+        if (x>=xl && xu > x &&y>=yl && yu >y ) {
+            getCoordsFromMouse(i,origx,origy,newCoordX,newCoordY);
+            return i;
+        }
+    }
+    fprintf(stderr,"Cannot locate window under cursor right now");
+    return 0;
+}
 void Display(void) {
     if (!gKillGraphics) {
         glViewport(0,0,gDisplayWidth,gDisplayHeight);
@@ -67,22 +123,20 @@ void Display(void) {
             gRenderCompleteCondition.notify_one();
             if (gToRender.size()) {
                 gRenderCondition.wait(lok);
-                int heightPartition=1;
-                if (gToRender.size()>3) {
-                    heightPartition=2;
-                }
-                if (gToRender.size()>10) {
-                    heightPartition=3;
-                }
+                int heightPartition=getHeightPartition();
                 int i=0;
                 for (int h=0;h<heightPartition;++h) {
                     int wlim=gToRender.size()/heightPartition;
                     if (gToRender.size()%heightPartition) wlim++;
                     for (int w=0;w<wlim;++w,++i) { 
-                        glViewport(w*gDisplayWidth/wlim,
-                          h*gDisplayHeight/heightPartition,
-                          (w+1)*gDisplayWidth/wlim,
-                          (h+1)*gDisplayHeight/heightPartition);
+                        assert(w*gDisplayWidth/wlim==getUpperLeftX(i));
+                        assert(h*gDisplayHeight/heightPartition==getUpperLeftY(i));
+                        assert((w+1)*gDisplayWidth/wlim==getLowerRightX(i));
+                        assert((h+1)*gDisplayHeight/heightPartition==getLowerRightY(i));
+                        glViewport(getUpperLeftX(i),
+                                   getUpperLeftY(i),
+                                   getLowerRightX(i),
+                                   getLowerRightY(i));
                         glMatrixMode(GL_MODELVIEW);
                         glLoadIdentity();
                         glScalef(2*wlim/(float)(gDisplayWidth),2*heightPartition/(float)(gDisplayHeight),1.0);
@@ -127,11 +181,102 @@ void Idly() {
         glutPostRedisplay();
     }
 }
-void kbd(unsigned char key, int x, int y) {
-    Elysia::glutKeyDown[key]=1;
+void kbdOrSpecial(unsigned char key, int x, int y, bool special) {
+    using namespace Elysia;
+    Visualization::Event evt;
+    evt.event=special?Visualization::Event::KEYBOARD_SPECIAL:Visualization::Event::KEYBOARD;
+    float newX=0,newY=0;
+    size_t which=getSystemWindowAndCoordsFromMouse(x,y,newX,newY);
+    evt.button=key;
+    evt.modCodes=glutGetModifiers();
+    if (gToRender.size()>which) {
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        gToRender[which]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
+    glutKeyDown[key]=1;
 }
-void kbdUp(unsigned char key, int x, int y) {
+void kbdOrSpecialUp(int key, int x, int y, bool special) {
+    using namespace Elysia;
+    Visualization::Event evt;
+    evt.event=special?Visualization::Event::KEYBOARD_SPECIAL_UP:Visualization::Event::KEYBOARD_UP;
+    float newX=0,newY=0;
+    size_t which=getSystemWindowAndCoordsFromMouse(x,y,newX,newY);
+    evt.button=key;
+    evt.modCodes=glutGetModifiers();
+    for (size_t i=0;i<gToRender.size();++i) {
+        getCoordsFromMouse(i,x,y,newX,newY);
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        gToRender[i]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
     Elysia::glutKeyDown[key]=0;
+}
+static size_t elysiaMouseLastDrag=0;
+void mouseFunc(int button, int up, int x, int y) {
+    using namespace Elysia;
+    Visualization::Event evt;
+    evt.event=(up==GLUT_UP?Visualization::Event::MOUSE_UP:Visualization::Event::MOUSE_CLICK);
+    float newX=0,newY=0;
+    size_t which=getSystemWindowAndCoordsFromMouse(x,y,newX,newY);
+    evt.button=button;
+    evt.modCodes=glutGetModifiers();
+    if (up==GLUT_UP) {
+    for (size_t i=0;i<gToRender.size();++i) {
+        getCoordsFromMouse(i,x,y,newX,newY);
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        gToRender[i]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
+    }else if (which<gToRender.size()) {
+        getCoordsFromMouse(which,x,y,newX,newY);
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        elysiaMouseLastDrag=which;
+        gToRender[which]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
+}
+void mouseDrag(int x, int y) {
+    using namespace Elysia;
+    Visualization::Event evt;
+    evt.event=Visualization::Event::MOUSE_DRAG;
+    float newX=0,newY=0;
+    size_t which=getSystemWindowAndCoordsFromMouse(x,y,newX,newY);
+    evt.button=0;
+    evt.modCodes=glutGetModifiers();
+    if (elysiaMouseLastDrag<gToRender.size()){
+        getCoordsFromMouse(elysiaMouseLastDrag,x,y,newX,newY);
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        gToRender[elysiaMouseLastDrag]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
+}
+
+void mouseMove(int x, int y) {
+    using namespace Elysia;
+    Visualization::Event evt;
+    evt.event=Visualization::Event::MOUSE_DRAG;
+    float newX=0,newY=0;
+    evt.button=0;
+    evt.modCodes=glutGetModifiers();
+    size_t which=getSystemWindowAndCoordsFromMouse(x,y,newX,newY);
+    if (which<gToRender.size()){
+        evt.mouseX=newX;
+        evt.mouseY=newY;
+        gToRender[which]->postInputEvent(evt);//FIXME is a lock necessary?
+    }
+}
+void kbd(unsigned char c, int x, int y) {
+    kbdOrSpecial(c,x,y,false);
+}
+void kbdUp(unsigned char c, int x, int y) {
+    kbdOrSpecialUp(c,x,y,false);
+}
+void specialkbd(int c, int x, int y) {
+    kbdOrSpecial(c,x,y,true);
+}
+void specialkbdUp(int c, int x, int y) {
+    kbdOrSpecialUp(c,x,y,true);
 }
 volatile bool myfuncInitialized=false;
 void myfunc() {
@@ -160,6 +305,11 @@ void myfunc() {
         glutReshapeFunc(Elysia::Reshape);
         glutKeyboardFunc(&kbd);
         glutKeyboardUpFunc(&kbdUp);
+        glutPassiveMotionFunc(&mouseMove);
+        glutMotionFunc(&mouseDrag);
+        glutMouseFunc(&mouseFunc);
+        glutSpecialFunc(&specialkbd);
+        glutSpecialUpFunc(&specialkbdUp);
         glutTimerFunc(0,Timer,0);
         
         glMatrixMode(GL_PROJECTION);

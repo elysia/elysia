@@ -89,7 +89,9 @@ static void arrow (float ox,float oy, float oz, float ex, float ey, float ez, fl
   glVertex3f(ex,ey,ez);
   glVertex3f(ex-6*dx-3*idx,ey-6*dy-3*idy,ez);
 }
+void Visualization::postInputEvent(const Event&evt){
 
+}
 static void selectionArrow(Vector3f start, Vector3f finish, float thickness, float *col=selectiondefaultcol) {
 
   float zero[4]={0,0,0,0};
@@ -346,8 +348,18 @@ void Visualization::doInput() {
         mScale*=1.05;
     }
 }
+void Visualization::purgeMarkedForDeathNeurons() {
+   
+    for (std::vector<Neuron*>::iterator i=mfd.begin(),ie=mfd.end();i!=ie;++i) {
+        SelectedNeuronMap::iterator where =mSelectedNeurons.find(*i);
+        if (where!=mSelectedNeurons.end()) {
+            mSelectedNeurons.erase(where);
+        }
+    }
+}
+
 void Visualization::draw() {
-    // Anti-Clockwise Winding
+    purgeMarkedForDeathNeurons();
     doInput();
     glBegin(GL_QUADS);
     for (Brain::NeuronSet::iterator i=mBrain->mAllNeurons.begin(),
@@ -370,4 +382,8 @@ Visualization::~Visualization() {
     mGraphics=std::tr1::shared_ptr<GraphicsSystem>();
 
 }
+void Visualization::notifyNeuronDestruction(Neuron*n){
+    mfd.push_back(n);
+}
+
 }

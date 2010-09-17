@@ -6,6 +6,8 @@ class GraphicsSystem;
 class Neuron;
 class Branch;
 class Visualization:public BrainPlugin  {
+    ///Neurons marked for death by the main plugin
+    std::vector<Neuron*> mfd;
     std::tr1::shared_ptr<GraphicsSystem> mGraphics;
     static std::tr1::weak_ptr<GraphicsSystem> mGlobalGraphics;
     Brain * mBrain;
@@ -23,13 +25,33 @@ class Visualization:public BrainPlugin  {
     void drawDendrites(const Neuron* n, const CellComponent* dendrite, Vector3f startLocation, float scale);
     void drawNeuron(Neuron*n);
     void doInput();
-    
+    typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
+    SelectedNeuronMap mSelectedNeurons;
+    void purgeMarkedForDeathNeurons();
 public:
     Visualization();
     void draw();
     void update();
     void initialize(Brain*b);
+    void notifyNeuronDestruction(Neuron*n);
     ~Visualization();
+    struct Event {
+        enum {
+            MOUSE_CLICK,
+            MOUSE_UP,
+            MOUSE_DRAG,
+            MOUSE_MOVE,
+            KEYBOARD,
+            KEYBOARD_UP,
+            KEYBOARD_SPECIAL,
+            KEYBOARD_SPECIAL_UP
+        } event;
+        float mouseX;
+        float mouseY;
+        int button;
+        int modCodes;
+    };
+    void postInputEvent(const Event&evt);
 };
 BrainPlugin* makeVisualization(Brain*b);
 }
