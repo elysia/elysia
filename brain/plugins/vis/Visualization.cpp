@@ -152,6 +152,7 @@ static void selectionArrow(Vector3f start, Vector3f finish, float thickness, flo
   glVertex3f(start.x,start.y,start.z);
 }
 void arrow(Vector3f start, Vector3f finish, float thickness) {
+//    printf("Drawing arrow from %f %f %f to %f %f %f t %f\m",           start.x,start.y,start.z,finish.x,finish.y,finish.z,thickness);
   arrow(start.x,start.y,start.z,finish.x,finish.y,finish.z,thickness);
 }
 void drawRect(Vector3f lower_left,Vector3f upper_right) {
@@ -279,7 +280,11 @@ void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3
     for (Branch::SynapseConstIterator i=dendrite->childSynapseBegin(),ie=dendrite->childSynapseEnd();i!=ie;++i) {
         Neuron * destination = (*i)->mRecipientNeuron;
         if (destination) {
-            arrow(destination->getLocation(),top,10);
+            float wid=0;
+            float hei=0;
+            bool text=getNeuronWidthHeight(destination->getName(), wid,hei,mSelected.find(destination)!=mSelected.end());
+            Vector3f scaledDestination = getNeuronLocation(destination);
+            arrow(scaledDestination-Vector3f(0,hei/2,0),top,1);
         }
     }
 }
@@ -299,7 +304,7 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
         if (scale)
             drawParallelogramLineSegment(top,dest,width);
         const CellComponent *nextInLine = *i;
-        drawDendrites(n,nextInLine,dest,scale*.5);
+        drawDendrites(n,nextInLine,scale?dest:top,scale*.5);
     }
     {
         const Branch * b = dynamic_cast<const Branch*>(dendrite);
