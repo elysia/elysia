@@ -15,6 +15,7 @@
 #define INPUT_REGION_MAXY		5.0f
 #define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of ((max-min)/spacing)^2
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
+#define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated
 
 #include <boost/math/distributions/uniform.hpp>
 #include <boost/random.hpp>
@@ -32,6 +33,7 @@ Brain::Brain (ProteinEnvironment *proteinMap){
     mProteinMap=proteinMap;
     mSpatialSearch=new SimpleSpatialSearch;
     mAge=0;
+	mDevelopmentCounter=0;
 	createInputRegion(INPUT_NEURONS);
     makeInitialNeurons();
     BrainPlugins::constructAll(this).swap(mPlugins);
@@ -100,6 +102,8 @@ void Brain::tick(){
 	processSynapse();
 	//developAllNeurons();
     ++mCurTime;
+	++mDevelopmentCounter;
+	if(mDevelopmentCounter%10 == 0)this->processDevelopment();
     mAge+=1.0e-6;//fixme this is probably not correct: we probably need genes to do this
     if (mAge>1.0) mAge=1.0;
     for(std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
@@ -140,6 +144,9 @@ void Brain::processSynapse(){
 	}
 }
 
+
+
+
 /**
  *	@param Synapse *inactiveSynapse - synapse to remove
  *
@@ -150,6 +157,13 @@ void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 	inactiveSynapse->mWhere=activeSynapseListSentinel();
 }
 
+
+void Brain::deleteSynapse(Synapse *deletedSynapse){
+	//mActiveSynapses.erase(deletedSynapse->mWhere);
+}
+
+
+
 /**
  *	@param Neuron *inactiveNeuron - an inactive neuron to remove
  *
@@ -158,6 +172,10 @@ void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 void Brain::inactivateNeuron(Neuron *inactiveNeuron){
 	mActiveNeurons.erase(inactiveNeuron->mWhere);
 	inactiveNeuron->mWhere=activeNeuronListSentinel();
+}
+
+void Brain::deleteNeuron(Neuron *deletedNeuron){
+	//mAllNeurons.erase(deletedNeuron->mWhere);
 }
 
 /**
@@ -221,7 +239,8 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
 	v.y = y;
 	v.z = z;
 	Neuron *n;
-	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene)); 
+	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene));
+	this->mDevelopingNeurons.insert(n);
 	return n;
 }
 
@@ -259,7 +278,11 @@ void Brain::fireInputNeuron(int neuronNumber){
 	//printf("input");
 }
 
-
+void Brain::processDevelopment(){
+	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
+		(*i)->tick();
+	}
+}
 
 /**
  * @return the bounds of all genes in the brain, i.e. where the farthest neurons may spout
