@@ -194,6 +194,7 @@ void Brain::deleteNeuron(Neuron *deletedNeuron){
 	}
 }
 
+
 /**
  *	@param Synapse *activeSynapse - a synapse to activate
  *	@return	the beginning element of the active synapses list for this brain
@@ -222,9 +223,9 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
  *	Brain destructor
 **/
 Brain::~Brain() {
-	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
-		delete *i;
-	}
+	while(!mAllNeurons.empty()){
+        delete *mAllNeurons.begin();
+    }
     delete mSpatialSearch;
     delete mProteinMap;
     for (std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
