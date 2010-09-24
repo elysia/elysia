@@ -22,6 +22,7 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
     //Since they can represent a collection of genes,
     //They are chopped during the intersection process and overlap regions become new zones
     const Elysia::Genome::Chromosome *fatherMother[2];
+    float current_soup_density;
     fatherMother[0]=&genes.fathers();
     fatherMother[1]=&genes.mothers();
     //Loop through all the genes
@@ -38,8 +39,21 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
               newGeneSoup.mGenes=*gene;
               int num_proteins=gene->external_proteins_size();
               for (int j=0;j<num_proteins;++j) {
+                  /*
+                   Init Step:
+                   Spawn all zones
+                   Start all zones with initial densities
+                   All other densities are 0 but present
+                   */
                   const Elysia::Genome::Protein *protein=&gene->external_proteins(j);
-                  newGeneSoup.mSoup.push_back(ProteinZone::GeneSoupStruct::EffectAndDensityPair(protein->protein_code(),protein->density()));
+                  //On startup, age = 0, so the minimum_t has to be 0 or less, else it's off
+                  current_soup_density=0;
+                  if (gene->bounds(k).mint()<=0 && gene->bounds(k).maxt()>=0) {
+                      current_soup_density=protein->density();
+                  }
+                  newGeneSoup.mSoup.push_back( ProteinZone::GeneSoupStruct::EffectAndDensityPair(
+                                                                                                 protein->protein_code(),
+                                                                                                 current_soup_density));
               }
               newZone.mGeneSoup.push_back(newGeneSoup);
               newZone.mBounds =BoundingBox3f3f(Vector3f(gene->bounds(k).minx(),
@@ -184,10 +198,64 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
 /**
  *	@param const float age - current age
  *
- *	Description:	Update ALL the mSoup (densities) for the next timestep, (given the current age)
+ *	Description:	Update the mSoup (densities) for the next timestep, (given the current age)
 **/
-void SimpleProteinEnvironment::ProteinZone::updateSoupToNextSoup(const float age){
-	//Will write this function last
+void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age){
+    /*
+     Update Step: (given age)
+     Cycle through each zone
+     Open Gene data and use:
+     Conditional (conjunction)
+     Gene Bound (temporal bound -> contains(age) )
+     Update appropriate soup/density of effect (conditional)
+     */
+
+    std::vector<ProteinZone::GeneSoupStruct>::iterator j,je;
+    //std::vector<ProteinZone::GeneSoupStruct::EffectAndDensityPair>::iterator l,le;
+    
+    //Temporal information stored on the Gene, can skip effect/density update if value fails temporal test
+    //Cycle through all the gene-soup members in that zone
+    for (j=mygenesoup.begin(),je=mygenesoup.end();j!=je;++j){
+        //Reference gene data - cycle through the bounds
+        int num_bounds=j->mGenes.bounds_size();
+        for (int k=0;k<num_bounds;++k) {
+            //Check time range
+            if (j->mGenes.bounds(k).mint()<=age && j->mGenes.bounds(k).maxt()>=age) {      
+                //If yes, cycle through effect/density pairs
+                //find and analyze conditionals
+                //Update appropriate soup/density of effect
+            }
+        }
+    }
+  
+//                     what is a conjunction?
+//                     danielrh:  it's like an && clause
+//                     so you get
+//                     (a||b||c)&&(d||e||f)&&(h||a||c)
+//                     where a, b, and c are effects
+//                     disjunction is the ||
+//                     conjunction is the &&
+//                     and the Test clause
+//                     all of this is in genome.proto
+//                     http://code.google.com/apis/protocolbuffers/docs/reference/cpp-generated.html
+//                     http://code.google.com/p/protobuf/
+//
+//                    //Methods to accomplish this:
+//                    //CALL MAGIC FUNCTION
+//                    //A
+//                        //1. Total up the a single effect in the zone
+//                        //2. Make a list of this total
+//                        //3. Check each gene conditional to see if it is triggered by the environmental totals
+//                        //4. Update changes to contribution of each gene via activation/deactivation
+//                        //ASSUME: I start knowing what the surrounding soup densities look like
+//                    //B
+//                        //1. Make a check function for validity: 
+//                            //bool checkValidity(const Genome::Condition&, const ProteinZone&current_zone)
+//                        //2. Cycle through each effect and update?
+//                        //ASSUME: A function told me if any given clause is valid at a given zone
+//                    
+//                    //Line 638 starts the conjunction
+  
 }
 
 /**
@@ -431,7 +499,7 @@ void SimpleProteinEnvironment::addZones( const std::vector<ProteinZone> &mSubZon
 	}
 	return;
 }
-
+  
 /**
  *
  *	@param std::vector<ProteinZone> mSubZoneList - zone sub-list
@@ -445,6 +513,24 @@ void SimpleProteinEnvironment::removeZones(  std::vector<ProteinZone> mSubZoneLi
     //Find and remove all matching entries in the sub-list out of the main-list
 }
 
+/**
+ *
+ *	@param float
+ *	@returns none
+ *
+ *	Description:	Optional function to do the update of the protein environment
+ *                Technically, we only need to call the actual soup update as allowed
+ *                by the simulation resources.  Updates may not need to occur all the
+ *                time either.
+ **/
+void SimpleProteinEnvironment::updateAllEnvironmentSoup(float age){
+  //Split main loop out here
+  std::vector< ProteinZone >::iterator i,ie;
+  for (i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
+    ProteinZone::updateEachZoneGeneSoup(i->mGeneSoup,age);
+  }
+}
+  
 /**
  *	
  *	@param const Vector3f queryPoint - given point 
