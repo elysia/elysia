@@ -30,7 +30,7 @@ Synapse::Synapse(CellComponent * parent){
 Synapse::~Synapse(){
 	bool a=detach();
 	mBrain->inactivateSynapse(this);
-	mBrain->deleteSynapse(this);
+	//mBrain->deleteSynapse(this);		//Removed when AllSynapse list was removed
 	if(!a){
 		assert(this);
 	}

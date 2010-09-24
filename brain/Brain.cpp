@@ -160,10 +160,17 @@ void Brain::inactivateSynapse(Synapse *inactiveSynapse){
 }
 
 
+/* Removed when AllSynapses set removed
 void Brain::deleteSynapse(Synapse *deletedSynapse){
-	//mActiveSynapses.erase(deletedSynapse->mWhere);
-}
 
+	for(std::set<Synapse*>::iterator j=mAllSynapses.begin(),je=mAllSynapses.end();j!=je; ++j) {
+			 if( *j == deletedSynapse){
+				 mAllSynapses.erase(*j);
+			 }
+	}
+	
+}
+*/
 
 
 /**
@@ -179,7 +186,12 @@ void Brain::inactivateNeuron(Neuron *inactiveNeuron){
 }
 
 void Brain::deleteNeuron(Neuron *deletedNeuron){
-	//mAllNeurons.erase(deletedNeuron->mWhere);
+	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie; ++i) {
+			 if( *i == deletedNeuron){
+				 mAllNeurons.erase(*i);
+				 break;
+			 }
+	}
 }
 
 /**
