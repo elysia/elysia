@@ -98,7 +98,7 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
 void Brain::tick(){
 	processNeuron();
 	processSynapse();
-	developAllNeurons();
+	//developAllNeurons();
     ++mCurTime;
     mAge+=1.0e-6;//fixme this is probably not correct: we probably need genes to do this
     if (mAge>1.0) mAge=1.0;
@@ -260,7 +260,7 @@ void Brain::fireInputNeuron(int neuronNumber){
 	Neuron* n= mInputNeurons[neuronNumber];
 	n->setActivity(5);
 	this -> activateNeuron(n);
-	printf("input");
+	//printf("input");
 }
 
 

@@ -44,7 +44,7 @@ private:
 	float mNeuronSignalWeight;
     SimTime mLastActivity;
 	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
-	
+	int type;							//Input neuron = 0, otherwise = 1
 
     virtual Neuron*getParentNeuron(){return this;}
 
