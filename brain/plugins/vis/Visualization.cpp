@@ -379,6 +379,11 @@ void Visualization::InputStateMachine::processPersistentState(const Visualizatio
     }
 
 }
+
+bool Visualization::getCurrentNeuronWidthHeight(Neuron * n, float&width,float&hei) {
+    assert(0);
+    return false;
+}
 bool Visualization::click (Neuron * n, float x, float y) {
     Vector3f where=getNeuronLocation(n);
     float wid=0,hei=0;
