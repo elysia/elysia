@@ -100,7 +100,7 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
 void Brain::tick(){
 	processNeuron();
 	processSynapse();
-	//developAllNeurons();
+	developAllNeurons();
     ++mCurTime;
 	++mDevelopmentCounter;
 	if(mDevelopmentCounter%10 == 0)this->processDevelopment();
