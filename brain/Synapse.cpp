@@ -167,7 +167,7 @@ void Synapse::develop(const ActivityStats& stats){
 	    	else{
 	    		mConnectionStrength += initialWeaken;
 				if(mConnectionStrength < _DISCONNECT_THRESHOLD_){
-					//this->detach();
+					this->detach();
 				}
 	    	}
 	    }
