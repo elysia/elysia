@@ -82,7 +82,7 @@ void testDevelopment(){
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
-		for(int k=0;k<100;k+=2){
+		for(int k=0;k<100;k+=7){
 			brain->fireInputNeuron(k);
 			}
 		printf("%i",j);
