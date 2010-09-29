@@ -51,6 +51,7 @@ public:
 	//SynapseSet mAllSynapses;					//Removed due to lack of purpose
     BoundingBox3f3f getBounds()const;
     void tick();
+    void drawFrame();
 	void processSynapse();
 	void processNeuron();
 	void developAllNeurons();
