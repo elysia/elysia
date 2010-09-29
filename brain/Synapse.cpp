@@ -25,6 +25,7 @@ Synapse::Synapse(CellComponent * parent){
 	mFiringWindow = 10;			//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
     mWhere=mBrain->activeSynapseListSentinel();
+	mDevelopmentStage = 0;
 }
 
 Synapse::~Synapse(){
@@ -130,9 +131,12 @@ void Synapse::residualFire(){
 			mBrain->inactivateSynapse(this);
 		}
 		mParentBranch->activateComponent(*mBrain, mSignalWeight);
+		if(mDevelopmentStage == 0){
+			mParentBranch->passDevelopmentSignal(mSignalWeight);
+		}
 	}
 	else{
-		assert(this);		// what is this doing here?
+		assert(this);		//A synapse should not be on the process synapse list if its counter is 0
 	}
 }
 
@@ -162,25 +166,25 @@ void Synapse::develop(const ActivityStats& stats){
 	    	}
 	    	else{
 	    		mConnectionStrength += initialWeaken;
+				if(mConnectionStrength < _DISCONNECT_THRESHOLD_){
+					//this->detach();
+				}
 	    	}
 	    }
 	    else{
-	    	if(stats.mBestDevelopmentSignal >= earlyDevelopmentWindow ){
-	    		if(mFiringCounter > 0){
-	    			strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
-	    			if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
-	    			if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    			mConnectionStrength += strengthenAmount;
-	    		}
-	    		else{
-	    			strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
-	    			if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    			mConnectionStrength += strengthenAmount;
-	    		}
+	    	if(mFiringCounter > 0){
+	    		strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
+	    		if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
+	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
+	    		mConnectionStrength += strengthenAmount;
 	    	}
-	    	else{ assert(0);}		// there are probably better ways to do this
+	    	else{
+	    		strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
+	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
+	    		mConnectionStrength += strengthenAmount;
+	    	}
 	    }
-    }
+	}
     else{
         this->connect();
     }

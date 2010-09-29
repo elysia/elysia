@@ -209,7 +209,7 @@ void Neuron::tick(){
 		if(mDevelopmentCounter == 0){
 			ActivityStats& stats = getActivityStats();
 			developSynapse(stats);
-			mDevelopmentCounter	= 30;					//number of timesteps before next development re-evaluation
+			//mDevelopmentCounter	= 30;					//number of timesteps before next development re-evaluation
 		}
 		else{ mDevelopmentCounter--;}
 	}

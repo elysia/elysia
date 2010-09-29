@@ -4,11 +4,12 @@
 #define _STRENGTHEN_AMOUNT_		0.0f
 #define _EARLY_DEV_WINDOW_		40
 #define _INITIAL_STRENGTHEN_	0.04f
-#define _INITIAL_WEAKEN_		-0.01f
+#define _INITIAL_WEAKEN_		-0.2f
 #define _CHANGE_SIZE_			0.1f
 #define _MAX_STRENGTHEN_		0.1f
 #define _MAX_WEAKEN_			-0.04f
 #define _STRENGTHEN_RANGE_		2.0f
+#define _DISCONNECT_THRESHOLD_	0.3f
 
 namespace Elysia {
 class CellComponent;
@@ -28,7 +29,8 @@ public:
     float mSignalWeight;
     int mFiringWindow;		//How long this synapse stays active for
     int mFiringCounter;     //Starts at mFiringWindow and counts down to 0 (then synapse deactivates)
-    CellComponent* mParentBranch;
+    int mDevelopmentStage;	//0 for developing, 1 for mature (indicates whether neuron is still undergoing development)
+	CellComponent* mParentBranch;
     Neuron *mRecipientNeuron;
     float mConnectionStrength;
     bool detach();		//Detach dendrite tip from target neuron return 1 for success

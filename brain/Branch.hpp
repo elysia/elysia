@@ -32,6 +32,7 @@ class BRAIN_CORE_EXPORT Branch:  public CellComponent{
     SynapseIterator childSynapseEnd(){ return mChildSynapses.end();}
     SynapseConstIterator childSynapseBegin()const{ return mChildSynapses.begin();}
     SynapseConstIterator childSynapseEnd()const{ return mChildSynapses.end();}
+	float developmentWeight;
 };
 
 }

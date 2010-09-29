@@ -52,7 +52,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 1;
+	int neuronNumber = 10;
 
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
@@ -74,14 +74,14 @@ void testDevelopment(){
         //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<100; j++){
+	for(int j=0; j<1000; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			//if(j==0){n->activateComponent(*brain,100);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
-		for(int k=0;k<100;k++){
+		for(int k=0;k<100;k+=2){
 			brain->fireInputNeuron(k);
 			}
 		printf("%i",j);
