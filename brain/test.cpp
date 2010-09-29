@@ -56,13 +56,14 @@ void testDevelopment(){
 
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 30, 30, 0.5, 0.5, 0.5); 
+		Neuron* n = placeTestNeuron(brain, 1000, 1000, 100, 100, 100); 
 		createdList.push_back(n);
 	}
 
 	//Region 2
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 100, 100, 60, 60, 5); 
+		
+		Neuron* n = placeTestNeuron(brain, 2000, 2000, 1000, 1000, 100); 
 		createdList.push_back(n); 
 	}
 
@@ -74,7 +75,7 @@ void testDevelopment(){
         //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<1000; j++){
+	for(int j=0; j<100; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			//if(j==0){n->activateComponent(*brain,100);}

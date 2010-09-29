@@ -10,12 +10,12 @@
 
 #define INPUT_NEURONS			100
 #define INPUT_REGION_MINX		0.0f
-#define INPUT_REGION_MAXX		5.0f
+#define INPUT_REGION_MAXX		200.0f
 #define INPUT_REGION_MINY		0.0f
-#define INPUT_REGION_MAXY		5.0f
-#define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of ((max-min)/spacing)^2
+#define INPUT_REGION_MAXY		200.0f
+#define INPUT_REGION_SPACING	10.0f	//This also implies max input neurons of ((max-min)/spacing)^2
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
-#define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated
+#define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated PRESENTLY UNUSED
 
 #include <boost/math/distributions/uniform.hpp>
 #include <boost/random.hpp>
