@@ -87,6 +87,10 @@ void testDevelopment(){
 			}
 		printf("%i",j);
 		brain ->tick();
+        for (int i=0;i<100;++i) {
+            brain->drawFrame();
+        }
+        printf ("Frame\n");
 	}
 	//brain->fireInputNeuron(2);
 	fclose(dendriteTree);

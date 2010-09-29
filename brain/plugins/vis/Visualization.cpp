@@ -29,7 +29,7 @@ Visualization::Visualization(){
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
     }
-    mNeuronSize=.25;
+    mNeuronSize=.5;
     mSynapseSnapToEdge=true;
     mScale=100.0;
     mOffset=Vector3f(0,0,0);
@@ -189,7 +189,7 @@ int stringWidth(const std::string &dat, bool addspace, bool removespace) {
 #define lowest_special_char ((char)35)
 
 bool Visualization::getNeuronWidthHeight(const std::string &text, float&wid,float&hei,bool selected) {    
-    float minh=10;
+    float minh=.5;
     bool drawText=text.length()&&(text[0]==' '||(text[0]>=lowest_special_char&&text[0]<=highest_special_char));
     float neuronsize=mNeuronSize*mScale;
     float neuronheight=neuronsize;
@@ -295,11 +295,11 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
     CellComponent::ChildIterator i=dendrite->childBegin(),ie=dendrite->childEnd(),b;
     size_t size = ie-i;
     b=i;    
-    if (scale<10.0) scale=0.0;
+    if (scale<.25) scale=0.0;
     float width = scale*.125/size;
-    float height = mScale*5;
-    if (height<1.0) height=1.0;
-    if (width<2.0) width=2.0;
+    float height = mScale;
+    //if (height<1.0) height=1.0;
+    //if (width<2.0) width=2.0;
     for (;i!=ie;++i) {
         Vector3f dest = Vector3f(top.x-scale*.25+scale*(i-b)/((double)size),
                                  top.y+height,
@@ -322,7 +322,7 @@ void Visualization::drawNeuron(Neuron*n) {
     Vector3f top = drawNeuronBody(n);
     bool drawDendrites=true;
     if (drawDendrites) {
-        this->drawDendrites(n, n, top, mScale*20);
+        this->drawDendrites(n, n, top, mScale*2);
     }
     
 }
