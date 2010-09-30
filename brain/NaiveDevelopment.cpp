@@ -1,6 +1,15 @@
 #include "NaiveDevelopment.hpp"
-
+#include "DevelopmentFactory.hpp"
 namespace Elysia {
+static Development*makeNaiveDevelopment() {
+    return new NaiveDevelopment;
+}
+
+static bool initiateNaiveDevelopment() {
+    DevelopmentFactory::getSingleton().registerConstructor ("naive",&makeNaiveDevelopment,true);
+    return true;
+}
+
 NaiveDevelopment::NaiveDevelopment() {
     mDevelopmentSignal=0;
 }
@@ -63,7 +72,7 @@ void NaiveDevelopment::passDevelopmentSignal(Synapse*s,
 #define _DISCONNECT_THRESHOLD_	0.3f
 //ENDFIXME
 
-
+bool initiated=initiateNaiveDevelopment();
 void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenAmount=_STRENGTHEN_AMOUNT_;
 	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"

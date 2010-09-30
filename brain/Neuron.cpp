@@ -11,7 +11,7 @@
 #include "Development.hpp"
 
 //Fixme: instaed include development factory by which we pull out NaiveDevelopment
-#include "NaiveDevelopment.hpp"
+#include "DevelopmentFactory.hpp"
 #include <time.h>
 
 namespace Elysia {
@@ -55,7 +55,7 @@ Neuron::~Neuron() {
 **/
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     
-    mDevelopment = new NaiveDevelopment();//FIXME make it go through plugin load procedure and fetch Development algo by gene or by string
+    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("naive")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;

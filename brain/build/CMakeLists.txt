@@ -328,6 +328,8 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/MainThread.hpp
   ${BRAIN_SOURCE_DIR}/Neuron.cpp
   ${BRAIN_SOURCE_DIR}/Neuron.hpp  
+  ${BRAIN_SOURCE_DIR}/DevelopmentFactory.hpp  
+  ${BRAIN_SOURCE_DIR}/DevelopmentFactory.cpp  
   ${BRAIN_SOURCE_DIR}/StandardDevelopment.hpp  
   ${BRAIN_SOURCE_DIR}/NaiveDevelopment.hpp  
   ${BRAIN_SOURCE_DIR}/NaiveDevelopment.cpp  
