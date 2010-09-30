@@ -62,39 +62,6 @@ void Branch::activateComponent(Brain&brain, float signal){
     }
 }
 
-/**
- *	@param float signal - signal to pass to parent component
- *
- *	Description:	If the activity is above a threshold, then add weight to the signal.
- *					Passes this signal argument, with possible added weight, to its parent
- *					component.
-**/
-void Branch::passDevelopmentSignal(float signal){
-    if(mActivity > mThreshold){
-		signal += mSignalWeight;
-    }
-	mParentComponent->passDevelopmentSignal(signal);
-}
-
-/**
- *	@param const ActivityStats& stats - activity statistics for this synapse
- *
- *	Description:	For all the child synapses of this branch, call their develop() methods. 
- *					Then call this function for all child synapses, using the argument passed
- *					to this function as the argument for the above two.
-**/
-void Branch::developSynapse(const ActivityStats& stats){
-	
-	for (std::vector<Synapse*>::iterator i=mChildSynapses.begin(),ie=mChildSynapses.end();
-         i!=ie;
-         ++i)
-		(*i)->develop(stats);
-	
-	for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
-         i!=ie;
-         ++i)
-		(*i)->developSynapse(stats);
-}
 
 
 /**

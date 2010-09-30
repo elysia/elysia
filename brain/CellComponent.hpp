@@ -29,9 +29,10 @@ public:
 	virtual ProteinDensity &getProteinDensityStructure()=0;
     virtual void activateComponent(Brain&,float signal)=0; //negative possible for inhibition
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, float baseThreshold, float tipThreshold, int depth);
-	virtual void passDevelopmentSignal(float signal)=0;
-	virtual void developSynapse(const ActivityStats& stats)=0;
 	void setActivity(float activity);
+    float getActivity()const {return mActivity;}
+    bool activityGreaterThanThreshold()const {return mActivity>mThreshold;}
+    
     typedef std::vector<Branch*>::const_iterator ChildIterator;
     ChildIterator childBegin()const;
     ChildIterator childEnd()const;

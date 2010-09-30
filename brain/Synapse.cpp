@@ -5,7 +5,7 @@
 #include "ActivityStats.hpp"
 #include "Brain.hpp"
 #include "SpatialSearch.hpp"
-
+#include "Development.hpp"
 #define SIGNAL_WEIGHT	1.01f
 //Takes care of disconnecting DendriteTip. Should be called in destructor
 
@@ -25,7 +25,6 @@ Synapse::Synapse(CellComponent * parent){
 	mFiringWindow = 10;			//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
     mWhere=mBrain->activeSynapseListSentinel();
-	mDevelopmentStage = 0;
 }
 
 Synapse::~Synapse(){
@@ -131,64 +130,13 @@ void Synapse::residualFire(){
 			mBrain->inactivateSynapse(this);
 		}
 		mParentBranch->activateComponent(*mBrain, mSignalWeight);
-		if(mDevelopmentStage == 0){
-			mParentBranch->passDevelopmentSignal(mSignalWeight);
-		}
+        mParentBranch->getParentNeuron()->development()->passDevelopmentSignal(this,mParentBranch,mSignalWeight);
 	}
 	else{
 		assert(this);		//A synapse should not be on the process synapse list if its counter is 0
 	}
 }
 
-/**
- *	@param const ActivityStats& stats - activity statistics
- *
- *	Description:	If the neuron is in its early states then give it some initial strengthening or weakening.
- *					Otherwise, the connection is strengthened or weakened based on some other function (see code).
- *					If this synapse isn't connected to anything, then the above does not occur and the synapse is connected
- *					to a neuron based on the connect() function
-**/
-void Synapse::develop(const ActivityStats& stats){
-
-	float strengthenAmount=_STRENGTHEN_AMOUNT_;
-	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
-	float initialStrengthen = _INITIAL_STRENGTHEN_;			//How much to strengthen a firing synapse in early development
-	float initialWeaken = _INITIAL_WEAKEN_;
-	float changeSize = _CHANGE_SIZE_;				//Controls how quickly strengthening and weakening happen in mid-development
-	float maxStrengthen = _MAX_STRENGTHEN_;			//Maximum amount to strengthen in mid-development
-	float maxWeaken = _MAX_WEAKEN_;					//Maximum amount to weaken in mid-development
-	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
-
-    if(mRecipientNeuron){
-    	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
-	    	if(mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
-	    		mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
-	    	}
-	    	else{
-	    		mConnectionStrength += initialWeaken;
-				if(mConnectionStrength < _DISCONNECT_THRESHOLD_){
-					this->detach();
-				}
-	    	}
-	    }
-	    else{
-	    	if(mFiringCounter > 0){
-	    		strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
-	    		if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
-	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    		mConnectionStrength += strengthenAmount;
-	    	}
-	    	else{
-	    		strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
-	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    		mConnectionStrength += strengthenAmount;
-	    	}
-	    }
-	}
-    else{
-        this->connect();
-    }
-}
 
 /**
  *	@param FILE *dendriteTree - output file

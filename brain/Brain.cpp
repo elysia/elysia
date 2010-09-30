@@ -7,7 +7,7 @@
 #include "SimpleSpatialSearch.hpp"
 #include "BrainPlugins.hpp"
 #include "BrainPlugin.hpp"
-
+#include "Development.hpp"
 #define INPUT_NEURONS			100
 #define INPUT_REGION_MINX		0.0f
 #define INPUT_REGION_MAXX		200.0f
@@ -117,7 +117,7 @@ void Brain::drawFrame() {
 
 void Brain::developAllNeurons(){
 	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
-		(*i)->developSynapse((*i)->getActivityStats());
+		(*i)->development()->develop();
 	}
 }
 

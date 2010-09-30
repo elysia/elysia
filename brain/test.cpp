@@ -8,6 +8,7 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
+#include "Development.hpp"
 #include <time.h>
 
 namespace Elysia {
@@ -69,7 +70,7 @@ void testDevelopment(){
 
 	for(float i=0;i<2*neuronNumber;i++){
 		Neuron *n = createdList[i];
-        n->developSynapse(n->getActivityStats());       
+        n->development()->develop();
         size_t parent;
         parent = 0;
         //n->visualizeTree(dendriteTree, parent);
