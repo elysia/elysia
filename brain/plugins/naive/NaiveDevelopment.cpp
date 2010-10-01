@@ -5,8 +5,12 @@ static Development*makeNaiveDevelopment() {
     return new NaiveDevelopment;
 }
 
-static bool initiateNaiveDevelopment() {
+bool NaiveDevelopment::initNaiveDevelopmentLibrary() {
     DevelopmentFactory::getSingleton().registerConstructor ("naive",&makeNaiveDevelopment,true);
+    return true;
+}
+bool NaiveDevelopment::deinitNaiveDevelopmentLibrary() {
+    DevelopmentFactory::getSingleton().unregisterConstructor ("naive");
     return true;
 }
 
@@ -76,7 +80,7 @@ void NaiveDevelopment::passDevelopmentSignal(Synapse*s,
 #define _DISCONNECT_THRESHOLD_	0.3f
 //ENDFIXME
 
-bool initiated=initiateNaiveDevelopment();
+
 void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenAmount=_STRENGTHEN_AMOUNT_;
 	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"

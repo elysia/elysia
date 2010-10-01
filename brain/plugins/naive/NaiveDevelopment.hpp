@@ -13,6 +13,8 @@ public:
                                        float signalWeight);
     void developSynapse(Synapse *s, const ActivityStats&stats);
     void mature();
+    static bool initNaiveDevelopmentLibrary();
+    static bool deinitNaiveDevelopmentLibrary();
 };
 
 }
