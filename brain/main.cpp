@@ -35,11 +35,12 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     }
 }
 void nilDestroy() {}
+Elysia::SharedLibrary vis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
+bool loadedVis=false;
 int asyncMain(int argc, char**argv, bool loadvis) {
     void (*destroy)()=&nilDestroy;
     if (loadvis) {
-      Elysia::SharedLibrary vis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
-      if (!vis.load()) {
+      if (!loadedVis) {
         std::cerr<<"Failed to load vis library\n";
       }else {
         void (*init)();
@@ -92,10 +93,12 @@ int main(int argc, char **argv) {
         loadvis=false;
       }
     }
+    if (loadvis)
+      loadedVis =vis.load();
     std::tr1::shared_ptr<boost::thread> formerMain;
     if (
 #ifdef __APPLE__
-    loadvis
+	loadvis
 #else
     false
 #endif
