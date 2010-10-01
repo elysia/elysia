@@ -3,6 +3,7 @@
 namespace Elysia {
 class NaiveDevelopment: public StandardDevelopment<NaiveDevelopment> {
     float mDevelopmentSignal;
+    float mBestDevelopmentSignal;
     void passDevelopmentSignal(CellComponent*component,
                                float signalWeight);
 public:

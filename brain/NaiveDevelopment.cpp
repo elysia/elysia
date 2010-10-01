@@ -12,6 +12,7 @@ static bool initiateNaiveDevelopment() {
 
 NaiveDevelopment::NaiveDevelopment() {
     mDevelopmentSignal=0;
+    mBestDevelopmentSignal=0;
 }
 
 /**
@@ -28,6 +29,9 @@ void NaiveDevelopment::passDevelopmentSignal(CellComponent*component,
     if (component==parentComponent) {
         //assume it's a neuron
         mDevelopmentSignal+=signal;
+        if (mDevelopmentSignal>mBestDevelopmentSignal) {
+            mBestDevelopmentSignal=mDevelopmentSignal;//FIXME is this the best place to set mBestDevelopmentSignal
+        }
     }else {
         Branch* b=dynamic_cast<Branch*>(component);//a little ugly we have to dynamic cast here
         //but I think that's the price we pay for unifying the class functions into a single glob here in the plugin
@@ -84,7 +88,7 @@ void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 
     if(s->recipient()){
-    	if(stats.mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
+    	if(mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
 	    	if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
 	    		s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
 	    	}
@@ -97,13 +101,13 @@ void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	    }
 	    else{
 	    	if(s->mFiringCounter > 0){
-	    		strengthenAmount = changeSize*(strengthenRange*stats.mDevelopmentSignal - stats.mBestDevelopmentSignal)/(stats.mDevelopmentSignal+0.001f);
+	    		strengthenAmount = changeSize*(strengthenRange*mDevelopmentSignal - mBestDevelopmentSignal)/(mDevelopmentSignal+0.001f);
 	    		if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
 	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
 	    		s->mConnectionStrength += strengthenAmount;
 	    	}
 	    	else{
-	    		strengthenAmount = stats.mDevelopmentSignal/(10*stats.mBestDevelopmentSignal);
+	    		strengthenAmount = mDevelopmentSignal/(10*mBestDevelopmentSignal);
 	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
 	    		s->mConnectionStrength += strengthenAmount;
 	    	}
