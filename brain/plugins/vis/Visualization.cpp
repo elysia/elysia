@@ -281,7 +281,7 @@ void drawParallelogramLineSegment(const Vector3f &source, const Vector3f &dest, 
 
 void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3f top, float scale) {
     for (Branch::SynapseConstIterator i=dendrite->childSynapseBegin(),ie=dendrite->childSynapseEnd();i!=ie;++i) {
-        Neuron * destination = (*i)->mRecipientNeuron;
+        Neuron * destination = (*i)->recipient();
         if (destination) {
             float wid=0;
             float hei=0;

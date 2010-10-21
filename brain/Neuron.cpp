@@ -8,6 +8,10 @@
 #include "SimpleProteinEnvironment.hpp"
 #include "ProteinDensity.hpp"
 #include "SpatialSearch.hpp"
+#include "Development.hpp"
+
+//Fixme: instaed include development factory by which we pull out NaiveDevelopment
+#include "DevelopmentFactory.hpp"
 #include <time.h>
 
 namespace Elysia {
@@ -50,10 +54,11 @@ Neuron::~Neuron() {
  *					This neuron is added to the nearest neighbor spatial search
 **/
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
+    
+    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("naive")();//FIXME have a mechanism for using the gene to select the string "naive"
+    mDevelopment->setParent(this);
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
-    mDevelopmentCounter = 0;
-	mDevelopmentStage = 0;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
@@ -147,31 +152,12 @@ void Neuron::attachSynapse(Synapse*target){
 }
 
 /**
- *	@param float signal - signal to add to development signal
- *
- *	Description:	Adds some value to the development signal level
-**/
-void Neuron::passDevelopmentSignal(float signal){
-	mDevelopmentSignal += signal;
-}
-/**
  *	@returns *mProteinDensity
 **/
 ProteinDensity& Neuron::getProteinDensityStructure(){
     return *mProteinDensity;
 }
 
-/**
- *	@param const ActivityStats& stats - activity statistics for something
- *
- *	Description:	Develops all synapses attached as child branches of this neuron
-**/
-void Neuron::developSynapse(const ActivityStats& stats){
-for (std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
-         i!=ie;
-         ++i)
-	(*i)->developSynapse(stats);
-}
 
 /**
  *	@param FILE *dendriteTree - output file for the visualized dendrite tree
@@ -205,21 +191,10 @@ void Neuron::tick(){
 	if(mActivity > mThreshold){
 		fire();
 	}
-	if(mDevelopmentStage == 0){
-		if(mDevelopmentCounter == 0){
-			ActivityStats& stats = getActivityStats();
-			developSynapse(stats);
-			//mDevelopmentCounter	= 30;					//number of timesteps before next development re-evaluation
-		}
-		else{ mDevelopmentCounter--;}
-	}
+    mDevelopment->develop();
 	mActivity = 0;
 }
 
-void Neuron::matureNeuron(){
-	mDevelopmentStage = 1;
-
-}
 
 
 

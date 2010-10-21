@@ -35,18 +35,40 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     }
 }
 void nilDestroy() {}
+Elysia::SharedLibrary gVis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
+typedef std::map<std::string,std::tr1::shared_ptr<Elysia::SharedLibrary> > DevelopmentPluginMap;
+DevelopmentPluginMap gPlugins;
+bool loadedVis=false;
+
+void destroyDevelopmentPlugins() {
+    void (*destroy)()=&nilDestroy;
+    for (DevelopmentPluginMap::iterator i=gPlugins.begin(),ie=gPlugins.end();i!=ie;++i) {
+        destroy=(void(*)())i->second->symbol("destroy");
+        if (destroy)
+            (*destroy)();            
+    }
+
+}
+
 int asyncMain(int argc, char**argv, bool loadvis) {
     void (*destroy)()=&nilDestroy;
     if (loadvis) {
-      Elysia::SharedLibrary vis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
-      if (!vis.load()) {
+      if (!loadedVis) {
         std::cerr<<"Failed to load vis library\n";
       }else {
         void (*init)();
-        init=(void(*)())vis.symbol("init");
-        destroy=(void(*)())vis.symbol("destroy");
+        init=(void(*)())gVis.symbol("init");
+        destroy=(void(*)())gVis.symbol("destroy");
         (*init)();
       }
+    }
+    {
+        void (*init)();
+        for (DevelopmentPluginMap::iterator i=gPlugins.begin(),ie=gPlugins.end();i!=ie;++i) {
+            init=(void(*)())i->second->symbol("init");
+            if (init)
+                (*init)();            
+        }      
     }
     
     Elysia::Vector3f test(0,1,2);
@@ -58,6 +80,7 @@ int asyncMain(int argc, char**argv, bool loadvis) {
 			int retval= runtest();
             if (destroy)
                 (*destroy)();
+            destroyDevelopmentPlugins();
             return retval;
 		}
         bool retval=loadFile(argv[1],genes);
@@ -76,7 +99,7 @@ int asyncMain(int argc, char**argv, bool loadvis) {
 
 	
     (*destroy)();
-
+    destroyDevelopmentPlugins();
 	
 
 	return 0;
@@ -84,18 +107,48 @@ int asyncMain(int argc, char**argv, bool loadvis) {
 void asyncMainWrapper(int argc, char**argv, bool loadvis) {
     asyncMain(argc,argv,loadvis);
 }
-
+void loadDevelLib(const char*name){
+    std::tr1::shared_ptr<Elysia::SharedLibrary> item(new Elysia::SharedLibrary(
+                                                         Elysia::SharedLibrary::prefix()+name
+                                                         +Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension()));
+    gPlugins[name]=item;
+}
 int main(int argc, char **argv) {
     bool loadvis=true;
+    loadDevelLib("naive");
     for (int i=0;i<argc;++i) {
+        bool foundArg=true;
       if (strcmp(argv[i],"-nogfx")==0) {
         loadvis=false;
+      }else if (strncmp(argv[i],"-plugin=",9)==0) {
+          loadDevelLib(argv[i]+9);
+      }else{
+          foundArg=false;
       }
+      if (foundArg) {
+          for (int j=i;j+1<argc;++j) {
+              argv[j]=argv[j+1];              
+          }
+          --argc;
+          --i;
+      }
+    }
+    if (loadvis)
+      loadedVis =gVis.load();
+    std::vector<std::string> failedPlugins;
+    for (DevelopmentPluginMap::iterator i=gPlugins.begin(),ie=gPlugins.end();i!=ie;++i) {
+        if (!i->second->load()) {
+            failedPlugins.push_back(i->first);
+        }
+    }
+    while(failedPlugins.size()) {
+        gPlugins.erase(failedPlugins.back());
+        failedPlugins.pop_back();
     }
     std::tr1::shared_ptr<boost::thread> formerMain;
     if (
 #ifdef __APPLE__
-    loadvis
+	loadvis
 #else
     false
 #endif
