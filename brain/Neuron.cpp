@@ -55,7 +55,7 @@ Neuron::~Neuron() {
 **/
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
     
-    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("naive")();//FIXME have a mechanism for using the gene to select the string "naive"
+    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;

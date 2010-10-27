@@ -6,7 +6,7 @@ static Development*makeNaiveDevelopment() {
 }
 
 bool NaiveDevelopment::initNaiveDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("naive",&makeNaiveDevelopment,true);
+    DevelopmentFactory::getSingleton().registerConstructor ("naive",&makeNaiveDevelopment,false);
     return true;
 }
 bool NaiveDevelopment::deinitNaiveDevelopmentLibrary() {
@@ -70,7 +70,7 @@ void NaiveDevelopment::passDevelopmentSignal(Synapse*s,
 
 //FIXME have NaiveDevelopment read the following from the genes file: perhaps have some default that's modified by the genes present or absent in the region?
 #define _STRENGTHEN_AMOUNT_		0.0f
-#define _EARLY_DEV_WINDOW_		40
+//#define _EARLY_DEV_WINDOW_		40
 #define _INITIAL_STRENGTHEN_	0.04f
 #define _INITIAL_WEAKEN_		-0.2f
 #define _CHANGE_SIZE_			0.1f
@@ -83,7 +83,7 @@ void NaiveDevelopment::passDevelopmentSignal(Synapse*s,
 
 void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenAmount=_STRENGTHEN_AMOUNT_;
-	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
+//	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
 	float initialStrengthen = _INITIAL_STRENGTHEN_;			//How much to strengthen a firing synapse in early development
 	float initialWeaken = _INITIAL_WEAKEN_;
 	float changeSize = _CHANGE_SIZE_;				//Controls how quickly strengthening and weakening happen in mid-development
@@ -92,30 +92,15 @@ void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 
     if(s->recipient()){
-    	if(mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
-	    	if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
-	    		s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
-	    	}
-	    	else{
-	    		s->mConnectionStrength += initialWeaken;
-				if(s->mConnectionStrength < _DISCONNECT_THRESHOLD_){
-					s->detach();
-				}
-	    	}
+	    if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
+	    	s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
 	    }
 	    else{
-	    	if(s->mFiringCounter > 0){
-	    		strengthenAmount = changeSize*(strengthenRange*mDevelopmentSignal - mBestDevelopmentSignal)/(mDevelopmentSignal+0.001f);
-	    		if(strengthenAmount > maxStrengthen){strengthenAmount = maxStrengthen;}
-	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    		s->mConnectionStrength += strengthenAmount;
-	    	}
-	    	else{
-	    		strengthenAmount = mDevelopmentSignal/(10*mBestDevelopmentSignal);
-	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
-	    		s->mConnectionStrength += strengthenAmount;
-	    	}
-	    }
+	    	s->mConnectionStrength += initialWeaken;
+			if(s->mConnectionStrength < _DISCONNECT_THRESHOLD_){
+				s->detach();
+			}
+	    } 
 	}
     else{
         s->connect();

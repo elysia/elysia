@@ -13,7 +13,9 @@
 #define INPUT_REGION_MAXX		200.0f
 #define INPUT_REGION_MINY		0.0f
 #define INPUT_REGION_MAXY		200.0f
-#define INPUT_REGION_SPACING	10.0f	//This also implies max input neurons of ((max-min)/spacing)^2
+#define INPUT_REGION_SPACING_X	((INPUT_REGION_MAXX-INPUT_REGION_MINX)/sqrt((double)INPUT_NEURONS))
+#define INPUT_REGION_SPACING_Y	((INPUT_REGION_MAXX-INPUT_REGION_MINX)/sqrt((double)INPUT_NEURONS))
+//10.0f	//This also implies max input neurons of ((max-min)/spacing)^2
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
 #define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated PRESENTLY UNUSED
 
@@ -275,12 +277,10 @@ void Brain::createInputRegion(int neurons){
 	float maxx = INPUT_REGION_MAXX;
 	float miny = INPUT_REGION_MINY;
 	float maxy = INPUT_REGION_MAXY;
-	float spacing = INPUT_REGION_SPACING;
+	float spacing_x = INPUT_REGION_SPACING_X;
+	float spacing_y = INPUT_REGION_SPACING_Y;
 	float spread = INPUT_AXON_SPREAD;
 
-	if(neurons > (maxx-minx)*(maxy-miny)/spacing){
-		assert(this);
-	}
 	Neuron* n;
 	float x=minx;
 	float y=miny;
@@ -288,10 +288,10 @@ void Brain::createInputRegion(int neurons){
 	for(int i=0;i<neurons;i++){
 		n = createInputNeuron(x,y,0,spread);
 		mInputNeurons.push_back(n);
-		x += spacing;
+		x += spacing_x;
 		if(x >= maxx){
 			x = minx;
-			y += spacing;
+			y += spacing_y;
 		}
 	}
 }

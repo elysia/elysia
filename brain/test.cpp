@@ -83,12 +83,13 @@ void testDevelopment(){
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
-		for(int k=0;k<100;k+=7){
+		//This is the firing pattern of the input lobe. This is what the test brain will learn on
+		for(int k=0;k<50;k+=3){
 			brain->fireInputNeuron(k);
 			}
 		printf("%i",j);
 		brain ->tick();
-        for (int i=0;i<100;++i) {
+        for (int i=0;i<25;++i) {
             brain->drawFrame();
         }
         printf ("Frame\n");
