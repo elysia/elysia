@@ -6,7 +6,7 @@ static Development*makeRefinedDevelopment() {
 }
 
 bool RefinedDevelopment::initRefinedDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,false);
+    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,true);
     return true;
 }
 bool RefinedDevelopment::deinitRefinedDevelopmentLibrary() {
@@ -71,12 +71,12 @@ void RefinedDevelopment::passDevelopmentSignal(Synapse*s,
 
 //FIXME have RefinedDevelopment read the following from the genes file: perhaps have some default that's modified by the genes present or absent in the region?
 #define _STRENGTHEN_AMOUNT_		0.0f
-#define _EARLY_DEV_WINDOW_		4000	
+#define _EARLY_DEV_WINDOW_		50	
 #define _INITIAL_STRENGTHEN_	0.04f
 #define _INITIAL_WEAKEN_		-0.2f
 #define _CHANGE_SIZE_			0.1f
 #define _MAX_STRENGTHEN_		0.1f
-#define _MAX_WEAKEN_			-0.04f
+#define _MAX_WEAKEN_			-0.3f
 #define _STRENGTHEN_RANGE_		2.0f
 #define _DISCONNECT_THRESHOLD_	0.3f
 //ENDFIXME
@@ -112,10 +112,13 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	    		s->mConnectionStrength += strengthenAmount;
 	    	}
 	    	else{
-	    		strengthenAmount = mDevelopmentSignal/(10*mBestDevelopmentSignal);
+	    		strengthenAmount = -1*mDevelopmentSignal/mBestDevelopmentSignal;
 	    		if(strengthenAmount < maxWeaken){strengthenAmount = maxWeaken;}
 	    		s->mConnectionStrength += strengthenAmount;
-	    	}
+				if(s->mConnectionStrength < _DISCONNECT_THRESHOLD_){
+					s->detach();
+				}
+			}
 	    }
 	}
     else{
