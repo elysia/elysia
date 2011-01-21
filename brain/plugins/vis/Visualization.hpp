@@ -62,8 +62,8 @@ private:
 
     std::vector<Event>mInputEvents;
     class InputStateMachine {
-        void drag(const Visualization::Event&evt){}
-        void click(const Visualization::Event&evt){}
+        void drag(Visualization * vis, const Visualization::Event&evt);
+        void click(Visualization * vis, const Visualization::Event&evt);
     public:
         bool mActiveDrag;
         float mDragStartX;

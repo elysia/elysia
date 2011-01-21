@@ -381,7 +381,7 @@ void Visualization::InputStateMachine::processPersistentState(const Visualizatio
 }
 
 bool Visualization::getCurrentNeuronWidthHeight(Neuron * n, float&width,float&hei) {
-    assert(0);
+    getNeuronWidthHeight(n->getName(),width,hei,mSelected.find(n)!=mSelected.end());
     return false;
 }
 bool Visualization::click (Neuron * n, float x, float y) {
@@ -402,21 +402,49 @@ bool Visualization::dragSelect (Neuron * n, float minx,float miny, float maxx, f
     return where.x+wid<=maxx&&where.x-wid>=minx&&
         where.y+hei<=maxy&&where.y-hei>=miny;
 }
+
+void Visualization::InputStateMachine::drag(Visualization *vis, const Visualization::Event&evt){
+    std::vector<Neuron*>dragged;
+    for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
+             ie=vis->mBrain->mAllNeurons.end();
+         i!=ie;
+         ++i) {
+        if (vis->dragSelect(*i,mDragStartX,mDragStartY,evt.mouseX,evt.mouseY)){
+            dragged.push_back(*i);
+        }
+    }
+
+}
+void Visualization::InputStateMachine::click(Visualization *vis, const Visualization::Event&evt){
+    std::vector<Neuron*>clicked;
+    for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
+             ie=vis->mBrain->mAllNeurons.end();
+         i!=ie;
+         ++i) {
+        if (vis->click(*i,evt.mouseX,evt.mouseY)){
+            clicked.push_back(*i);
+            printf("HIT  A NEURON\n");
+            
+        }
+    }
+    
+}
+
 void Visualization::InputStateMachine::processEvent(Visualization*parent, const Event&evt) {
     if (evt.event==Event::MOUSE_CLICK&&evt.button==0) {
         mDragStartX=evt.mouseX;
         mDragStartY=evt.mouseY;
-        click(evt);
+        //nop: if they wanted to click they would mouseup in the same place
         mActiveDrag=true;
     }
 
     if (evt.event==Event::MOUSE_UP) {
         if (evt.button==0) {
             if (mDragStartX==evt.mouseX&&mDragStartY==evt.mouseY) {
-                //nop: already did click evt
+                click(parent,evt);
             }else {
                 if(mActiveDrag==true) {
-                    drag(evt);
+                    drag(parent,evt);
                 }
             }
             mActiveDrag=false;

@@ -6,7 +6,7 @@ static Development*makeRefinedDevelopment() {
 }
 
 bool RefinedDevelopment::initRefinedDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,true);
+    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,false);
     return true;
 }
 bool RefinedDevelopment::deinitRefinedDevelopmentLibrary() {
