@@ -393,14 +393,22 @@ bool Visualization::click (Neuron * n, float x, float y) {
     return x<=where.x+wid&&x>=where.x-wid&&
         y<=where.y+hei&&y>=where.y-hei;
 }
-bool Visualization::dragSelect (Neuron * n, float minx,float miny, float maxx, float maxy) {
+bool Visualization::dragSelect (Neuron * n, float x1,float y1, float x2, float y2) {
+    float minx=(x1<x2?x1:x2);
+    float maxx=(x1<x2?x2:x1);
+    float miny=(y1<y2?y1:y2);
+    float maxy=(y1<y2?y2:y1);
     Vector3f where=getNeuronLocation(n);
     float wid=0,hei=0;
     getCurrentNeuronWidthHeight(n,wid,hei);
     wid/=2;
     hei/=2;
-    return where.x+wid<=maxx&&where.x-wid>=minx&&
-        where.y+hei<=maxy&&where.y-hei>=miny;
+    bool to_the_right=where.x+wid<=maxx;
+    bool to_the_left=where.x-wid>=minx;
+    bool to_the_top=where.y+hei<=maxy;
+    bool to_the_bot=where.y-hei>=miny;
+    //printf ("(%f,%f) [%f %f %f %f] R %d L %d T %d B %d\n",where.x,where.y,maxx,minx,maxy,miny,to_the_right,to_the_left,to_the_top,to_the_bot);
+    return to_the_right&&to_the_left&&to_the_top&&to_the_bot;
 }
 
 void Visualization::InputStateMachine::drag(Visualization *vis, const Visualization::Event&evt){
@@ -411,6 +419,7 @@ void Visualization::InputStateMachine::drag(Visualization *vis, const Visualizat
          ++i) {
         if (vis->dragSelect(*i,mDragStartX,mDragStartY,evt.mouseX,evt.mouseY)){
             dragged.push_back(*i);
+            printf("DRAGGING ANOTHER ");
         }
     }
 
