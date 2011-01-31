@@ -344,6 +344,8 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.hpp
+  ${BRAIN_SOURCE_DIR}/STANNSpatialSearch.cpp
+  ${BRAIN_SOURCE_DIR}/STANNSpatialSearch.hpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc)
 
 #Andrew's brain directory
