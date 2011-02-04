@@ -262,7 +262,7 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     center.z=0;
     float wid=0;
     float hei=0;
-    bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
+    bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelectedNeurons.find(n)!=mSelectedNeurons.end());
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
     glColor4f(.25,.35,1.0,.75);
@@ -284,7 +284,7 @@ void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3
         if (destination) {
             float wid=0;
             float hei=0;
-            bool text=getNeuronWidthHeight(destination->getName(), wid,hei,mSelected.find(destination)!=mSelected.end());
+            bool text=getNeuronWidthHeight(destination->getName(), wid,hei,mSelectedNeurons.find(destination)!=mSelectedNeurons.end());
             Vector3f scaledDestination = getNeuronLocation(destination);
             arrow(scaledDestination-Vector3f(0,hei/2,0),top,1);
         }
@@ -336,11 +336,19 @@ Visualization::InputStateMachine::InputStateMachine() {
     mDragStartX=0;
     mDragStartY=0;
 }
+void Visualization::clearDetail(){}
+void Visualization::addSelectedToDetail(){}
+void Visualization::subtractSelectedFromDetail(){}
+void Visualization::intersectSelectedWithDetail(){}
+
 void Visualization::InputStateMachine::draw(Visualization*parent) {
     static bool xx=false;
     if (!xx) {
         xx=true;
-        mButtons.push_back(Button(0,0,10,10,"Clear Detail Display",printhello));
+        mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::tr1::bind(&Visualization::clearDetail,parent)));
+        mButtons.push_back(Button(0,20,20,35,"Add To Detail",std::tr1::bind(&Visualization::addSelectedToDetail,parent)));
+        mButtons.push_back(Button(0,40,20,55,"Subtract from Detail",std::tr1::bind(&Visualization::subtractSelectedFromDetail,parent)));
+        mButtons.push_back(Button(0,60,20,75,"Intersect with Detail",std::tr1::bind(&Visualization::intersectSelectedWithDetail,parent)));
     }
     for (size_t i=0;i<mButtons.size();++i) {
         mButtons[i].draw(parent);
@@ -393,7 +401,7 @@ void Visualization::InputStateMachine::processPersistentState(const Visualizatio
 }
 
 bool Visualization::getCurrentNeuronWidthHeight(Neuron * n, float&width,float&hei) {
-    getNeuronWidthHeight(n->getName(),width,hei,mSelected.find(n)!=mSelected.end());
+    getNeuronWidthHeight(n->getName(),width,hei,mSelectedNeurons.find(n)!=mSelectedNeurons.end());
     return false;
 }
 void Visualization::Button::doClick(Visualization*vis, const Visualization::Event&evt) const{
@@ -446,8 +454,8 @@ void Visualization::InputStateMachine::drag(Visualization *vis, const Visualizat
             dragged.push_back(*i);
         }
     }
-    vis->mDetailed.clear();
-    vis->mDetailed.insert(dragged.begin(),dragged.end());
+    vis->mDetailedNeurons.clear();
+    vis->mDetailedNeurons.insert(dragged.begin(),dragged.end());
 }
 Visualization::Button::Button(float minX,
                               float minY,
@@ -524,8 +532,8 @@ void Visualization::InputStateMachine::click(Visualization *vis, const Visualiza
              ++i) {
             if (vis->click(*i,evt.mouseX,evt.mouseY)){
                 clicked.push_back(*i);
-                vis->mSelected.clear();
-                vis->mSelected.insert(*i);
+                vis->mSelectedNeurons.clear();
+                vis->mSelectedNeurons.insert(*i);
                 
             }
         }
@@ -589,6 +597,10 @@ void Visualization::purgeMarkedForDeathNeurons() {
         SelectedNeuronMap::iterator where =mSelectedNeurons.find(*i);
         if (where!=mSelectedNeurons.end()) {
             mSelectedNeurons.erase(where);
+        }
+        where =mDetailedNeurons.find(*i);
+        if (where!=mDetailedNeurons.end()) {
+            mDetailedNeurons.erase(where);
         }
     }
 }

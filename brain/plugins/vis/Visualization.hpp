@@ -8,6 +8,10 @@ class Branch;
 class Visualization:public BrainPlugin  {
     ///Neurons marked for death by the main plugin
     std::vector<Neuron*> mfd;
+    void clearDetail();
+    void addSelectedToDetail();
+    void subtractSelectedFromDetail();
+    void intersectSelectedWithDetail();
     std::tr1::shared_ptr<GraphicsSystem> mGraphics;
     static std::tr1::weak_ptr<GraphicsSystem> mGlobalGraphics;
     Brain * mBrain;
@@ -15,8 +19,6 @@ class Visualization:public BrainPlugin  {
     float mScale;
     Vector3f mOffset;
     bool mSynapseSnapToEdge;
-    std::tr1::unordered_set<Neuron*> mSelected;
-    std::tr1::unordered_set<Neuron*> mDetailed;
     Vector3f getNeuronLocation(Neuron*n)const;
     bool getNeuronWidthHeight(const std::string&text, float&width, float&hei, bool selected);
     bool getCurrentNeuronWidthHeight(Neuron*n, float&width, float&height);
@@ -29,6 +31,8 @@ class Visualization:public BrainPlugin  {
     void doInput();
     typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
     SelectedNeuronMap mSelectedNeurons;
+    SelectedNeuronMap mDetailedNeurons;
+
     void purgeMarkedForDeathNeurons();
     ///Returns if a single neuron may be selected by the given mouse coordinates
     bool click (Neuron*n,float mousex, float mousey);
@@ -82,7 +86,7 @@ private:
                float maxY,
                const std::string &text,
                const std::tr1::function<void()> &click,
-               float scale=.0625);
+               float scale=.1);
         void draw(Visualization * vis);
         bool click(Visualization * vis, const Visualization::Event&evt)const;
         void doClick(Visualization * vis, const Visualization::Event&evt)const;
