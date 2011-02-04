@@ -340,10 +340,10 @@ void Visualization::InputStateMachine::draw(Visualization*parent) {
     static bool xx=false;
     if (!xx) {
         xx=true;
-        mButtons.push_back(Button(-parent->mGraphics->getWidth()/2,parent->mGraphics->getHeight()/2-10,-parent->mGraphics->getWidth()/2+100,parent->mGraphics->getHeight()/2,"HELLO WORLD",printhello));
+        mButtons.push_back(Button(0,0,10,10,"Clear Detail Display",printhello));
     }
     for (size_t i=0;i<mButtons.size();++i) {
-        mButtons[i].draw();
+        mButtons[i].draw(parent);
     }
     if (mActiveDrag&&(mMouseX!=mDragStartX||mMouseY!=mDragStartY)) {
         glBegin(GL_QUADS);
@@ -401,9 +401,9 @@ void Visualization::Button::doClick(Visualization*vis, const Visualization::Even
         mClick();
     }
 }
-bool Visualization::Button::click(Visualization*vis, const Visualization::Event&evt) const{
-    if (evt.mouseX<=maxX&&evt.mouseX>=minX&&
-        evt.mouseY<=maxY&&evt.mouseY>=minY) {
+bool Visualization::Button::click(Visualization*parent, const Visualization::Event&evt) const{
+    if (evt.mouseX<=maxX-parent->mGraphics->getWidth()/2&&evt.mouseX>=minX-parent->mGraphics->getWidth()/2&&
+        evt.mouseY<=maxY-parent->mGraphics->getHeight()/2&&evt.mouseY>=minY-parent->mGraphics->getHeight()/2) {
         return true;
     }    
     return false;
@@ -444,10 +444,10 @@ void Visualization::InputStateMachine::drag(Visualization *vis, const Visualizat
          ++i) {
         if (vis->dragSelect(*i,mDragStartX,mDragStartY,evt.mouseX,evt.mouseY)){
             dragged.push_back(*i);
-            printf("DRAGGING ANOTHER ");
         }
     }
-
+    vis->mDetailed.clear();
+    vis->mDetailed.insert(dragged.begin(),dragged.end());
 }
 Visualization::Button::Button(float minX,
                               float minY,
@@ -477,7 +477,7 @@ void drawString(Vector3f lower_left, float scale, const std::string &text, bool 
     }
     glPopMatrix();
 }
-void Visualization::Button::draw() {
+void Visualization::Button::draw(Visualization * parent) {
     if (!renderedOnce) {
         renderedOnce=true;
         bool removespace=false;
@@ -488,8 +488,13 @@ void Visualization::Button::draw() {
         }
 
     }
-    Vector3f lower_left(minX,minY,0);
-    Vector3f upper_right(maxX,maxY,0);
+    float recenterMinX=minX;
+    float recenterMinY=minY;
+    float recenterMaxX=maxX;
+    float recenterMaxY=maxY;
+    
+    Vector3f lower_left(recenterMinX-parent->mGraphics->getWidth()/2,recenterMinY-parent->mGraphics->getHeight()/2,0);
+    Vector3f upper_right(recenterMaxX-parent->mGraphics->getWidth()/2,recenterMaxY-parent->mGraphics->getHeight()/2,0);
     glBegin(GL_QUADS);
     drawRect(lower_left,upper_right);
     glEnd();
@@ -519,7 +524,8 @@ void Visualization::InputStateMachine::click(Visualization *vis, const Visualiza
              ++i) {
             if (vis->click(*i,evt.mouseX,evt.mouseY)){
                 clicked.push_back(*i);
-                printf("HIT  A NEURON\n");
+                vis->mSelected.clear();
+                vis->mSelected.insert(*i);
                 
             }
         }

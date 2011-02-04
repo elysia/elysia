@@ -16,6 +16,7 @@ class Visualization:public BrainPlugin  {
     Vector3f mOffset;
     bool mSynapseSnapToEdge;
     std::tr1::unordered_set<Neuron*> mSelected;
+    std::tr1::unordered_set<Neuron*> mDetailed;
     Vector3f getNeuronLocation(Neuron*n)const;
     bool getNeuronWidthHeight(const std::string&text, float&width, float&hei, bool selected);
     bool getCurrentNeuronWidthHeight(Neuron*n, float&width, float&height);
@@ -72,6 +73,9 @@ private:
         std::tr1::function<void()> mClick;
         bool renderedOnce;
     public:
+        /**
+           buttons are referenced from the top left corner... in pixels
+         */
         Button(float minX,
                float minY,
                float maxX,
@@ -79,7 +83,7 @@ private:
                const std::string &text,
                const std::tr1::function<void()> &click,
                float scale=.0625);
-        void draw();
+        void draw(Visualization * vis);
         bool click(Visualization * vis, const Visualization::Event&evt)const;
         void doClick(Visualization * vis, const Visualization::Event&evt)const;
     };
