@@ -8,6 +8,7 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
+#include "Development.hpp"
 #include <time.h>
 
 namespace Elysia {
@@ -52,23 +53,24 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 100;
+	int neuronNumber = 10;
 
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 30, 30, 0.5, 0.5, 0.5); 
+		Neuron* n = placeTestNeuron(brain, 1000, 1000, 100, 100, 100); 
 		createdList.push_back(n);
 	}
 
 	//Region 2
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 100, 100, 60, 60, 5); 
+		
+		Neuron* n = placeTestNeuron(brain, 2000, 2000, 1000, 1000, 100); 
 		createdList.push_back(n); 
 	}
 
 	for(float i=0;i<2*neuronNumber;i++){
 		Neuron *n = createdList[i];
-        n->developSynapse(n->getActivityStats());       
+        n->development()->develop();
         size_t parent;
         parent = 0;
         //n->visualizeTree(dendriteTree, parent);
@@ -81,11 +83,16 @@ void testDevelopment(){
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
-		for(int k=0;k<100;k+=2){
+		//This is the firing pattern of the input lobe. This is what the test brain will learn on
+		for(int k=0;k<50;k+=3){
 			brain->fireInputNeuron(k);
 			}
 		printf("%i",j);
 		brain ->tick();
+        for (int i=0;i<25;++i) {
+            brain->drawFrame();
+        }
+        printf ("Frame\n");
 	}
 	//brain->fireInputNeuron(2);
 	fclose(dendriteTree);

@@ -11,6 +11,7 @@ class Gene;
 
 class Synapse;
 class ActivityStats;
+class Development;
 /**
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
@@ -43,12 +44,10 @@ private:
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
     SimTime mLastActivity;
-	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
-	int mDevelopmentStage;				//What stage of development the neuron is in 0 for Developing, 1 for Mature
 	int type;							//Input neuron = 0, otherwise = 1
-
+    Development*mDevelopment;
     virtual Neuron*getParentNeuron(){return this;}
-
+    
 public:
     Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&spawningGene);
     ~Neuron();
@@ -62,12 +61,12 @@ public:
     void attachSynapse(Synapse*synapse);
     void activateComponent(Brain&, float signal);
 	void fireNeuron(Synapse*target);
-	void passDevelopmentSignal(float signal);
 	ActivityStats& getActivityStats(){ return *this; }
-	void developSynapse(const ActivityStats& stats);
-	void visualizeTree(FILE *dendriteTree, size_t parent);
-	void matureNeuron();
 
+	void visualizeTree(FILE *dendriteTree, size_t parent);
+    Development*development(){
+        return mDevelopment;
+    }
 	Brain* getBrain() {return mBrain;}
 };
 }

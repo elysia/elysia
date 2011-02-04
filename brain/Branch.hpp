@@ -1,4 +1,5 @@
 #ifndef _ELYSIA_BRANCH_HPP_
+#define _ELYSIA_BRANCH_HPP_
 #include "CellComponent.hpp"
 #include <vector>
 namespace Elysia {
@@ -23,8 +24,9 @@ class BRAIN_CORE_EXPORT Branch:  public CellComponent{
     //Pointers to branches that come off of this branch
     void growSynapse();
     void activateComponent(Brain&,float signal);
-	virtual void passDevelopmentSignal(float signal);
-	void developSynapse(const ActivityStats& stats);
+    float signalWeight() const{
+        return mSignalWeight;
+    }	
 	void visualizeTree(FILE *dendriteTree, size_t parent);
     typedef std::vector<Synapse*>::iterator SynapseIterator;
     typedef std::vector<Synapse*>::const_iterator SynapseConstIterator;
@@ -32,6 +34,10 @@ class BRAIN_CORE_EXPORT Branch:  public CellComponent{
     SynapseIterator childSynapseEnd(){ return mChildSynapses.end();}
     SynapseConstIterator childSynapseBegin()const{ return mChildSynapses.begin();}
     SynapseConstIterator childSynapseEnd()const{ return mChildSynapses.end();}
+	float developmentWeight;
+    CellComponent *parent() {
+        return mParentComponent;
+    }
 };
 
 }

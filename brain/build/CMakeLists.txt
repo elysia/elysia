@@ -328,6 +328,10 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/MainThread.hpp
   ${BRAIN_SOURCE_DIR}/Neuron.cpp
   ${BRAIN_SOURCE_DIR}/Neuron.hpp  
+  ${BRAIN_SOURCE_DIR}/DevelopmentFactory.hpp  
+  ${BRAIN_SOURCE_DIR}/DevelopmentFactory.cpp  
+  ${BRAIN_SOURCE_DIR}/StandardDevelopment.hpp  
+  ${BRAIN_SOURCE_DIR}/Development.hpp  
   ${BRAIN_SOURCE_DIR}/Synapse.cpp
   ${BRAIN_SOURCE_DIR}/Synapse.hpp  
   ${BRAIN_SOURCE_DIR}/Branch.cpp
@@ -340,6 +344,8 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/SimpleProteinEnvironment.hpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.hpp
+  ${BRAIN_SOURCE_DIR}/STANNSpatialSearch.cpp
+  ${BRAIN_SOURCE_DIR}/STANNSpatialSearch.hpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc)
 
 #Andrew's brain directory
@@ -354,9 +360,13 @@ SET(BRAIN_PLUGIN_DIR ${BRAIN_SOURCE_DIR}/plugins)
 
 SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 
+SET(BRAIN_PLUGIN_NAIVE_DIR ${BRAIN_PLUGIN_DIR}/naive)
+
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
+SET(BRAIN_PLUGIN_NAIVE_SOURCES ${BRAIN_PLUGIN_NAIVE_DIR}/naive_plugin.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.hpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.hpp) 
 
 SET(VIS_PLUGIN_LIBS ${GLUT_LIBRARIES} brain-core)
+SET(NAIVE_PLUGIN_LIBS brain-core)
 IF(WIN32)
 SET(BRAIN_CORE_LIB_LIBS ${BRAIN_CORE_LIBS} debug ${Boost_THREAD_LIBRARY_DEBUG} optimized ${Boost_THREAD_LIBRARY_RELEASE} debug ${Boost_DATE_TIME_LIBRARY_DEBUG} optimized ${Boost_DATE_TIME_LIBRARY_RELEASE})
 SET(VIS_PLUGIN_LIBS ${VIS_PLUGIN_LIBS} debug ${Boost_THREAD_LIBRARY_DEBUG} optimized ${Boost_THREAD_LIBRARY_RELEASE} debug ${Boost_DATE_TIME_LIBRARY_DEBUG} optimized ${Boost_DATE_TIME_LIBRARY_RELEASE})
@@ -373,6 +383,12 @@ ADD_PLUGIN_TARGET(vis
                     SOURCES ${BRAIN_PLUGIN_VIS_SOURCES}
                     TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS}"
                     LIBRARIES ${VIS_PLUGIN_LIBS}
+                    TARGET_LIBRARIES brain-core)
+
+ADD_PLUGIN_TARGET(naive
+                    SOURCES ${BRAIN_PLUGIN_NAIVE_SOURCES}
+                    TARGET_LDFLAGS "${elysia_LDFLAGS}"
+                    LIBRARIES ${NAIVE_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
 
 
@@ -395,7 +411,7 @@ TARGET_LINK_LIBRARIES(brain-core
 ADD_EXECUTABLE(nearestneighbor ${NEAREST_NEIGHBOR_SOURCES})
 ADD_DEPENDENCIES(nearestneighbor genome)
 ADD_DEPENDENCIES(nearestneighbor brain-core)
-ADD_DEPENDENCIES(vis brain-core)
+ADD_DEPENDENCIES(vis naive brain-core)
 
 
 TARGET_LINK_LIBRARIES(nearestneighbor
@@ -416,7 +432,7 @@ ADD_DEPENDENCIES(brainsandbox brain-core)
 SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 
-SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis
+SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis naive
                       PROPERTIES
                       DEBUG_POSTFIX "_d" )
 SET(CMAKE_DEBUG_POSTFIX "_d")

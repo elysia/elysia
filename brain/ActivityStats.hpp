@@ -4,11 +4,7 @@ namespace Elysia {
 
 class ActivityStats{
 public:
-	float mDevelopmentSignal;
-	float mBestDevelopmentSignal;
 	ActivityStats() {
-        mDevelopmentSignal=0;
-        mBestDevelopmentSignal=0;
 	}
 };
 }

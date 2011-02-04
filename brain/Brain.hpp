@@ -47,10 +47,11 @@ public:
     typedef std::set<Neuron*> NeuronSet;
 	NeuronSet mAllNeurons;
 	NeuronSet mDevelopingNeurons;
-    typedef std::set<Neuron*> SynapseSet;
-	SynapseSet mAllSynapses;
+    //typedef std::set<Synapse*> SynapseSet;
+	//SynapseSet mAllSynapses;					//Removed due to lack of purpose
     BoundingBox3f3f getBounds()const;
     void tick();
+    void drawFrame();
 	void processSynapse();
 	void processNeuron();
 	void developAllNeurons();

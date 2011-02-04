@@ -1,14 +1,6 @@
 #ifndef _ELYSIA_SYNAPSE_HPP_
 #define _ELYSIA_SYNAPSE_HPP_
 
-#define _STRENGTHEN_AMOUNT_		0.0f
-#define _EARLY_DEV_WINDOW_		40
-#define _INITIAL_STRENGTHEN_	0.04f
-#define _INITIAL_WEAKEN_		-0.01f
-#define _CHANGE_SIZE_			0.1f
-#define _MAX_STRENGTHEN_		0.1f
-#define _MAX_WEAKEN_			-0.04f
-#define _STRENGTHEN_RANGE_		2.0f
 
 namespace Elysia {
 class CellComponent;
@@ -23,13 +15,16 @@ class BRAIN_CORE_EXPORT Synapse{
     Brain *mBrain;
 	std::list<Synapse*>::iterator mWhere;
     friend class Brain;
+    Neuron *mRecipientNeuron;
 public:
 	~Synapse();
     float mSignalWeight;
     int mFiringWindow;		//How long this synapse stays active for
     int mFiringCounter;     //Starts at mFiringWindow and counts down to 0 (then synapse deactivates)
-    CellComponent* mParentBranch;
-    Neuron *mRecipientNeuron;
+    
+	CellComponent* mParentBranch;
+
+    ///float used in development only and reset when connect is called to unit (1.0) <standard in development>
     float mConnectionStrength;
     bool detach();		//Detach dendrite tip from target neuron return 1 for success
     void connect();     //need to get the location bound from neuron
@@ -38,7 +33,9 @@ public:
 	void residualFire();
 	void develop(const ActivityStats& stats);
 	void visualizeSynapse(FILE *dendriteTree, size_t parent);
-	
+    Neuron *recipient() const{
+        return mRecipientNeuron;
+    }
 };
 
 }

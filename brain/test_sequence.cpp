@@ -8,6 +8,7 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
+#include "Development.hpp"
 #include <time.h>
 
 typedef std::vector<std::pair<Elysia::Genome::Effect, float> > CombinedResults;
@@ -56,7 +57,7 @@ void testTwoConnectedNeurons_seq() {
 
 	for(int i=0;i<neuronNumber;i++){
 		Neuron *n = createdList[i];
-        n->developSynapse(n->getActivityStats());       
+        n->development()->develop();       
         size_t parent;
         parent = 0;
         n->visualizeTree(dendriteTree, parent);
@@ -134,7 +135,7 @@ void testSeqDevelopment(int neuronNumber){
 
 	for(int i=0;i<2*neuronNumber;i++){
 		n = createdList[i];
-        n->developSynapse(n->getActivityStats()); 
+        n->development()->develop(); 
         parent = 0;		// this seems a bit pointless
         n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));

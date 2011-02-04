@@ -29,7 +29,7 @@ Visualization::Visualization(){
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
     }
-    mNeuronSize=.25;
+    mNeuronSize=.5;
     mSynapseSnapToEdge=true;
     mScale=100.0;
     mOffset=Vector3f(0,0,0);
@@ -189,7 +189,7 @@ int stringWidth(const std::string &dat, bool addspace, bool removespace) {
 #define lowest_special_char ((char)35)
 
 bool Visualization::getNeuronWidthHeight(const std::string &text, float&wid,float&hei,bool selected) {    
-    float minh=10;
+    float minh=.5;
     bool drawText=text.length()&&(text[0]==' '||(text[0]>=lowest_special_char&&text[0]<=highest_special_char));
     float neuronsize=mNeuronSize*mScale;
     float neuronheight=neuronsize;
@@ -266,6 +266,7 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelected.find(n)!=mSelected.end());
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
+    glColor4f(.25,.35,1.0,.75);
     drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
     return scaledCenter+Vector3f(0,hei/2,0);
 }
@@ -280,7 +281,7 @@ void drawParallelogramLineSegment(const Vector3f &source, const Vector3f &dest, 
 
 void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3f top, float scale) {
     for (Branch::SynapseConstIterator i=dendrite->childSynapseBegin(),ie=dendrite->childSynapseEnd();i!=ie;++i) {
-        Neuron * destination = (*i)->mRecipientNeuron;
+        Neuron * destination = (*i)->recipient();
         if (destination) {
             float wid=0;
             float hei=0;
@@ -294,11 +295,11 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
     CellComponent::ChildIterator i=dendrite->childBegin(),ie=dendrite->childEnd(),b;
     size_t size = ie-i;
     b=i;    
-    if (scale<10.0) scale=0.0;
+    if (scale<.25) scale=0.0;
     float width = scale*.125/size;
-    float height = mScale*5;
-    if (height<1.0) height=1.0;
-    if (width<2.0) width=2.0;
+    float height = mScale;
+    //if (height<1.0) height=1.0;
+    //if (width<2.0) width=2.0;
     for (;i!=ie;++i) {
         Vector3f dest = Vector3f(top.x-scale*.25+scale*(i-b)/((double)size),
                                  top.y+height,
@@ -321,7 +322,7 @@ void Visualization::drawNeuron(Neuron*n) {
     Vector3f top = drawNeuronBody(n);
     bool drawDendrites=true;
     if (drawDendrites) {
-        this->drawDendrites(n, n, top, mScale*20);
+        this->drawDendrites(n, n, top, mScale*2);
     }
     
 }
@@ -329,6 +330,18 @@ Visualization::InputStateMachine::InputStateMachine() {
     memset(mKeyDown,0,sizeof(mKeyDown));
     memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
     memset(mMouseButtons,0,sizeof(mMouseButtons));
+    mActiveDrag=0;
+    mDragStartX=0;
+    mDragStartY=0;
+}
+void Visualization::InputStateMachine::draw() {
+    if (mActiveDrag&&(mMouseX!=mDragStartX||mMouseY!=mDragStartY)) {
+        glColor4f(.5,.5,.5,.5);
+        glVertex3f(mDragStartX,mDragStartY,0);
+        glVertex3f(mDragStartX,mMouseY,0);
+        glVertex3f(mMouseX,mMouseY,0);
+        glVertex3f(mMouseX,mDragStartY,0);
+    }
 }
 void Visualization::InputStateMachine::processPersistentState(const Visualization::Event&evt) {
     const Visualization::Event* i=&evt;
@@ -336,12 +349,12 @@ void Visualization::InputStateMachine::processPersistentState(const Visualizatio
     mMouseY=i->mouseY;
     switch(i->event) {
       case Event::MOUSE_CLICK:
-        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+        if (i->button<(int)(sizeof(mMouseButtons)/sizeof(mMouseButtons[0]))) {
             mMouseButtons[i->button]=1;
         }
         break;
       case Event::MOUSE_UP:
-        if (i->button<sizeof(mMouseButtons)/sizeof(mMouseButtons[0])) {
+        if (i->button<(int)(sizeof(mMouseButtons)/sizeof(mMouseButtons[0]))) {
             mMouseButtons[i->button]=0;
         }
         break;
@@ -367,7 +380,85 @@ void Visualization::InputStateMachine::processPersistentState(const Visualizatio
 
 }
 
+bool Visualization::getCurrentNeuronWidthHeight(Neuron * n, float&width,float&hei) {
+    getNeuronWidthHeight(n->getName(),width,hei,mSelected.find(n)!=mSelected.end());
+    return false;
+}
+bool Visualization::click (Neuron * n, float x, float y) {
+    Vector3f where=getNeuronLocation(n);
+    float wid=0,hei=0;
+    getCurrentNeuronWidthHeight(n,wid,hei);
+    wid/=2;
+    hei/=2;
+    return x<=where.x+wid&&x>=where.x-wid&&
+        y<=where.y+hei&&y>=where.y-hei;
+}
+bool Visualization::dragSelect (Neuron * n, float x1,float y1, float x2, float y2) {
+    float minx=(x1<x2?x1:x2);
+    float maxx=(x1<x2?x2:x1);
+    float miny=(y1<y2?y1:y2);
+    float maxy=(y1<y2?y2:y1);
+    Vector3f where=getNeuronLocation(n);
+    float wid=0,hei=0;
+    getCurrentNeuronWidthHeight(n,wid,hei);
+    wid/=2;
+    hei/=2;
+    bool to_the_right=where.x+wid<=maxx;
+    bool to_the_left=where.x-wid>=minx;
+    bool to_the_top=where.y+hei<=maxy;
+    bool to_the_bot=where.y-hei>=miny;
+    //printf ("(%f,%f) [%f %f %f %f] R %d L %d T %d B %d\n",where.x,where.y,maxx,minx,maxy,miny,to_the_right,to_the_left,to_the_top,to_the_bot);
+    return to_the_right&&to_the_left&&to_the_top&&to_the_bot;
+}
+
+void Visualization::InputStateMachine::drag(Visualization *vis, const Visualization::Event&evt){
+    std::vector<Neuron*>dragged;
+    for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
+             ie=vis->mBrain->mAllNeurons.end();
+         i!=ie;
+         ++i) {
+        if (vis->dragSelect(*i,mDragStartX,mDragStartY,evt.mouseX,evt.mouseY)){
+            dragged.push_back(*i);
+            printf("DRAGGING ANOTHER ");
+        }
+    }
+
+}
+void Visualization::InputStateMachine::click(Visualization *vis, const Visualization::Event&evt){
+    std::vector<Neuron*>clicked;
+    for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
+             ie=vis->mBrain->mAllNeurons.end();
+         i!=ie;
+         ++i) {
+        if (vis->click(*i,evt.mouseX,evt.mouseY)){
+            clicked.push_back(*i);
+            printf("HIT  A NEURON\n");
+            
+        }
+    }
+    
+}
+
 void Visualization::InputStateMachine::processEvent(Visualization*parent, const Event&evt) {
+    if (evt.event==Event::MOUSE_CLICK&&evt.button==0) {
+        mDragStartX=evt.mouseX;
+        mDragStartY=evt.mouseY;
+        //nop: if they wanted to click they would mouseup in the same place
+        mActiveDrag=true;
+    }
+
+    if (evt.event==Event::MOUSE_UP) {
+        if (evt.button==0) {
+            if (mDragStartX==evt.mouseX&&mDragStartY==evt.mouseY) {
+                click(parent,evt);
+            }else {
+                if(mActiveDrag==true) {
+                    drag(parent,evt);
+                }
+            }
+            mActiveDrag=false;
+        }
+    }
 }
 
 
@@ -411,6 +502,8 @@ void Visualization::purgeMarkedForDeathNeurons() {
 void Visualization::draw() {
     purgeMarkedForDeathNeurons();
     doInput();
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     glBegin(GL_QUADS);
     glVertex3f(mInput.mMouseX,mInput.mMouseY,0);
     glVertex3f(mInput.mMouseX,mInput.mMouseY-10,0);
@@ -422,6 +515,7 @@ void Visualization::draw() {
          ++i) {
         drawNeuron(*i);
     }
+    mInput.draw();
     glEnd(); 
 }
 Visualization::~Visualization() {
@@ -439,5 +533,7 @@ Visualization::~Visualization() {
 void Visualization::notifyNeuronDestruction(Neuron*n){
     mfd.push_back(n);
 }
+
+
 
 }

@@ -13,7 +13,6 @@ CellComponent::CellComponent() {
     mActivity = _M_ACTIVITY_DEFAULT_VALUE_;
     mThreshold = _M_THRESHOLD_DEFAULT_VALUE_;
     mDevelopmentStage = _M_DEVELOPMENT_STAGE_DEFAULT_VALUE_;
-
 }
 
 /**

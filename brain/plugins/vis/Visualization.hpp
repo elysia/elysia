@@ -18,6 +18,7 @@ class Visualization:public BrainPlugin  {
     std::tr1::unordered_set<Neuron*> mSelected;
     Vector3f getNeuronLocation(Neuron*n)const;
     bool getNeuronWidthHeight(const std::string&text, float&width, float&hei, bool selected);
+    bool getCurrentNeuronWidthHeight(Neuron*n, float&width, float&height);
     void getSynapseStartEnd(Neuron * start, bool startIsSelected, Neuron * end, bool endIsSelected, Vector3f& A, Vector3f &B);
     ///Returns top location from where dendrites can start branching out
     Vector3f drawNeuronBody(Neuron*n);
@@ -28,7 +29,10 @@ class Visualization:public BrainPlugin  {
     typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
     SelectedNeuronMap mSelectedNeurons;
     void purgeMarkedForDeathNeurons();
-
+    ///Returns if a single neuron may be selected by the given mouse coordinates
+    bool click (Neuron*n,float mousex, float mousey);
+    ///Returns if a single neuron may be selected by the given drag select box
+    bool dragSelect(Neuron *n, float bbminx, float bbminy, float bbmaxx, float bbmaxy);
 public:
     Visualization();
     void draw();
@@ -58,7 +62,12 @@ private:
 
     std::vector<Event>mInputEvents;
     class InputStateMachine {
+        void drag(Visualization * vis, const Visualization::Event&evt);
+        void click(Visualization * vis, const Visualization::Event&evt);
     public:
+        bool mActiveDrag;
+        float mDragStartX;
+        float mDragStartY;
         int mKeyDown[256];
         int mSpecialKeyDown[256];
         int mMouseButtons[5];
@@ -67,6 +76,8 @@ private:
         void processPersistentState(const Visualization::Event&evt);
         void processEvent(Visualization*parent, const Visualization::Event&evt);
         InputStateMachine();
+        
+        void draw();
     }mInput;
 };
 BrainPlugin* makeVisualization(Brain*b);

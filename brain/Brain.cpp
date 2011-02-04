@@ -7,15 +7,17 @@
 #include "SimpleSpatialSearch.hpp"
 #include "BrainPlugins.hpp"
 #include "BrainPlugin.hpp"
-
+#include "Development.hpp"
 #define INPUT_NEURONS			100
 #define INPUT_REGION_MINX		0.0f
-#define INPUT_REGION_MAXX		5.0f
+#define INPUT_REGION_MAXX		200.0f
 #define INPUT_REGION_MINY		0.0f
-#define INPUT_REGION_MAXY		5.0f
-#define INPUT_REGION_SPACING	0.01f	//This also implies max input neurons of ((max-min)/spacing)^2
+#define INPUT_REGION_MAXY		200.0f
+#define INPUT_REGION_SPACING_X	((INPUT_REGION_MAXX-INPUT_REGION_MINX)/sqrt((double)INPUT_NEURONS))
+#define INPUT_REGION_SPACING_Y	((INPUT_REGION_MAXX-INPUT_REGION_MINX)/sqrt((double)INPUT_NEURONS))
+//10.0f	//This also implies max input neurons of ((max-min)/spacing)^2
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
-#define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated
+#define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated PRESENTLY UNUSED
 
 #include <boost/math/distributions/uniform.hpp>
 #include <boost/random.hpp>
@@ -100,12 +102,16 @@ Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Ge
 void Brain::tick(){
 	processNeuron();
 	processSynapse();
-	//developAllNeurons();
+	developAllNeurons();
     ++mCurTime;
 	++mDevelopmentCounter;
 	if(mDevelopmentCounter%10 == 0)this->processDevelopment();
     mAge+=1.0e-6;//fixme this is probably not correct: we probably need genes to do this
     if (mAge>1.0) mAge=1.0;
+    drawFrame();
+}
+
+void Brain::drawFrame() {
     for(std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
         (*i)->update();
     }
@@ -113,7 +119,7 @@ void Brain::tick(){
 
 void Brain::developAllNeurons(){
 	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
-		(*i)->developSynapse((*i)->getActivityStats());
+		(*i)->development()->develop();
 	}
 }
 
@@ -153,15 +159,24 @@ void Brain::processSynapse(){
  *	Description:	Removes a synapse from the synapse list and updates it.
 **/
 void Brain::inactivateSynapse(Synapse *inactiveSynapse){
-	mActiveSynapses.erase(inactiveSynapse->mWhere);
-	inactiveSynapse->mWhere=activeSynapseListSentinel();
+    if (inactiveSynapse->mWhere!=activeSynapseListSentinel()) {
+        mActiveSynapses.erase(inactiveSynapse->mWhere);
+        inactiveSynapse->mWhere=activeSynapseListSentinel();
+    }
 }
 
 
+/* Removed when AllSynapses set removed
 void Brain::deleteSynapse(Synapse *deletedSynapse){
-	//mActiveSynapses.erase(deletedSynapse->mWhere);
-}
 
+	for(std::set<Synapse*>::iterator j=mAllSynapses.begin(),je=mAllSynapses.end();j!=je; ++j) {
+			 if( *j == deletedSynapse){
+				 mAllSynapses.erase(*j);
+			 }
+	}
+	
+}
+*/
 
 
 /**
@@ -170,13 +185,21 @@ void Brain::deleteSynapse(Synapse *deletedSynapse){
  *	Description:	Removes an unused neuron from the neuron list and updates
 **/
 void Brain::inactivateNeuron(Neuron *inactiveNeuron){
-	mActiveNeurons.erase(inactiveNeuron->mWhere);
-	inactiveNeuron->mWhere=activeNeuronListSentinel();
+    if (inactiveNeuron->mWhere!=activeNeuronListSentinel()) {
+        mActiveNeurons.erase(inactiveNeuron->mWhere);
+        inactiveNeuron->mWhere=activeNeuronListSentinel();
+    }
 }
 
 void Brain::deleteNeuron(Neuron *deletedNeuron){
-	//mAllNeurons.erase(deletedNeuron->mWhere);
+	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie; ++i) {
+			 if( *i == deletedNeuron){
+				 mAllNeurons.erase(*i);
+				 break;
+			 }
+	}
 }
+
 
 /**
  *	@param Synapse *activeSynapse - a synapse to activate
@@ -206,9 +229,9 @@ std::list<Neuron *>::iterator Brain::activateNeuron(Neuron *activeNeuron){
  *	Brain destructor
 **/
 Brain::~Brain() {
-	for(std::set<Neuron*>::iterator i=mAllNeurons.begin(),ie=mAllNeurons.end();i!=ie;++i){
-		delete *i;
-	}
+	while(!mAllNeurons.empty()){
+        delete *mAllNeurons.begin();
+    }
     delete mSpatialSearch;
     delete mProteinMap;
     for (std::vector<BrainPlugin*>::iterator i=mPlugins.begin(),ie=mPlugins.end();i!=ie;++i) {
@@ -254,12 +277,10 @@ void Brain::createInputRegion(int neurons){
 	float maxx = INPUT_REGION_MAXX;
 	float miny = INPUT_REGION_MINY;
 	float maxy = INPUT_REGION_MAXY;
-	float spacing = INPUT_REGION_SPACING;
+	float spacing_x = INPUT_REGION_SPACING_X;
+	float spacing_y = INPUT_REGION_SPACING_Y;
 	float spread = INPUT_AXON_SPREAD;
 
-	if(neurons > (maxx-minx)*(maxy-miny)/spacing){
-		assert(this);
-	}
 	Neuron* n;
 	float x=minx;
 	float y=miny;
@@ -267,10 +288,10 @@ void Brain::createInputRegion(int neurons){
 	for(int i=0;i<neurons;i++){
 		n = createInputNeuron(x,y,0,spread);
 		mInputNeurons.push_back(n);
-		x += spacing;
+		x += spacing_x;
 		if(x >= maxx){
 			x = minx;
-			y += spacing;
+			y += spacing_y;
 		}
 	}
 }
