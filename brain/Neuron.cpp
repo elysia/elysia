@@ -24,6 +24,8 @@ Neuron::~Neuron() {
     for (std::ptrdiff_t i=(std::ptrdiff_t)mConnectedSynapses.size()-1;i>=0;--i) {
         mConnectedSynapses[i]->detach();
     }
+	mBrain->inactivateNeuron(this);
+	mBrain->deleteNeuron(this);
     assert(mConnectedSynapses.size()==0);
     mBrain->getSpatialSearch()->removeNeighbor(this);
     mBrain->notifyPluginsNeuronDestruction(this);
@@ -51,10 +53,10 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mBrain=brain;
     mDevelopmentCounter = 0;
+	mDevelopmentStage = 0;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
-    //mWhere=mBrain->activateNeuron(this); //JUST FOR TESTING REMOVE ME LATER
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, BaseThreshold, TipThreshold, 0);
     mBrain->getSpatialSearch()->addNeighbor(this);
 	mBaseBranchiness = BaseBranchiness;
@@ -213,5 +215,13 @@ void Neuron::tick(){
 	}
 	mActivity = 0;
 }
+
+void Neuron::matureNeuron(){
+	mDevelopmentStage = 1;
+
+}
+
+
+
 
 }

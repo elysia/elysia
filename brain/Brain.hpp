@@ -37,7 +37,8 @@ public:
 
 	
     Brain (ProteinEnvironment *proteinMap);
-    SimTime mCurTime;					
+    SimTime mCurTime;
+	int mDevelopmentCounter;
     float getAge()const{return mAge;}
     std::list<Neuron *>mActiveNeurons;
     std::list<Synapse *>mActiveSynapses;
@@ -45,6 +46,7 @@ public:
 	std::vector<Neuron *>mOutputNeurons;		//These have no axons and I'll decide how they should behave later
     typedef std::set<Neuron*> NeuronSet;
 	NeuronSet mAllNeurons;
+	NeuronSet mDevelopingNeurons;
     typedef std::set<Neuron*> SynapseSet;
 	SynapseSet mAllSynapses;
     BoundingBox3f3f getBounds()const;
@@ -52,6 +54,11 @@ public:
 	void processSynapse();
 	void processNeuron();
 	void developAllNeurons();
+	void processDevelopment();
+	void processNeuronDeath();		//Remove Neuron from set of AllNeurons upon death
+	void processNeuronMature(Neuron* n);
+	void deleteNeuron(Neuron* deletedNeuron);
+	void deleteSynapse(Synapse* deletedSynapse);
     Neuron *addNeuron(const BoundingBox3f3f &generationArea, const Genome::Gene &);
     ~Brain();
     std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);

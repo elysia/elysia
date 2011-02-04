@@ -29,6 +29,8 @@ Synapse::Synapse(CellComponent * parent){
 
 Synapse::~Synapse(){
 	bool a=detach();
+	mBrain->inactivateSynapse(this);
+	mBrain->deleteSynapse(this);
 	if(!a){
 		assert(this);
 	}

@@ -44,6 +44,7 @@ private:
 	float mNeuronSignalWeight;
     SimTime mLastActivity;
 	int mDevelopmentCounter;			//Counts down to 0 to trigger next developmental re-evaluation
+	int mDevelopmentStage;				//What stage of development the neuron is in 0 for Developing, 1 for Mature
 	int type;							//Input neuron = 0, otherwise = 1
 
     virtual Neuron*getParentNeuron(){return this;}
@@ -65,7 +66,8 @@ public:
 	ActivityStats& getActivityStats(){ return *this; }
 	void developSynapse(const ActivityStats& stats);
 	void visualizeTree(FILE *dendriteTree, size_t parent);
-	
+	void matureNeuron();
+
 	Brain* getBrain() {return mBrain;}
 };
 }
