@@ -68,7 +68,6 @@ void Visualization::initialize( Brain*b) {
 
 
 static float selectiondefaultcol[4]={1,1,1,1};
-
 static void arrow (float ox,float oy, float oz, float ex, float ey, float ez, float thickness) {
   thickness=fabs(thickness);
   float dx =ex-ox;
@@ -179,10 +178,10 @@ void drawRectOutline(Vector3f lower_left,Vector3f upper_right, float halfx,float
 
 int stringWidth(const std::string &dat, bool addspace, bool removespace) {
 	int retval=addspace?1:0;
-	static int space=glutBitmapWidth(GLUT_BITMAP_HELVETICA_10,' ');
+	static int space=glutStrokeWidth(GLUT_STROKE_ROMAN,' ');
 	if (removespace) retval-=space-1;
 	for (std::string::const_iterator i=dat.begin(),ie=dat.end();i!=ie;++i)
-		retval+=glutBitmapWidth(GLUT_BITMAP_HELVETICA_10,*i);
+		retval+=glutStrokeWidth(GLUT_STROKE_ROMAN,*i);
 	return retval;
 }
 #define highest_special_char ((char)47)
@@ -326,6 +325,9 @@ void Visualization::drawNeuron(Neuron*n) {
     }
     
 }
+void printhello() {
+    printf( "HELLO");
+}
 Visualization::InputStateMachine::InputStateMachine() {
     memset(mKeyDown,0,sizeof(mKeyDown));
     memset(mSpecialKeyDown,0,sizeof(mSpecialKeyDown));
@@ -334,13 +336,23 @@ Visualization::InputStateMachine::InputStateMachine() {
     mDragStartX=0;
     mDragStartY=0;
 }
-void Visualization::InputStateMachine::draw() {
+void Visualization::InputStateMachine::draw(Visualization*parent) {
+    static bool xx=false;
+    if (!xx) {
+        xx=true;
+        mButtons.push_back(Button(-parent->mGraphics->getWidth()/2,parent->mGraphics->getHeight()/2-10,-parent->mGraphics->getWidth()/2+100,parent->mGraphics->getHeight()/2,"HELLO WORLD",printhello));
+    }
+    for (size_t i=0;i<mButtons.size();++i) {
+        mButtons[i].draw();
+    }
     if (mActiveDrag&&(mMouseX!=mDragStartX||mMouseY!=mDragStartY)) {
+        glBegin(GL_QUADS);
         glColor4f(.5,.5,.5,.5);
         glVertex3f(mDragStartX,mDragStartY,0);
         glVertex3f(mDragStartX,mMouseY,0);
         glVertex3f(mMouseX,mMouseY,0);
         glVertex3f(mMouseX,mDragStartY,0);
+        glEnd();
     }
 }
 void Visualization::InputStateMachine::processPersistentState(const Visualization::Event&evt) {
@@ -384,6 +396,19 @@ bool Visualization::getCurrentNeuronWidthHeight(Neuron * n, float&width,float&he
     getNeuronWidthHeight(n->getName(),width,hei,mSelected.find(n)!=mSelected.end());
     return false;
 }
+void Visualization::Button::doClick(Visualization*vis, const Visualization::Event&evt) const{
+    if (click(vis,evt)) {
+        mClick();
+    }
+}
+bool Visualization::Button::click(Visualization*vis, const Visualization::Event&evt) const{
+    if (evt.mouseX<=maxX&&evt.mouseX>=minX&&
+        evt.mouseY<=maxY&&evt.mouseY>=minY) {
+        return true;
+    }    
+    return false;
+}
+
 bool Visualization::click (Neuron * n, float x, float y) {
     Vector3f where=getNeuronLocation(n);
     float wid=0,hei=0;
@@ -424,16 +449,79 @@ void Visualization::InputStateMachine::drag(Visualization *vis, const Visualizat
     }
 
 }
+Visualization::Button::Button(float minX,
+                              float minY,
+                              float maxX,
+                              float maxY,
+                              const std::string &text,
+                              const std::tr1::function<void()> &click,
+                              float scale):minX(minX),
+                                                                      maxX(maxX),
+                                                                      minY(minY),
+                                                                      maxY(maxY),
+                                                                      mText(text),
+                                                                      mClick(click){
+    renderedOnce=false;
+    mScale=scale;
+}
+void drawString(Vector3f lower_left, float scale, const std::string &text, bool addspace) {
+
+    glMatrixMode(GL_MODELVIEW_MATRIX);
+    glPushMatrix();
+    glTranslatef(lower_left.x,lower_left.y,lower_left.z);
+    glScalef(scale,scale,scale);
+    if (addspace)
+        glutStrokeCharacter(GLUT_STROKE_ROMAN,' ');
+    for (size_t i=0;i<text.length();++i) {
+        glutStrokeCharacter(GLUT_STROKE_ROMAN,text[i]);
+    }
+    glPopMatrix();
+}
+void Visualization::Button::draw() {
+    if (!renderedOnce) {
+        renderedOnce=true;
+        bool removespace=false;
+        bool addspace=false;    
+        float width = stringWidth(mText, addspace, removespace)*mScale;
+        if ((maxX-minX)<width) {
+            this->maxX=this->minX+width;
+        }
+
+    }
+    Vector3f lower_left(minX,minY,0);
+    Vector3f upper_right(maxX,maxY,0);
+    glBegin(GL_QUADS);
+    drawRect(lower_left,upper_right);
+    glEnd();
+/*
+    glBegin(GL_LINES);
+    drawRectOutline(lower_left,
+                    upper_right,
+                    0,0);
+                    
+                    glEnd();*/
+    drawString(lower_left,mScale,mText,false);
+}
+
 void Visualization::InputStateMachine::click(Visualization *vis, const Visualization::Event&evt){
+    bool hasClicked=false;
+    for (ptrdiff_t i=mButtons.size()-1;i>=0;--i) {
+        if (mButtons[i].click(vis,evt)) {
+            mButtons[i].doClick(vis,evt);
+            hasClicked=true;
+        }
+    }
     std::vector<Neuron*>clicked;
-    for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
-             ie=vis->mBrain->mAllNeurons.end();
-         i!=ie;
-         ++i) {
-        if (vis->click(*i,evt.mouseX,evt.mouseY)){
-            clicked.push_back(*i);
-            printf("HIT  A NEURON\n");
-            
+    if (!hasClicked) {
+        for (Brain::NeuronSet::iterator i=vis->mBrain->mAllNeurons.begin(),
+                 ie=vis->mBrain->mAllNeurons.end();
+             i!=ie;
+             ++i) {
+            if (vis->click(*i,evt.mouseX,evt.mouseY)){
+                clicked.push_back(*i);
+                printf("HIT  A NEURON\n");
+                
+            }
         }
     }
     
@@ -515,8 +603,8 @@ void Visualization::draw() {
          ++i) {
         drawNeuron(*i);
     }
-    mInput.draw();
     glEnd(); 
+    mInput.draw(this);
 }
 Visualization::~Visualization() {
     {

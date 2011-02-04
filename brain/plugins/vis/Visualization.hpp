@@ -59,11 +59,34 @@ public:
     void postInputEvent(const Event&evt);
 private:    
     //process a single event and make it adjust the input state machine
-
+    
     std::vector<Event>mInputEvents;
+    class Button {
+        
+        float minX;
+        float maxX;
+        float minY;
+        float maxY;
+        float mScale;//how big the text is
+        std::string mText;
+        std::tr1::function<void()> mClick;
+        bool renderedOnce;
+    public:
+        Button(float minX,
+               float minY,
+               float maxX,
+               float maxY,
+               const std::string &text,
+               const std::tr1::function<void()> &click,
+               float scale=.0625);
+        void draw();
+        bool click(Visualization * vis, const Visualization::Event&evt)const;
+        void doClick(Visualization * vis, const Visualization::Event&evt)const;
+    };
     class InputStateMachine {
         void drag(Visualization * vis, const Visualization::Event&evt);
         void click(Visualization * vis, const Visualization::Event&evt);
+        std::vector<Button> mButtons;
     public:
         bool mActiveDrag;
         float mDragStartX;
@@ -77,7 +100,7 @@ private:
         void processEvent(Visualization*parent, const Visualization::Event&evt);
         InputStateMachine();
         
-        void draw();
+        void draw(Visualization*parent);
     }mInput;
 };
 BrainPlugin* makeVisualization(Brain*b);
