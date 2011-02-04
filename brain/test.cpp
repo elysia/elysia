@@ -57,14 +57,14 @@ void testDevelopment(){
 
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
-		Neuron* n = placeTestNeuron(brain, 1000, 1000, 100, 100, 100); 
+		Neuron* n = placeTestNeuron(brain, 300, 300, 100, 100, 100); 
 		createdList.push_back(n);
 	}
 
 	//Region 2
 	for(int i=0;i<neuronNumber;i++){
 		
-		Neuron* n = placeTestNeuron(brain, 2000, 2000, 1000, 1000, 100); 
+		Neuron* n = placeTestNeuron(brain, 1000, 1000, 300, 300, 400); 
 		createdList.push_back(n); 
 	}
 

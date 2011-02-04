@@ -61,3 +61,5 @@ void SimpleSpatialSearch::removeNeighbor(Neuron* neuron){
 void SimpleSpatialSearch::moveNeighbor(Neuron*){
 }
 }
+
+ 

@@ -21,7 +21,8 @@ public:
     float mSignalWeight;
     int mFiringWindow;		//How long this synapse stays active for
     int mFiringCounter;     //Starts at mFiringWindow and counts down to 0 (then synapse deactivates)
-    
+    int mDevelopmentStage;	//The synapse tracks whether it is in a stage of early excitation
+
 	CellComponent* mParentBranch;
 
     ///float used in development only and reset when connect is called to unit (1.0) <standard in development>
@@ -33,6 +34,8 @@ public:
 	void residualFire();
 	void develop(const ActivityStats& stats);
 	void visualizeSynapse(FILE *dendriteTree, size_t parent);
+	void setDevelopmentStage(int stage);
+	int getDevelopmentStage();
     Neuron *recipient() const{
         return mRecipientNeuron;
     }
