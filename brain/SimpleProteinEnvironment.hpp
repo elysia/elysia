@@ -27,7 +27,7 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
     const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
     float getSpecificProteinDensity(Elysia::Genome::Effect); 
     ///"Complicated" function to update the soup for the next time iteration
-    static void updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age);
+    void updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age);
     bool isGeneOn(const Genome::Gene &currentgene);
     bool isConditionClauseTrue(const Genome::ConditionClause &currentClause);
     float getSpecificProteinDensity(const ProteinType &myProtein);

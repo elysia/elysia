@@ -215,7 +215,9 @@ void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<P
             //Check time range
             if (j->mGenes.bounds(k).mint()<=age && j->mGenes.bounds(k).maxt()>=age) {      
 
+                //Is this gene for this soup an active candidate for update?
                 //Update appropriate soup/density of effect
+                driveGeneDensity(*j, isGeneOn(j->mGenes));
             }
         }
     }
@@ -548,7 +550,7 @@ void SimpleProteinEnvironment::updateAllEnvironmentSoup(float age){
   //Split main loop out here
   std::vector< ProteinZone >::iterator i,ie;
   for (i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
-    ProteinZone::updateEachZoneGeneSoup(i->mGeneSoup,age);
+    i->updateEachZoneGeneSoup(i->mGeneSoup,age);
   }
 }
   
