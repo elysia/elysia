@@ -228,10 +228,15 @@ void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<P
  *
  *	Description:	Check to see if the gene is activated and should be updated (checks if all are true)
  **/
-bool SimpleProteinEnvironment::ProteinZone::isGeneOn(const Genome::Gene &currentgene){
-  //Loop through all the ConditionClauses, are they are ALL true?
+bool SimpleProteinEnvironment::ProteinZone::isGeneOn(const Genome::Gene &currentgene){ //passed in as a reference, not a pointer, so use . instead of arrow, and & instead of *
+    //Loop through all the ConditionClauses, are they are ALL true?
     //--> Call check function passing in the clause
-  return 1;
+    for (int i = 0; i < currentgene.conjunction_size(); i++) {
+        if (!isConditionClauseTrue(currentgene.conjunction(i))){
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -240,9 +245,14 @@ bool SimpleProteinEnvironment::ProteinZone::isGeneOn(const Genome::Gene &current
  *	Description:	Check to see if any of the items in the disjunction is true (if any is true)
  **/
 bool SimpleProteinEnvironment::ProteinZone::isConditionClauseTrue(const Genome::ConditionClause &currentClause){
-  //Loop through the disjunctions and see if ANY of them is true?
+    //Loop through the disjunctions and see if ANY of them is true?
     //--> Providing a condition, is it true?
-  return 1;
+    for (int i = 0; i < currentClause.disjunction_size(); i++) {
+        if (isConditionTrue(currentClause.disjunction(i))){
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -251,11 +261,27 @@ bool SimpleProteinEnvironment::ProteinZone::isConditionClauseTrue(const Genome::
  *	Description:	Check/compare the logic on on each of the protein (see if the logic at that condition is true - does it satisfy the condition?)
  **/
 bool SimpleProteinEnvironment::ProteinZone::isConditionTrue(const Genome::Condition &currentCondition){
-  //Open the condition, check to see if each condition is satisfied
-  //Loop through the conditions?
-    //--> Call the specific protein density
+    //Open the condition, check to see if each condition is satisfied
+    //Loop through proteins
+    float specificTotalProteinDensity = 0;
+    for (int i = 0; i < currentCondition.protein_size(); i++) {
+        //--> Call the specific protein density
+        specificTotalProteinDensity += getSpecificProteinDensity(currentCondition.protein(i));
+    }
     //--> Compare the value against the condition
-  return 1;
+    if (currentCondition.test() == Genome::Condition::ANY_CONCENTRATION) {
+        return specificTotalProteinDensity!=0;
+    }
+    if (currentCondition.test() == Genome::Condition::CONCENTRATION_GREATER) {
+        return specificTotalProteinDensity > currentCondition.density();
+    }
+    if (currentCondition.test() == Genome::Condition::CONCENTRATION_LESS) {
+        return specificTotalProteinDensity < currentCondition.density();
+    }
+    if (currentCondition.test() == Genome::Condition::NO_CONCENTRATION) {
+        return specificTotalProteinDensity==0;
+    }
+    return false;
 }
   
 /**
@@ -264,10 +290,10 @@ bool SimpleProteinEnvironment::ProteinZone::isConditionTrue(const Genome::Condit
  *	Description:	Totals up the density of the protein being looked at (find the totals in preparation for the comparison step)
  **/
 float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const ProteinType &myProtein){
-  //Loop and find the protein that matches the one provided
-  //Loop through the density of the protein that matches the one given... for all genes, and save the total?
-  //Return the value...
-  return 0;
+    //Loop and find the protein that matches the one provided
+    //Loop through the density of the protein that matches the one given... for all genes, and save the total?
+    //Return the value...
+    return 0;
 }
 
 /**
@@ -276,8 +302,8 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const Pro
  *	Description:	Actually update the protein density to the next density
  **/
 void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive){
-  //Okay, we know that this gene is activated, and changes need to happen
-  //Use the "instructions" on the gene to update the densities of the protein ASSOCIATED WITH the target Gene within the GeneSoup
+    //Okay, we know that this gene is activated, and changes need to happen (make sure to check isGeneActive)
+    //Use the "instructions" on the gene to update the densities of the protein ASSOCIATED WITH the target Gene within the GeneSoup
 }
 
 
