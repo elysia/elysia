@@ -14,10 +14,12 @@ enum Effect {
    LEARNING_RESPONSIVENESS=12;
    INHIBITION=13;           //change whether the neurons are excitatory or inhbitory
    AGGRESSIVE_DEVELOPMENT=14;  // change how aggressively the neuron regrows connections
+   MAX_EFFECTS=15;
 }
 
 message Protein {
-  optional Effect protein_code=1;//the protein produced by this gene
+  optional uint64 protein_type=1;
+  optional Effect protein_effect=3;//the protein produced by this gene
   optional float density=2;
 }
 
@@ -33,7 +35,7 @@ message TemporalBoundingBox {
 }
 
 message Condition {
-   optional uint64 protein=1;
+   repeated uint64 protein=1; //sum all of these proteins up when deciding the test
    enum Test {
       ANY_CONCENTRATION=0;
       CONCENTRATION_GREATER=1;

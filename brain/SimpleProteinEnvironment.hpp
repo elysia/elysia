@@ -2,6 +2,7 @@
 #include "genome.pb.h"
 namespace Elysia {
 
+  
 /**
  * Class defines the protein soup that components interact with
  * The supporting functions use the genome to generate a list of zones used for defining neuron effects
@@ -12,8 +13,7 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
     //Define Gene-Soup Structure because each gene needs to associate to the correct soup contribution
     struct BRAIN_CORE_EXPORT GeneSoupStruct{
       //Soup activates genes so you need to know which soup is active
-      typedef std::pair<Elysia::Genome::Effect,float> EffectAndDensityPair;
-      typedef std::vector< EffectAndDensityPair > SoupVector;
+      typedef std::vector< EffectAndTypeAndDensity > SoupVector;
       SoupVector mSoup;
       
       //This is the gene-related-to-the-soup
@@ -24,7 +24,12 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
     const BoundingBox3f3f &getBoundingBox()const {return mBounds;}
     float getSpecificProteinDensity(Elysia::Genome::Effect); 
     ///"Complicated" function to update the soup for the next time iteration
-    static void updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age);
+    void updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age);
+    bool isGeneOn(const Genome::Gene &currentgene);
+    bool isConditionClauseTrue(const Genome::ConditionClause &currentClause);
+    float getSpecificProteinDensity(const ProteinType &myProtein);
+    bool isConditionTrue(const Genome::Condition &currentCondition);
+    void driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive);
   };
   std::vector<ProteinZone> mMainZoneList;
   //Need outter function to handle update looping
@@ -58,9 +63,9 @@ public:
   ///Get protein density at a location (given location, and protein effect interested in)
   float getProteinDensity(iterator it, const Elysia::Genome::Effect&);
   ///Find all the proteins at a given point (given location)
-  std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location);
+  std::vector<EffectAndTypeAndDensity > getCompleteProteinDensity(const Vector3f& location);
   ///Find all the proteins at a given point (given location)
-  std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(iterator it);
+  std::vector<EffectAndTypeAndDensity > getCompleteProteinDensity(iterator it);
   ///Combine 2 zones by dividing it up into parts before reassembling them
   void chopZonePair(const ProteinZone &a, const ProteinZone &b, std::vector<ProteinZone> &output);
   ///Split and simplify large zone definitions into smaller component zones for calculations (given list of all zones)

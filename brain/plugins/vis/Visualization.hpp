@@ -8,6 +8,10 @@ class Branch;
 class Visualization:public BrainPlugin  {
     ///Neurons marked for death by the main plugin
     std::vector<Neuron*> mfd;
+    void clearDetail();
+    void addSelectedToDetail();
+    void subtractSelectedFromDetail();
+    void intersectSelectedWithDetail();
     std::tr1::shared_ptr<GraphicsSystem> mGraphics;
     static std::tr1::weak_ptr<GraphicsSystem> mGlobalGraphics;
     Brain * mBrain;
@@ -15,7 +19,6 @@ class Visualization:public BrainPlugin  {
     float mScale;
     Vector3f mOffset;
     bool mSynapseSnapToEdge;
-    std::tr1::unordered_set<Neuron*> mSelected;
     Vector3f getNeuronLocation(Neuron*n)const;
     bool getNeuronWidthHeight(const std::string&text, float&width, float&hei, bool selected);
     bool getCurrentNeuronWidthHeight(Neuron*n, float&width, float&height);
@@ -28,6 +31,8 @@ class Visualization:public BrainPlugin  {
     void doInput();
     typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
     SelectedNeuronMap mSelectedNeurons;
+    SelectedNeuronMap mDetailedNeurons;
+
     void purgeMarkedForDeathNeurons();
     ///Returns if a single neuron may be selected by the given mouse coordinates
     bool click (Neuron*n,float mousex, float mousey);
@@ -59,11 +64,37 @@ public:
     void postInputEvent(const Event&evt);
 private:    
     //process a single event and make it adjust the input state machine
-
+    
     std::vector<Event>mInputEvents;
+    class Button {
+        
+        float minX;
+        float maxX;
+        float minY;
+        float maxY;
+        float mScale;//how big the text is
+        std::string mText;
+        std::tr1::function<void()> mClick;
+        bool renderedOnce;
+    public:
+        /**
+           buttons are referenced from the top left corner... in pixels
+         */
+        Button(float minX,
+               float minY,
+               float maxX,
+               float maxY,
+               const std::string &text,
+               const std::tr1::function<void()> &click,
+               float scale=.1);
+        void draw(Visualization * vis);
+        bool click(Visualization * vis, const Visualization::Event&evt)const;
+        void doClick(Visualization * vis, const Visualization::Event&evt)const;
+    };
     class InputStateMachine {
         void drag(Visualization * vis, const Visualization::Event&evt);
         void click(Visualization * vis, const Visualization::Event&evt);
+        std::vector<Button> mButtons;
     public:
         bool mActiveDrag;
         float mDragStartX;
@@ -77,7 +108,7 @@ private:
         void processEvent(Visualization*parent, const Visualization::Event&evt);
         InputStateMachine();
         
-        void draw();
+        void draw(Visualization*parent);
     }mInput;
 };
 BrainPlugin* makeVisualization(Brain*b);
