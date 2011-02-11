@@ -347,17 +347,13 @@ Visualization::InputStateMachine::InputStateMachine() {
     mDragStartY=0;
 }
 void Visualization::clearDetail(){
-    printf("CLEARING: Detailed neuron size %d\n",mDetailedNeurons.size());
     this->mDetailedNeurons.clear();
 }
 
 void Visualization::addSelectedToDetail(){
-    printf("ADDING Detailed neuron size %d\n",mDetailedNeurons.size());
     this->mDetailedNeurons.insert(mSelectedNeurons.begin(),mSelectedNeurons.end());
-    printf("ADDED Detailed neuron size %d\n",mDetailedNeurons.size());
 }
 void Visualization::subtractSelectedFromDetail(){
-    printf("SUBTRACTING Detailed neuron size %d\n",mDetailedNeurons.size());
     for (SelectedNeuronMap::iterator i=mSelectedNeurons.begin();
          i!=mSelectedNeurons.end();++i) {
         SelectedNeuronMap::iterator where=this->mDetailedNeurons.find(*i);
@@ -366,10 +362,8 @@ void Visualization::subtractSelectedFromDetail(){
         }
     }
 
-    printf("SUBTRACTED Detailed neuron size %d\n",mDetailedNeurons.size());
 }
 void Visualization::intersectSelectedWithDetail(){
-    printf("INTERSECTING Detailed neuron size %d\n",mDetailedNeurons.size());
     SelectedNeuronMap::iterator i=mDetailedNeurons.begin();
     while (i!=mDetailedNeurons.end()) {
         if (mSelectedNeurons.find(*i)==mSelectedNeurons.end()) {
@@ -385,7 +379,6 @@ void Visualization::intersectSelectedWithDetail(){
             }
         }else ++i;
     }
-    printf("INTERSECTED Detailed neuron size %d\n",mDetailedNeurons.size());
 }
 
 void Visualization::InputStateMachine::draw(Visualization*parent) {
