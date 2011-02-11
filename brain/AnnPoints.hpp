@@ -1,0 +1,3 @@
+namespace Elysia {
+class AnnPoints;
+}

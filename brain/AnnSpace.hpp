@@ -3,5 +3,5 @@
 
 namespace Elysia {
 	int numPoints;
-	std::vector<*annPoints> pointList;
+	std::vector<AnnPoints*> pointList;
 }
