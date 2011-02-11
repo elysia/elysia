@@ -33,7 +33,7 @@ message TemporalBoundingBox {
 }
 
 message Condition {
-   optional uint64 protein=1;
+   repeated uint64 protein=1; //sum all of these proteins up when deciding the test
    enum Test {
       ANY_CONCENTRATION=0;
       CONCENTRATION_GREATER=1;

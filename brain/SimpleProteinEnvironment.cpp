@@ -196,22 +196,15 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
 }
 
 /**
- *	@param const float age - current age
+ *	@param std::vector<ProteinZone::GeneSoupStruct> &mygenesoup
+ *  @param float age - current age
  *
  *	Description:	Update the mSoup (densities) for the next timestep, (given the current age)
 **/
 void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age){
-    /*
-     Update Step: (given age)
-     Cycle through each zone
-     Open Gene data and use:
-     Conditional (conjunction)
-     Gene Bound (temporal bound -> contains(age) )
-     Update appropriate soup/density of effect (conditional)
-     */
 
     std::vector<ProteinZone::GeneSoupStruct>::iterator j,je;
-    //std::vector<ProteinZone::GeneSoupStruct::EffectAndDensityPair>::iterator l,le;
+    std::vector<ProteinZone::GeneSoupStruct::EffectAndDensityPair>::iterator l,le;
     
     //Temporal information stored on the Gene, can skip effect/density update if value fails temporal test
     //Cycle through all the gene-soup members in that zone
@@ -221,42 +214,98 @@ void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<P
         for (int k=0;k<num_bounds;++k) {
             //Check time range
             if (j->mGenes.bounds(k).mint()<=age && j->mGenes.bounds(k).maxt()>=age) {      
-                //If yes, cycle through effect/density pairs
-                //find and analyze conditionals
+
+                //Is this gene for this soup an active candidate for update?
                 //Update appropriate soup/density of effect
+                driveGeneDensity(*j, isGeneOn(j->mGenes));
             }
         }
     }
-  
-//                     what is a conjunction?
-//                     danielrh:  it's like an && clause
-//                     so you get
-//                     (a||b||c)&&(d||e||f)&&(h||a||c)
-//                     where a, b, and c are effects
-//                     disjunction is the ||
-//                     conjunction is the &&
-//                     and the Test clause
-//                     all of this is in genome.proto
-//                     http://code.google.com/apis/protocolbuffers/docs/reference/cpp-generated.html
-//                     http://code.google.com/p/protobuf/
-//
-//                    //Methods to accomplish this:
-//                    //CALL MAGIC FUNCTION
-//                    //A
-//                        //1. Total up the a single effect in the zone
-//                        //2. Make a list of this total
-//                        //3. Check each gene conditional to see if it is triggered by the environmental totals
-//                        //4. Update changes to contribution of each gene via activation/deactivation
-//                        //ASSUME: I start knowing what the surrounding soup densities look like
-//                    //B
-//                        //1. Make a check function for validity: 
-//                            //bool checkValidity(const Genome::Condition&, const ProteinZone&current_zone)
-//                        //2. Cycle through each effect and update?
-//                        //ASSUME: A function told me if any given clause is valid at a given zone
-//                    
-//                    //Line 638 starts the conjunction
-  
 }
+
+/**
+ *	@param const Genome::Gene &currentgene
+ *
+ *	Description:	Check to see if the gene is activated and should be updated (checks if all are true)
+ **/
+bool SimpleProteinEnvironment::ProteinZone::isGeneOn(const Genome::Gene &currentgene){ //passed in as a reference, not a pointer, so use . instead of arrow, and & instead of *
+    //Loop through all the ConditionClauses, are they are ALL true?
+    //--> Call check function passing in the clause
+    for (int i = 0; i < currentgene.conjunction_size(); i++) {
+        if (!isConditionClauseTrue(currentgene.conjunction(i))){
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ *	@param const Genome::ConditionClause &currentClause
+ *
+ *	Description:	Check to see if any of the items in the disjunction is true (if any is true)
+ **/
+bool SimpleProteinEnvironment::ProteinZone::isConditionClauseTrue(const Genome::ConditionClause &currentClause){
+    //Loop through the disjunctions and see if ANY of them is true?
+    //--> Providing a condition, is it true?
+    for (int i = 0; i < currentClause.disjunction_size(); i++) {
+        if (isConditionTrue(currentClause.disjunction(i))){
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ *	@param const Genome::Condition &currentCondition
+ *
+ *	Description:	Check/compare the logic on on each of the protein (see if the logic at that condition is true - does it satisfy the condition?)
+ **/
+bool SimpleProteinEnvironment::ProteinZone::isConditionTrue(const Genome::Condition &currentCondition){
+    //Open the condition, check to see if each condition is satisfied
+    //Loop through proteins
+    float specificTotalProteinDensity = 0;
+    for (int i = 0; i < currentCondition.protein_size(); i++) {
+        //--> Call the specific protein density
+        specificTotalProteinDensity += getSpecificProteinDensity(currentCondition.protein(i));
+    }
+    //--> Compare the value against the condition
+    if (currentCondition.test() == Genome::Condition::ANY_CONCENTRATION) {
+        return specificTotalProteinDensity!=0;
+    }
+    if (currentCondition.test() == Genome::Condition::CONCENTRATION_GREATER) {
+        return specificTotalProteinDensity > currentCondition.density();
+    }
+    if (currentCondition.test() == Genome::Condition::CONCENTRATION_LESS) {
+        return specificTotalProteinDensity < currentCondition.density();
+    }
+    if (currentCondition.test() == Genome::Condition::NO_CONCENTRATION) {
+        return specificTotalProteinDensity==0;
+    }
+    return false;
+}
+  
+/**
+ *	@param const ProteinType &myProtein
+ *
+ *	Description:	Totals up the density of the protein being looked at (find the totals in preparation for the comparison step)
+ **/
+float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const ProteinType &myProtein){
+    //Loop and find the protein that matches the one provided
+    //Loop through the density of the protein that matches the one given... for all genes, and save the total?
+    //Return the value...
+    return 0;
+}
+
+/**
+ *	@param ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive
+ *
+ *	Description:	Actually update the protein density to the next density
+ **/
+void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive){
+    //Okay, we know that this gene is activated, and changes need to happen (make sure to check isGeneActive)
+    //Use the "instructions" on the gene to update the densities of the protein ASSOCIATED WITH the target Gene within the GeneSoup
+}
+
 
 /**
  *	@param const BoundingBox3f3f &input - bounding box area to check
@@ -527,7 +576,7 @@ void SimpleProteinEnvironment::updateAllEnvironmentSoup(float age){
   //Split main loop out here
   std::vector< ProteinZone >::iterator i,ie;
   for (i=mMainZoneList.begin(),ie=mMainZoneList.end();i!=ie;++i) {
-    ProteinZone::updateEachZoneGeneSoup(i->mGeneSoup,age);
+    i->updateEachZoneGeneSoup(i->mGeneSoup,age);
   }
 }
   
@@ -542,9 +591,9 @@ void SimpleProteinEnvironment::updateAllEnvironmentSoup(float age){
 **/
 SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones(   const Vector3f queryPoint, 
                                                         const std::vector<ProteinZone> &mainZoneList){
-	int i;
+	//int i;
 	static ProteinZone myFail;
-	size_t numMainZones=mMainZoneList.size();
+	//size_t numMainZones=mMainZoneList.size();
 
 	for(size_t i=0;i<mMainZoneList.size();++i){
 		if (mMainZoneList[i].mBounds.contains(queryPoint)) {
@@ -565,7 +614,7 @@ SimpleProteinEnvironment::ProteinZone &SimpleProteinEnvironment::resideInZones( 
  *	Description:	Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this location
 **/
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3f &location, const Elysia::Genome::Effect&effect){
-  float totalvalue;
+  //float totalvalue;
   SimpleProteinEnvironment::ProteinZone *localzone;
     
   //Get the zone associated with that location
@@ -581,7 +630,7 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(const Vector3
  *	Description:	Look up the responsible gene from the set of "active" genes causing the effect to be spilled at this protein zone
 **/
 const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGene(iterator it, const Elysia::Genome::Effect&effect){
-  float totalvalue;
+  //float totalvalue;
   return retrieveGeneHelper(&getZone(it),effect);
 }
 
