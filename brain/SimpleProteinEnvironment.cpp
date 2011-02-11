@@ -90,6 +90,7 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::G
   }
   return retval;
 }
+
 ProteinEnvironment::iterator SimpleProteinEnvironment::getIterator(const Vector3f& queryPoint){
     iterator retval;
     for(size_t i=0;i<mMainZoneList.size();++i){
@@ -290,11 +291,20 @@ bool SimpleProteinEnvironment::ProteinZone::isConditionTrue(const Genome::Condit
  *
  *	Description:	Totals up the density of the protein being looked at (find the totals in preparation for the comparison step)
  **/
-float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const ProteinType &myProtein){
+float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const ProteinType &myProtein) {
     //Loop and find the protein that matches the one provided
     //Loop through the density of the protein that matches the one given... for all genes, and save the total?
+    float retval=0;
+    std::vector< GeneSoupStruct >::const_iterator i,ie;
+    std::vector< EffectAndTypeAndDensity >::const_iterator j,je;
+    for (i=mGeneSoup.begin(),ie=mGeneSoup.end();i!=ie;++i){
+        for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
+            //if the effect in the current iterator matches the desired protein effect passed in as "e", add the float to the return value
+            if (j->type==myProtein) retval+=j->density;
+        }
+    }
     //Return the value...
-    return 0;
+    return retval;
 }
 
 /**
