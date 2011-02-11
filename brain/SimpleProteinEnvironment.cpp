@@ -1,6 +1,12 @@
 #include "Platform.hpp"
 #include "SimpleProteinEnvironment.hpp"
 namespace Elysia {
+Genome::Effect convertProteinTypeToEffect(ProteinType type) {
+    if (type>=Genome::MAX_EFFECTS)
+        return Genome::CUSTOM;
+    return (Genome::Effect)type;
+}
+
 /*
 //Example of a pair
 namespace std {
@@ -52,9 +58,9 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
                       current_soup_density=protein->density();
                   }
                   newGeneSoup.mSoup.push_back( EffectAndTypeAndDensity(
-                                                                                                 protein->protein_type(),
-                  protein->protein_effect(),
-                                                                                                 current_soup_density));
+                                                   protein->has_protein_type()?protein->protein_type():protein->protein_effect(),
+                                                   protein->has_protein_effect()?protein->protein_effect():convertProteinTypeToEffect(protein->protein_type()),
+                                                   current_soup_density));
               }
               newZone.mGeneSoup.push_back(newGeneSoup);
               newZone.mBounds =BoundingBox3f3f(Vector3f(gene->bounds(k).minx(),
