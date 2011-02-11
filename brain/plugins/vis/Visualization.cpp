@@ -262,10 +262,20 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     center.z=0;
     float wid=0;
     float hei=0;
-    bool text=getNeuronWidthHeight(n->getName(), wid,hei,mSelectedNeurons.find(n)!=mSelectedNeurons.end());
+    bool isSelected=mSelectedNeurons.find(n)!=mSelectedNeurons.end();
+    bool isDetailed=mDetailedNeurons.find(n)!=mDetailedNeurons.end();
+    bool text=getNeuronWidthHeight(n->getName(), wid,hei,isSelected);
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
-    glColor4f(.25,.35,1.0,.75);
+    if (isSelected&&isDetailed) {
+        glColor4f(.25,1.0,1.0,.75);
+    } else if (isSelected) {
+        glColor4f(.25,.35,1.0,.75);
+    }else if (isDetailed) {        
+        glColor4f(.25,1.0,.35,.75);
+    }else {
+        glColor4f(.25/1.5,.35/1.5,1.0/1.5,.75/1.5);
+    }
     drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
     return scaledCenter+Vector3f(0,hei/2,0);
 }
@@ -336,10 +346,47 @@ Visualization::InputStateMachine::InputStateMachine() {
     mDragStartX=0;
     mDragStartY=0;
 }
-void Visualization::clearDetail(){}
-void Visualization::addSelectedToDetail(){}
-void Visualization::subtractSelectedFromDetail(){}
-void Visualization::intersectSelectedWithDetail(){}
+void Visualization::clearDetail(){
+    printf("CLEARING: Detailed neuron size %d\n",mDetailedNeurons.size());
+    this->mDetailedNeurons.clear();
+}
+
+void Visualization::addSelectedToDetail(){
+    printf("ADDING Detailed neuron size %d\n",mDetailedNeurons.size());
+    this->mDetailedNeurons.insert(mSelectedNeurons.begin(),mSelectedNeurons.end());
+    printf("ADDED Detailed neuron size %d\n",mDetailedNeurons.size());
+}
+void Visualization::subtractSelectedFromDetail(){
+    printf("SUBTRACTING Detailed neuron size %d\n",mDetailedNeurons.size());
+    for (SelectedNeuronMap::iterator i=mSelectedNeurons.begin();
+         i!=mSelectedNeurons.end();++i) {
+        SelectedNeuronMap::iterator where=this->mDetailedNeurons.find(*i);
+        if (where!=mDetailedNeurons.end()) {
+            mDetailedNeurons.erase(where);
+        }
+    }
+
+    printf("SUBTRACTED Detailed neuron size %d\n",mDetailedNeurons.size());
+}
+void Visualization::intersectSelectedWithDetail(){
+    printf("INTERSECTING Detailed neuron size %d\n",mDetailedNeurons.size());
+    SelectedNeuronMap::iterator i=mDetailedNeurons.begin();
+    while (i!=mDetailedNeurons.end()) {
+        if (mSelectedNeurons.find(*i)==mSelectedNeurons.end()) {
+            SelectedNeuronMap::iterator j=i;
+            ++j;
+            if (j!=mDetailedNeurons.end()) {
+                Neuron * test=*j;
+                mDetailedNeurons.erase(i);
+                i=mDetailedNeurons.find(test);
+            }else {
+                mDetailedNeurons.erase(i);
+                break;
+            }
+        }else ++i;
+    }
+    printf("INTERSECTED Detailed neuron size %d\n",mDetailedNeurons.size());
+}
 
 void Visualization::InputStateMachine::draw(Visualization*parent) {
     static bool xx=false;
@@ -454,8 +501,8 @@ void Visualization::InputStateMachine::drag(Visualization *vis, const Visualizat
             dragged.push_back(*i);
         }
     }
-    vis->mDetailedNeurons.clear();
-    vis->mDetailedNeurons.insert(dragged.begin(),dragged.end());
+    vis->mSelectedNeurons.clear();
+    vis->mSelectedNeurons.insert(dragged.begin(),dragged.end());
 }
 Visualization::Button::Button(float minX,
                               float minY,
