@@ -51,8 +51,9 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
                   if (gene->bounds(k).mint()<=0 && gene->bounds(k).maxt()>=0) {
                       current_soup_density=protein->density();
                   }
-                  newGeneSoup.mSoup.push_back( ProteinZone::GeneSoupStruct::EffectAndDensityPair(
-                                                                                                 protein->protein_code(),
+                  newGeneSoup.mSoup.push_back( EffectAndTypeAndDensity(
+                                                                                                 protein->protein_type(),
+                  protein->protein_effect(),
                                                                                                  current_soup_density));
               }
               newZone.mGeneSoup.push_back(newGeneSoup);
@@ -80,11 +81,11 @@ ProteinEnvironment& SimpleProteinEnvironment::initialize(const Elysia::Genome::G
 float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(Elysia::Genome::Effect e){
   float retval=0;
   std::vector< GeneSoupStruct >::const_iterator i,ie;
-  std::vector< GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
+  std::vector< EffectAndTypeAndDensity >::const_iterator j,je;
   for (i=mGeneSoup.begin(),ie=mGeneSoup.end();i!=ie;++i){
     for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
       //if the effect in the current iterator matches the desired protein effect passed in as "e", add the float to the return value
-      if (j->first==e) retval+=j->second;
+      if (j->effect==e) retval+=j->density;
     }
   }
   return retval;
@@ -154,8 +155,8 @@ float SimpleProteinEnvironment::getProteinDensity(iterator it, const Elysia::Gen
  *
  *	Description:	Find all the proteins at a given point (given location) (repetitions allowed)
 **/
-std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location){
-  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair > proteins;
+std::vector< EffectAndTypeAndDensity > SimpleProteinEnvironment::getCompleteProteinDensity(const Vector3f& location){
+  std::vector< EffectAndTypeAndDensity > proteins;
   //loop through all the zones
   std::vector< ProteinZone >::const_iterator i,ie;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator j,je;
@@ -184,9 +185,9 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
  *
  *	Description:	Find all the proteins at a given point (given location) (repetitions allowed)
 **/
-std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment::getCompleteProteinDensity(iterator it){
+std::vector< EffectAndTypeAndDensity > SimpleProteinEnvironment::getCompleteProteinDensity(iterator it){
     ProteinZone*where=&getZone(it);
-  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair > proteins;
+  std::vector< EffectAndTypeAndDensity > proteins;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator j,je;
   //Append the effects (i.e. mSoup) to the end of the returned proteins
   for (j=where->mGeneSoup.begin(),je=where->mGeneSoup.end();j!=je;++j){
@@ -204,7 +205,7 @@ std::vector< std::pair<Elysia::Genome::Effect, float> > SimpleProteinEnvironment
 void SimpleProteinEnvironment::ProteinZone::updateEachZoneGeneSoup(std::vector<ProteinZone::GeneSoupStruct> &mygenesoup, float age){
 
     std::vector<ProteinZone::GeneSoupStruct>::iterator j,je;
-    std::vector<ProteinZone::GeneSoupStruct::EffectAndDensityPair>::iterator l,le;
+    std::vector<EffectAndTypeAndDensity>::iterator l,le;
     
     //Temporal information stored on the Gene, can skip effect/density update if value fails temporal test
     //Cycle through all the gene-soup members in that zone
@@ -641,7 +642,7 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGeneHelper(Protein
   float movingchancecheck;
   static Elysia::Genome::Gene retval;
   std::vector< ProteinZone::GeneSoupStruct >::const_iterator i,ie;
-  std::vector< ProteinZone::GeneSoupStruct::EffectAndDensityPair >::const_iterator j,je;
+  std::vector< EffectAndTypeAndDensity >::const_iterator j,je;
 
   //Get the total effect at a location
   totalvalue = localzone->getSpecificProteinDensity(effect);
@@ -653,9 +654,9 @@ const Elysia::Genome::Gene& SimpleProteinEnvironment::retrieveGeneHelper(Protein
   for (i=localzone->mGeneSoup.begin(),ie=localzone->mGeneSoup.end();i!=ie;++i) {
     for (j=i->mSoup.begin(),je=i->mSoup.end();j!=je;++j){
       
-      if (j->first==effect) {
+      if (j->effect==effect) {
         
-        float delta= ((j->second)/totalvalue);
+        float delta= ((j->density)/totalvalue);
         //Effect matches, now is the effect contribution bounds capture the chance?
         if (randomchance>=movingchancecheck && randomchance<movingchancecheck+delta) {
           //Captured

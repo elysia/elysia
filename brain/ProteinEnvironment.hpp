@@ -10,6 +10,26 @@ namespace Elysia { namespace Genome {
  * Cells can do point queries into this datastructure to see what the protein environment is 
  */
  namespace Elysia {
+
+ typedef uint64 ProteinType;
+ 
+ class EffectAndTypeAndDensity {
+ public:
+     ProteinType type;
+     Elysia::Genome::Effect effect;
+     float density;
+     EffectAndTypeAndDensity(ProteinType type,
+                             Elysia::Genome::Effect effect,
+                             float density) {
+         this->type=type;
+         this->effect=effect;
+         this->density=density;
+     }
+     
+ };
+
+
+
 class BRAIN_CORE_EXPORT ProteinEnvironment {
 public:
     class iterator{
@@ -41,7 +61,7 @@ public:
             return parent->getProteinDensity(*this,e);
         }
         ///Find all the proteins at a given point (given location)
-        std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity() {
+        std::vector<EffectAndTypeAndDensity > getCompleteProteinDensity() {
             return parent->getCompleteProteinDensity(*this);
         }
         const Elysia::Genome::Gene& retrieveGene(const Elysia::Genome::Effect&effect){
@@ -70,9 +90,9 @@ public:
   ///This function looks through the genes present in the location and their densities and selects the gene most likely to have contributed to the desored effects' density at the moment.
   virtual const Elysia::Genome::Gene& retrieveGene(iterator location, const Elysia::Genome::Effect&effect)=0;
   ///This function returns the entire list (repetitions allowed) of proteins in an area. This is useful when a neuron needs to know a bunch of properties of the area and can search through the vector of returned effects and densities
-  virtual std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(const Vector3f& location)=0;
+  virtual std::vector<EffectAndTypeAndDensity > getCompleteProteinDensity(const Vector3f& location)=0;
   ///This function returns the entire list (repetitions allowed) of proteins in an area. This is useful when a neuron needs to know a bunch of properties of the area and can search through the vector of returned effects and densities
-  virtual std::vector<std::pair<Elysia::Genome::Effect, float> > getCompleteProteinDensity(iterator it)=0;
+  virtual std::vector<EffectAndTypeAndDensity > getCompleteProteinDensity(iterator it)=0;
   virtual BoundingBox3f3f getBounds()const=0;
   virtual ~ProteinEnvironment(){}
 };

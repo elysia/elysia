@@ -11,7 +11,7 @@
 #include "Development.hpp"
 #include <time.h>
 
-typedef std::vector<std::pair<Elysia::Genome::Effect, float> > CombinedResults;
+typedef std::vector<Elysia::EffectAndTypeAndDensity> CombinedResults;
 
 namespace Elysia {
 
@@ -162,15 +162,15 @@ void testSeqResultHelper(const CombinedResults &combinedResult, float*grow_leaf_
     *grow_leaf_count=0;
     *other_count=0;
     for (size_t i=0;i<combinedResult.size();++i) {
-       switch(combinedResult[i].first) {
+       switch(combinedResult[i].effect) {
          case GROW_NEURON:
-           *grow_neuron_count+=combinedResult[i].second;
+           *grow_neuron_count+=combinedResult[i].density;
            break;
          case GROW_LEAF:
-           *grow_leaf_count+=combinedResult[i].second;
+           *grow_leaf_count+=combinedResult[i].density;
            break;
          default:
-           *other_count+=combinedResult[i].second;
+           *other_count+=combinedResult[i].density;
            break;
        }
    }
@@ -183,15 +183,19 @@ void testSeqProteinEnvironment() {
    Elysia::Genome::Chromosome *father=twoOverlappingGenes.mutable_fathers();
    Elysia::Genome::Gene firstGene;
    Elysia::Genome::Protein firstProtein;
-   firstProtein.set_protein_code(GROW_NEURON);//so we can easily identify where
+   firstProtein.set_protein_type(GROW_NEURON);//so we can easily identify where
+   firstProtein.set_protein_effect(GROW_NEURON);//so we can easily identify where
    firstProtein.set_density(0.125);   
    Elysia::Genome::Protein firstAuxProtein;
-   firstAuxProtein.set_protein_code(GROW_LEAF);//so we see that they are additive
+   firstAuxProtein.set_protein_type(GROW_LEAF);//so we see that they are additive
+   firstAuxProtein.set_protein_effect(GROW_LEAF);//so we see that they are additive
    firstAuxProtein.set_density(0.25);
    *firstGene.add_external_proteins()=firstProtein;
-   assert(firstGene.external_proteins(0).protein_code()==GROW_NEURON);
+   assert(firstGene.external_proteins(0).protein_effect()==GROW_NEURON);
+   assert(firstGene.external_proteins(0).protein_type()==GROW_NEURON);
    *firstGene.add_external_proteins()=firstAuxProtein;
-   assert(firstGene.external_proteins(1).protein_code()==GROW_LEAF);
+   assert(firstGene.external_proteins(1).protein_type()==GROW_LEAF);
+   assert(firstGene.external_proteins(1).protein_effect()==GROW_LEAF);
    Elysia::Genome::TemporalBoundingBox firstRegion;
    firstRegion.set_minx(0);
    firstRegion.set_miny(0);
@@ -213,7 +217,8 @@ void testSeqProteinEnvironment() {
    *firstGene.add_dendrite_region()=firstDendriteRegion;
    Elysia::Genome::Gene secondGene;
    Elysia::Genome::Protein secondProtein;
-   secondProtein.set_protein_code(GROW_LEAF);
+   secondProtein.set_protein_type(GROW_LEAF);
+   secondProtein.set_protein_effect(GROW_LEAF);
    secondProtein.set_density(0.5);
    *secondGene.add_external_proteins()=secondProtein;
    Elysia::Genome::TemporalBoundingBox secondRegion;
@@ -241,11 +246,11 @@ void testSeqProteinEnvironment() {
    
    ProteinEnvironment * pe=new SimpleProteinEnvironment;
    pe->initialize(twoOverlappingGenes);
-   std::vector<std::pair<Elysia::Genome::Effect, float> > combinedResult=pe->getCompleteProteinDensity(Vector3f(.5,.5,0));
+   std::vector<EffectAndTypeAndDensity > combinedResult=pe->getCompleteProteinDensity(Vector3f(.5,.5,0));
    //check that firstResult matches expectations
-   std::vector<std::pair<Elysia::Genome::Effect, float> > firstResult=pe->getCompleteProteinDensity(Vector3f(1.5,1.5,0));
+   std::vector<EffectAndTypeAndDensity > firstResult=pe->getCompleteProteinDensity(Vector3f(1.5,1.5,0));
    //check that secondResult matches expectations
-   std::vector<std::pair<Elysia::Genome::Effect, float> > secondResult=pe->getCompleteProteinDensity(Vector3f(-.5,-.5,0));
+   std::vector<EffectAndTypeAndDensity > secondResult=pe->getCompleteProteinDensity(Vector3f(-.5,-.5,0));
    float grow_leaf_count=0;
    float grow_neuron_count=0;
    float other_count=0;
@@ -286,8 +291,8 @@ void testSeqProteinEnvironment() {
 
 int runtestsequence(){
     //Elysia::testTwoConnectedNeurons();
-	Elysia::testSeqDevelopment(4);
     Elysia::testSeqProteinEnvironment();
+	Elysia::testSeqDevelopment(4);
     if (0) for (int i=0;i<30000;++i) {
         Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
 //        usleep(10);        

@@ -17,7 +17,8 @@ enum Effect {
 }
 
 message Protein {
-  optional Effect protein_code=1;//the protein produced by this gene
+  optional uint64 protein_type=1;
+  optional Effect protein_effect=3;//the protein produced by this gene
   optional float density=2;
 }
 
