@@ -311,6 +311,10 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp
+  ${BRAIN_SOURCE_DIR}/AnnSpace.hpp
+  ${BRAIN_SOURCE_DIR}/AnnSpace.cpp
+  ${BRAIN_SOURCE_DIR}/AnnPoints.hpp
+  ${BRAIN_SOURCE_DIR}/AnnPoints.cpp
 )
 SET(BRAIN_CORE_LIB_SOURCES 
   ${BRAIN_SOURCE_DIR}/ActivityStats.hpp

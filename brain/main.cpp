@@ -11,6 +11,7 @@
 #include "SharedLibrary.hpp"
 #include "test.hpp"
 #include "MainThread.hpp"
+#include "ann.hpp"
 bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
     FILE * fp=fopen(fileName,"rb");
     if (!fp) return false;
