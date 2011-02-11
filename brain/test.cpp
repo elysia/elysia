@@ -56,7 +56,7 @@ void testDevelopment(){
 	int neuronNumber = 10;
 
 
-	/* This region setup is for the standard test set
+	/* This region setup is for the standard test set */
 	//Region 1
 	for(int i=0;i<neuronNumber;i++){
 		Neuron* n = placeTestNeuron(brain, 300, 300, 100, 100, 100); 
@@ -69,7 +69,6 @@ void testDevelopment(){
 		Neuron* n = placeTestNeuron(brain, 1000, 1000, 300, 300, 400); 
 		createdList.push_back(n); 
 	}
-    */
 	/*
 	load in phosphopeptides
 	cycle through phosphopeptides
