@@ -256,7 +256,12 @@ void Visualization::getSynapseStartEnd(Neuron * start, bool startIsSelected, Neu
   A+=startdelta;
   B+=enddelta;
 }
-
+float drawThreshold(Brain*brain,SimTime firedSimTime) {//0.0 = no change 1.0 = draw fully
+    Sirikata::int64 delta=(brain->mCurTime.getRawTime()-firedSimTime.getRawTime());
+    if (delta<4)
+        return (4-delta)/2.;
+    return 0;
+}
 Vector3f Visualization::drawNeuronBody(Neuron*n) {
     Vector3f center=n->getLocation();
     center.z=0;
@@ -267,7 +272,13 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,isSelected);
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
-    if (isSelected&&isDetailed) {
+    float howOn=drawThreshold(mBrain,n->getLastActivity());
+    if (isDetailed&&howOn>.25) {
+        glColor4f(howOn,
+                  isSelected?1.25-howOn*1.25:.35-howOn*.35,
+                  1.25-howOn*1.25,
+                  .75);
+    }else if (isSelected&&isDetailed) {
         glColor4f(.25,1.0,1.0,.75);
     } else if (isSelected) {
         glColor4f(.25,.35,1.0,.75);

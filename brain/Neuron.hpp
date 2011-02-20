@@ -62,7 +62,9 @@ public:
     void activateComponent(Brain&, float signal);
 	void fireNeuron(Synapse*target);
 	ActivityStats& getActivityStats(){ return *this; }
-
+    SimTime getLastActivity()const {
+        return mLastActivity;
+    }
 	void visualizeTree(FILE *dendriteTree, size_t parent);
     Development*development(){
         return mDevelopment;
