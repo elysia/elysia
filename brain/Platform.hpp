@@ -33,6 +33,9 @@ public:
     SimTime() {
         time=0;
     }
+    Sirikata::int64 getRawTime()const {
+        return time;
+    }
     bool operator !=(const SimTime&other) const{
         return other.time!=time;
     }
