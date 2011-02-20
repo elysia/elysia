@@ -13,5 +13,9 @@ public:
     void addNeighbor(Neuron* neuron);
     void removeNeighbor(Neuron* neuron);
     void moveNeighbor(Neuron*);
+	unsigned int pointUpperThreshold;			//How many points the space must contain before division
+	unsigned int pointLowerThreshold;			//A delete event must take the space to this number for merging
+	
+	
 };
 }
