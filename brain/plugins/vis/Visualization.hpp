@@ -9,6 +9,7 @@ class Visualization:public BrainPlugin  {
     ///Neurons marked for death by the main plugin
     std::vector<Neuron*> mfd;
     void clearDetail();
+    void addAllToDetail();
     void addSelectedToDetail();
     void subtractSelectedFromDetail();
     void intersectSelectedWithDetail();

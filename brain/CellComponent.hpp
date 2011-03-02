@@ -31,6 +31,9 @@ public:
     virtual void syncBranchDensity(float parentRandomBranchDeterminer, float parentRandomDepthDeterminer, float baseBranchiness, float tipBranchiness, float treeDepth, float baseThreshold, float tipThreshold, int depth);
 	void setActivity(float activity);
     float getActivity()const {return mActivity;}
+    SimTime getLastActivity()const {
+        return mLastActivity;
+    }
     bool activityGreaterThanThreshold()const {return mActivity>mThreshold;}
     
     typedef std::vector<Branch*>::const_iterator ChildIterator;

@@ -262,6 +262,25 @@ float drawThreshold(Brain*brain,SimTime firedSimTime) {//0.0 = no change 1.0 = d
         return (4-delta)/2.;
     return 0;
 }
+Vector4f getComponentColor(Brain* brain,Neuron * n, CellComponent*cc, bool isSelected, bool isDetailed) {
+    
+    float howOn=drawThreshold(brain,cc->getLastActivity());
+    printf("%f ",howOn);
+    Vector4f color(.25/1.5,.35/1.5,1.0/1.5,.75/1.5);
+    if (isDetailed&&howOn>.25) {
+        color.x=howOn;
+        color.y=isSelected?1.25-howOn*1.25:.35-howOn*.35;
+        color.z=1.25-howOn*1.25;
+        color.w=.75;
+    }else if (isSelected&&isDetailed) {
+        color=Vector4f(.25,1.0,1.0,.75);
+    } else if (isSelected) {
+        color=Vector4f(.25,.35,1.0,.75);
+    }else if (isDetailed) {        
+        color=Vector4f(.25,1.0,.35,.75);
+    }
+    return color;
+}
 Vector3f Visualization::drawNeuronBody(Neuron*n) {
     Vector3f center=n->getLocation();
     center.z=0;
@@ -272,21 +291,8 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,isSelected);
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
-    float howOn=drawThreshold(mBrain,n->getLastActivity());
-    if (isDetailed&&howOn>.25) {
-        glColor4f(howOn,
-                  isSelected?1.25-howOn*1.25:.35-howOn*.35,
-                  1.25-howOn*1.25,
-                  .75);
-    }else if (isSelected&&isDetailed) {
-        glColor4f(.25,1.0,1.0,.75);
-    } else if (isSelected) {
-        glColor4f(.25,.35,1.0,.75);
-    }else if (isDetailed) {        
-        glColor4f(.25,1.0,.35,.75);
-    }else {
-        glColor4f(.25/1.5,.35/1.5,1.0/1.5,.75/1.5);
-    }
+    Vector4f color = getComponentColor(mBrain,n,n,isSelected,isDetailed);
+    glColor4f(color.x,color.y,color.z,color.w);
     drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
     return scaledCenter+Vector3f(0,hei/2,0);
 }
@@ -364,6 +370,9 @@ void Visualization::clearDetail(){
 void Visualization::addSelectedToDetail(){
     this->mDetailedNeurons.insert(mSelectedNeurons.begin(),mSelectedNeurons.end());
 }
+void Visualization::addAllToDetail(){
+    this->mDetailedNeurons.insert(mBrain->mAllNeurons.begin(),mBrain->mAllNeurons.end());
+}
 void Visualization::subtractSelectedFromDetail(){
     for (SelectedNeuronMap::iterator i=mSelectedNeurons.begin();
          i!=mSelectedNeurons.end();++i) {
@@ -396,10 +405,11 @@ void Visualization::InputStateMachine::draw(Visualization*parent) {
     static bool xx=false;
     if (!xx) {
         xx=true;
-        mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::tr1::bind(&Visualization::clearDetail,parent)));
         mButtons.push_back(Button(0,20,20,35,"Add To Detail",std::tr1::bind(&Visualization::addSelectedToDetail,parent)));
         mButtons.push_back(Button(0,40,20,55,"Subtract from Detail",std::tr1::bind(&Visualization::subtractSelectedFromDetail,parent)));
         mButtons.push_back(Button(0,60,20,75,"Intersect with Detail",std::tr1::bind(&Visualization::intersectSelectedWithDetail,parent)));
+        mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::tr1::bind(&Visualization::clearDetail,parent)));
+        mButtons.push_back(Button(0,80,20,95,"Add All To Detail Display",std::tr1::bind(&Visualization::addAllToDetail,parent)));
     }
     for (size_t i=0;i<mButtons.size();++i) {
         mButtons[i].draw(parent);

@@ -43,7 +43,6 @@ private:
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
-    SimTime mLastActivity;
 	int type;							//Input neuron = 0, otherwise = 1
     Development*mDevelopment;
     virtual Neuron*getParentNeuron(){return this;}
@@ -62,9 +61,6 @@ public:
     void activateComponent(Brain&, float signal);
 	void fireNeuron(Synapse*target);
 	ActivityStats& getActivityStats(){ return *this; }
-    SimTime getLastActivity()const {
-        return mLastActivity;
-    }
 	void visualizeTree(FILE *dendriteTree, size_t parent);
     Development*development(){
         return mDevelopment;
