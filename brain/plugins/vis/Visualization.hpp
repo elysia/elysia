@@ -10,6 +10,7 @@ class Visualization:public BrainPlugin  {
     std::vector<Neuron*> mfd;
     void clearDetail();
     void addAllToDetail();
+    void selectAll();
     void addSelectedToDetail();
     void subtractSelectedFromDetail();
     void intersectSelectedWithDetail();
@@ -27,7 +28,7 @@ class Visualization:public BrainPlugin  {
     ///Returns top location from where dendrites can start branching out
     Vector3f drawNeuronBody(Neuron*n);
     void drawBranch(const Neuron * n, const Branch* dendrite, Vector3f top, float scale) ;
-    void drawDendrites(const Neuron* n, const CellComponent* dendrite, Vector3f startLocation, float scale);
+    void drawDendrites(const Neuron* n, const CellComponent* dendrite, Vector3f startLocation, float scale, bool isDetailed, bool isSelected);
     void drawNeuron(Neuron*n);
     void doInput();
     typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
@@ -63,6 +64,8 @@ public:
         int modCodes;
     };
     void postInputEvent(const Event&evt);
+    bool isDetailed(const Neuron*)const;
+    bool isSelected(const Neuron*)const;
 private:    
     //process a single event and make it adjust the input state machine
     

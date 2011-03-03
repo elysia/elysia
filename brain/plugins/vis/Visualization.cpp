@@ -262,10 +262,8 @@ float drawThreshold(Brain*brain,SimTime firedSimTime) {//0.0 = no change 1.0 = d
         return (4-delta)/2.;
     return 0;
 }
-Vector4f getComponentColor(Brain* brain,Neuron * n, CellComponent*cc, bool isSelected, bool isDetailed) {
-    
-    float howOn=drawThreshold(brain,cc->getLastActivity());
-    printf("%f ",howOn);
+Vector4f getComponentColor(const Visualization *v, const Neuron * n, const CellComponent*cc, bool isDetailed, bool isSelected) {
+    float howOn=drawThreshold(n->getBrain(),cc->getLastActivity());
     Vector4f color(.25/1.5,.35/1.5,1.0/1.5,.75/1.5);
     if (isDetailed&&howOn>.25) {
         color.x=howOn;
@@ -280,6 +278,13 @@ Vector4f getComponentColor(Brain* brain,Neuron * n, CellComponent*cc, bool isSel
         color=Vector4f(.25,1.0,.35,.75);
     }
     return color;
+    
+}
+Vector4f getComponentColor(const Visualization *v, const Neuron * n, const CellComponent*cc) {
+    
+    bool isDetailed=v->isDetailed(n);
+    bool isSelected=v->isSelected(n);
+    return getComponentColor(v,n,cc,isSelected,isDetailed);
 }
 Vector3f Visualization::drawNeuronBody(Neuron*n) {
     Vector3f center=n->getLocation();
@@ -291,7 +296,7 @@ Vector3f Visualization::drawNeuronBody(Neuron*n) {
     bool text=getNeuronWidthHeight(n->getName(), wid,hei,isSelected);
     //printf ("aaawing from %f %f to %f %f\n",((center-Vector3f(wid/2,hei/2,0))).x,((center-Vector3f(wid/2,hei/2,0))).y,((center+Vector3f(wid/2,hei/2,0))).x,(center+Vector3f(wid/2,hei/2,0)).y);
     Vector3f scaledCenter=getNeuronLocation(n);
-    Vector4f color = getComponentColor(mBrain,n,n,isSelected,isDetailed);
+    Vector4f color = getComponentColor(this,n,n);
     glColor4f(color.x,color.y,color.z,color.w);
     drawRect(scaledCenter-Vector3f(wid/2,hei/2,0),scaledCenter+Vector3f(wid/2,hei/2,0));
     return scaledCenter+Vector3f(0,hei/2,0);
@@ -309,6 +314,8 @@ void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3
     for (Branch::SynapseConstIterator i=dendrite->childSynapseBegin(),ie=dendrite->childSynapseEnd();i!=ie;++i) {
         Neuron * destination = (*i)->recipient();
         if (destination) {
+            Vector4f color = getComponentColor(this,destination, destination);
+            glColor4f(color.x,color.y,color.z,color.w);
             float wid=0;
             float hei=0;
             bool text=getNeuronWidthHeight(destination->getName(), wid,hei,mSelectedNeurons.find(destination)!=mSelectedNeurons.end());
@@ -316,8 +323,9 @@ void Visualization::drawBranch(const Neuron * n, const Branch* dendrite, Vector3
             arrow(scaledDestination-Vector3f(0,hei/2,0),top,1);
         }
     }
+
 }
-void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrite, Vector3f top, float scale) {
+void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrite, Vector3f top, float scale, bool isDetailed, bool isSelected) {
     CellComponent::ChildIterator i=dendrite->childBegin(),ie=dendrite->childEnd(),b;
     size_t size = ie-i;
     b=i;    
@@ -329,11 +337,14 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
     for (;i!=ie;++i) {
         Vector3f dest = Vector3f(top.x-scale*.25+scale*(i-b)/((double)size),
                                  top.y+height,
-                                 top.z);
-        if (scale)
+                                 top.z);        
+        if (scale) {
+            Vector4f color = getComponentColor(this,n, *i,isDetailed,isSelected);
+            glColor4f(color.x,color.y,color.z,color.w);
             drawParallelogramLineSegment(top,dest,width);
+        }
         const CellComponent *nextInLine = *i;
-        drawDendrites(n,nextInLine,scale?dest:top,scale*.5);
+        drawDendrites(n,nextInLine,scale?dest:top,scale*.5,isDetailed,isSelected);
     }
     {
         const Branch * b = dynamic_cast<const Branch*>(dendrite);
@@ -343,12 +354,32 @@ void Visualization::drawDendrites(const Neuron * n, const CellComponent* dendrit
     }
 
 }
-
+bool Visualization::isDetailed(const Neuron*n) const{
+    return mDetailedNeurons.find(const_cast<Neuron*>(n))!=mDetailedNeurons.end();
+}
+bool Visualization::isSelected(const Neuron*n) const{
+    return mSelectedNeurons.find(const_cast<Neuron*>(n))!=mSelectedNeurons.end();
+}
 void Visualization::drawNeuron(Neuron*n) {
     Vector3f top = drawNeuronBody(n);
-    bool drawDendrites=true;
+    bool isDetailed=this->isDetailed(n);
+    bool isSelected=this->isSelected(n);
+    bool drawDendrites=isDetailed;
+    
     if (drawDendrites) {
-        this->drawDendrites(n, n, top, mScale*2);
+        //draw at the same time to keep the same color
+        std::vector<Synapse*>::iterator iter,eiter=n->getSynapsesAtAxonTipEnd();
+        for (iter=n->getSynapsesAtAxonTipBegin();iter!=eiter;++iter) {
+            Synapse * syn=*iter;
+            Neuron * destination=syn->mParentBranch->getParentNeuron();
+            if (!this->isDetailed(destination)) {
+                //draw to the center of the neuron then (otherwise the branch will draw to us)
+                Vector3f scaledDestination = getNeuronLocation(destination);
+                Vector3f scaledSource = getNeuronLocation(n);
+                arrow(scaledSource,scaledDestination,1);
+            }
+        }
+        this->drawDendrites(n, n, top, mScale*2,isDetailed,isSelected);
     }
     
 }
@@ -372,6 +403,9 @@ void Visualization::addSelectedToDetail(){
 }
 void Visualization::addAllToDetail(){
     this->mDetailedNeurons.insert(mBrain->mAllNeurons.begin(),mBrain->mAllNeurons.end());
+}
+void Visualization::selectAll(){
+    this->mSelectedNeurons.insert(mBrain->mAllNeurons.begin(),mBrain->mAllNeurons.end());
 }
 void Visualization::subtractSelectedFromDetail(){
     for (SelectedNeuronMap::iterator i=mSelectedNeurons.begin();
@@ -410,6 +444,7 @@ void Visualization::InputStateMachine::draw(Visualization*parent) {
         mButtons.push_back(Button(0,60,20,75,"Intersect with Detail",std::tr1::bind(&Visualization::intersectSelectedWithDetail,parent)));
         mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::tr1::bind(&Visualization::clearDetail,parent)));
         mButtons.push_back(Button(0,80,20,95,"Add All To Detail Display",std::tr1::bind(&Visualization::addAllToDetail,parent)));
+        mButtons.push_back(Button(0,100,15,115,"Select All",std::tr1::bind(&Visualization::selectAll,parent)));
     }
     for (size_t i=0;i<mButtons.size();++i) {
         mButtons[i].draw(parent);

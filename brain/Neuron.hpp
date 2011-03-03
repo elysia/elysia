@@ -65,7 +65,13 @@ public:
     Development*development(){
         return mDevelopment;
     }
-	Brain* getBrain() {return mBrain;}
+	Brain* getBrain() const {return mBrain;}
+    std::vector<Synapse*>::iterator getSynapsesAtAxonTipBegin(){
+        return mConnectedSynapses.begin();
+    }
+    std::vector<Synapse*>::iterator getSynapsesAtAxonTipEnd(){
+        return mConnectedSynapses.end();
+    }
 };
 }
 #endif
