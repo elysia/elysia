@@ -109,13 +109,15 @@ void Neuron::activateComponent(Brain&, float signal){
 	if(mLastActivity != mBrain->mCurTime){
 		mLastActivity = mBrain->mCurTime;
 		mActivity = 0;
+        assert(mThreshold>=0);//make sure we aren't setting the neuron to 
+                              //something below threshold
 	}
 	if(mActivity <= mThreshold){
 	    mActivity += signal;
 		if(mActivity > mThreshold){
 			mBrain -> activateNeuron(this);     //Add to Neuron List
 		}
-	}
+	} else mActivity += signal;
 }
 
 /**

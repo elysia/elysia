@@ -298,7 +298,7 @@ void Brain::createInputRegion(int neurons){
 
 void Brain::fireInputNeuron(int neuronNumber){
 	Neuron* n= mInputNeurons[neuronNumber];
-	n->setActivity(5);
+    n->activateComponent(*this,5);
 	this -> activateNeuron(n);
 	//printf("input");
 }

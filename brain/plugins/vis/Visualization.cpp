@@ -265,7 +265,7 @@ float drawThreshold(Brain*brain,SimTime firedSimTime) {//0.0 = no change 1.0 = d
 Vector4f getComponentColor(const Visualization *v, const Neuron * n, const CellComponent*cc, bool isDetailed, bool isSelected) {
     float howOn=drawThreshold(n->getBrain(),cc->getLastActivity());
     Vector4f color(.25/1.5,.35/1.5,1.0/1.5,.75/1.5);
-    if (isDetailed&&howOn>.25) {
+    if (howOn>.25) {
         color.x=howOn;
         color.y=isSelected?1.25-howOn*1.25:.35-howOn*.35;
         color.z=1.25-howOn*1.25;
@@ -284,7 +284,7 @@ Vector4f getComponentColor(const Visualization *v, const Neuron * n, const CellC
     
     bool isDetailed=v->isDetailed(n);
     bool isSelected=v->isSelected(n);
-    return getComponentColor(v,n,cc,isSelected,isDetailed);
+    return getComponentColor(v,n,cc,isDetailed,isSelected);
 }
 Vector3f Visualization::drawNeuronBody(Neuron*n) {
     Vector3f center=n->getLocation();
