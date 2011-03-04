@@ -31,6 +31,19 @@ namespace Elysia{
 		}
 	}
 
+	class CompareNeuronbyY {
+		public:
+		bool operator() (const Neuron*a, const Neuron*b) const {
+		return a->getLocation().y<b->getLocation().y;
+		}
+	};
+	class CompareNeuronbyX {
+		public:
+		bool operator() (const Neuron*a, const Neuron*b) const {
+		return a->getLocation().x<b->getLocation().x;
+		}
+	};
+
 	void AnnSpace::partitionSpace(STANNSpatialSearch* stann){
 		std::vector<float> XArray;
 		std::vector<float> YArray;
@@ -73,12 +86,7 @@ namespace Elysia{
 			}
 		}
 		else{
-			class CompareNeuronbyY {
-				public:
-				bool operator() (const Neuron*a, const Neuron*b) const {
-				return a->getLocation().y<b->getLocation().y;
-				}
-			};
+			
 			std::sort(neuronList.begin(),neuronList.end(),CompareNeuronbyY()); 
 			Neuron* midpoint = neuronList[int(neuronList.size()/2)];
 			
