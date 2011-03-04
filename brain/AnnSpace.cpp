@@ -66,12 +66,6 @@ namespace Elysia{
 		float Ydist = XArray[int(YArray.size()/2) + 1] - YArray[int(YArray.size())];
 		
 		if(Xdist > Ydist){
-			class CompareNeuronbyX {
-				public:
-				bool operator() (const Neuron*a, const Neuron*b) const {
-				return a->getLocation().x<b->getLocation().x;
-				}
-			};
 			
 			std::sort(neuronList.begin(),neuronList.end(),CompareNeuronbyX()); 
 			Neuron* midpoint = neuronList[int(neuronList.size()/2)];
