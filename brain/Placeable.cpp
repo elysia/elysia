@@ -7,10 +7,10 @@
 
 namespace Elysia {
 Placeable::Placeable(const Vector3f&location):mNeuronLocation(location) {
-    mBrain->getSpatialSearch()->addNeighbor((Neuron*)this);
+    mBrain->getSpatialSearch()->addNeighbor(this);
 }
 Placeable::~Placeable() {
-    mBrain->getSpatialSearch()->removeNeighbor((Neuron*)this);
+    mBrain->getSpatialSearch()->removeNeighbor(this);
     
 }
 }
