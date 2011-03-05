@@ -10,6 +10,15 @@ namespace Elysia{
 		parent = NULL;
 	}
 
+	AnnSpace::~AnnSpace(){
+		if(child[0] != NULL){
+			delete child[0];
+		}
+		if(child[1] != NULL){
+			delete child[1];
+		}
+	}
+
 	bool AnnSpace::isLeaf(){
 		if (child[0] == NULL){
 			assert(child[1] == NULL);
@@ -31,24 +40,24 @@ namespace Elysia{
 		}
 	}
 
-	class CompareNeuronbyY {
+	class ComparePlaceablebyY {
 		public:
-		bool operator() (const Neuron*a, const Neuron*b) const {
+		bool operator() (const Placeable*a, const Placeable*b) const {
 		return a->getLocation().y<b->getLocation().y;
 		}
 	};
-	class CompareNeuronbyX {
+	class ComparePlaceablebyX {
 		public:
-		bool operator() (const Neuron*a, const Neuron*b) const {
+		bool operator() (const Placeable*a, const Placeable*b) const {
 		return a->getLocation().x<b->getLocation().x;
 		}
 	};
 
-	void AnnSpace::partitionSpace(TreeNNSpatialSearch* stann){
+	void AnnSpace::partitionSpace(TreeNNSpatialSearch* treenn){
 		std::vector<float> XArray;
 		std::vector<float> YArray;
-		for(std::vector<Neuron*>::iterator i=neuronList.begin();i!=neuronList.end();++i){
-			Neuron* current=*i;
+		for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.end();++i){
+			Placeable* current=*i;
 			Vector3f location  = current->getLocation();
 			XArray.push_back(location.x);
 			YArray.push_back(location.y);
@@ -67,78 +76,74 @@ namespace Elysia{
 		
 		if(Xdist > Ydist){
 			
-			std::sort(neuronList.begin(),neuronList.end(),CompareNeuronbyX()); 
-			Neuron* midpoint = neuronList[int(neuronList.size()/2)];
+			std::sort(placeableList.begin(),placeableList.end(),ComparePlaceablebyX()); 
+			Placeable* midpoint = placeableList[int(placeableList.size()/2)];
 			float partition = (XArray[int(XArray.size()/2) + 1] + XArray[int(XArray.size())])/2;
 			
-			for(std::vector<Neuron*>::iterator i=neuronList.begin();i!=neuronList.begin()+neuronList.size()/2;++i){
+			for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.begin()+placeableList.size()/2;++i){
 
-				child[0]->addPoint(*i, stann);
+				child[0]->addPoint(*i, treenn);
 			}
-			for(std::vector<Neuron*>::iterator i=neuronList.begin()+neuronList.size()/2;i!=neuronList.end();++i){
-				child[1]->addPoint(*i, stann);
+			for(std::vector<Placeable*>::iterator i=placeableList.begin()+placeableList.size()/2;i!=placeableList.end();++i){
+				child[1]->addPoint(*i, treenn);
 			}
 		}
 		else{
 			
-			std::sort(neuronList.begin(),neuronList.end(),CompareNeuronbyY()); 
-			Neuron* midpoint = neuronList[int(neuronList.size()/2)];
+			std::sort(placeableList.begin(),placeableList.end(),ComparePlaceablebyY()); 
+			Placeable* midpoint = placeableList[int(placeableList.size()/2)];
 			
 			float partition = (YArray[int(YArray.size()/2) + 1] + YArray[int(YArray.size())])/2;
 			
-			for(std::vector<Neuron*>::iterator i=neuronList.begin();i!=neuronList.begin()+neuronList.size()/2;++i){
-				child[0]->addPoint(*i, stann);
+			for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.begin()+placeableList.size()/2;++i){
+				child[0]->addPoint(*i, treenn);
 			}
-			for(std::vector<Neuron*>::iterator i=neuronList.begin()+neuronList.size()/2;i!=neuronList.end();++i){
-				child[1]->addPoint(*i, stann);
+			for(std::vector<Placeable*>::iterator i=placeableList.begin()+placeableList.size()/2;i!=placeableList.end();++i){
+				child[1]->addPoint(*i, treenn);
 			}
 		}
-		neuronList.clear();
+		placeableList.clear();
 	}
 
-	void AnnSpace::deletePoint(Neuron* neuron, TreeNNSpatialSearch* stann){
+	void AnnSpace::deletePoint(Placeable* placeable, TreeNNSpatialSearch* treenn){
 		if(this->isLeaf()){
-			if(neuronList.size() > stann->pointLowerThreshold+1){
-				std::vector<Neuron *>::iterator result = std::find(neuronList.begin(), neuronList.end(), neuron);
-				neuronList.erase(result);
-			}
-			else{
-				
-
-				//DETERMINE MERGE POINT
-				//MERGE SPACE
+			std::vector<Placeable*>::iterator result = std::find(placeableList.begin(), placeableList.end(), placeable);
+			placeableList.erase(result);
+			if(placeableList.size() < treenn->pointLowerThreshold){
+				parent -> mergeSpace(treenn);
 			}
 		}
 		else{
-			Vector3f location = neuron->getLocation();
-			child[chooseChild(location.x, location.y)] -> addPoint(neuron, stann);
+			Vector3f location = placeable->getLocation();
+			child[chooseChild(location.x, location.y)] -> addPoint(placeable, treenn);
 		}
 	}
 
-	void AnnSpace::addPoint(Neuron* neuron, TreeNNSpatialSearch* stann){
+
+	void AnnSpace::addPoint(Placeable* placeable, TreeNNSpatialSearch* treenn){
 		if(this->isLeaf()){
-			neuronList.push_back(neuron);
-			if(stann->pointUpperThreshold > neuronList.size() + 1){
+			placeableList.push_back(placeable);
+			if(treenn->pointUpperThreshold > placeableList.size() + 1){
 				//PARTITION
 			}
 		}
 		else{		
-			Vector3f location = neuron->getLocation();
-			child[chooseChild(location.x, location.y)] -> addPoint(neuron, stann);
+			Vector3f location = placeable->getLocation();
+			child[chooseChild(location.x, location.y)] -> addPoint(placeable, treenn);
 		}
 	}
 
 
-	Neuron* AnnSpace::findNN(float x, float y, Neuron* exclude){	
+	Placeable* AnnSpace::findNN(float x, float y, Placeable* exclude){	
 		if(this->isLeaf()){
 			Vector3f queryPoint;
 			queryPoint.x = x;
 			queryPoint.y = y;
 			queryPoint.z = 0;
 			float maxDistance;
-			Neuron * maxDistanceItem=NULL;
-			for(std::vector<Neuron*>::iterator i=neuronList.begin();i!=neuronList.end();++i) {
-				Neuron * current=*i;//find out what's "inside" i
+			Placeable * maxDistanceItem=NULL;
+			for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.end();++i) {
+				Placeable * current=*i;//find out what's "inside" i
 				float currentDistance=(current->getLocation()-queryPoint).length();
 				if ((maxDistanceItem==NULL || currentDistance<maxDistance) && current != exclude){
 					maxDistance=currentDistance;
@@ -152,7 +157,25 @@ namespace Elysia{
 		}
 	}
 
-	void AnnSpace::mergeSpace(){}
+	void AnnSpace::mergeSpace(TreeNNSpatialSearch* treenn){
+		partitionPoint = 0.0f;
+		std::vector<Placeable*> newplaceableList;
+		newplaceableList = child[0]->getChildList();
+		for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.end();++i) {
+			Placeable* current=*i;
+			this->addPoint(current, treenn);
+		}
+		newplaceableList = child[1]->getChildList();
+		for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.end();++i) {
+			Placeable* current=*i;
+			this->addPoint(current, treenn);
+		}
+		delete child[0];
+		delete child[1];
+	}
 
-	
+	std::vector<Placeable*> AnnSpace::getChildList(){
+		return placeableList;
+	}
+		
 }

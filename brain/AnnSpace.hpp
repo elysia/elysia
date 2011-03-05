@@ -1,8 +1,7 @@
 #include <vector>
 #include "AnnPoints.hpp"
-#include "Neuron.hpp"
 #include "TreeNNSpatialSearch.hpp"
-
+#include "Placeable.hpp"
 
 namespace Elysia {
 	class AnnSpace{
@@ -11,16 +10,20 @@ namespace Elysia {
 		float partitionPoint;
 		AnnSpace* child[2];
 		AnnSpace* parent;
-		std::vector<Neuron*> neuronList;
+		std::vector<Placeable*> placeableList;
 	public:
 		AnnSpace();
+		~AnnSpace();
 		int chooseChild(float x, float y);
 		bool isLeaf();
+
 		void partitionSpace(TreeNNSpatialSearch* stann);
-		void deletePoint(Neuron* neuron, TreeNNSpatialSearch* stann);
-		void addPoint(Neuron* neuron, TreeNNSpatialSearch* stann);
+		void deletePoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
+		void addPoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
+
 		void setParent(AnnSpace* newParent){parent = newParent;}
-		Neuron* findNN(float x, float y, Neuron* exclude);
-		void mergeSpace();
+		Placeable* findNN(float x, float y, Placeable* exclude);
+		void mergeSpace(TreeNNSpatialSearch* treenn);
+		std::vector<Placeable*> getChildList();
 	};
 }
