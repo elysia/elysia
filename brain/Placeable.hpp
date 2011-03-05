@@ -14,7 +14,7 @@ private:
 	Brain* getBrain() const {return mBrain;}
 
     const Vector3f& getLocation()const {return mNeuronLocation;}
-    Placeable (const Vector3f&location);
+    Placeable (Brain *brain, const Vector3f&location);
     ~Placeable();
 };
 }

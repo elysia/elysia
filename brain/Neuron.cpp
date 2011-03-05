@@ -52,12 +52,11 @@ Neuron::~Neuron() {
  *					The branch density is synched based upon some random parameters and some base parameters, as well as a defined tree depth
  *					This neuron is added to the nearest neighbor spatial search
 **/
-Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene): Placeable(location) {
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene): Placeable(brain,location) {
     
     mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
-    mBrain=brain;
     mWhere=brain->activeNeuronListSentinel();
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
