@@ -1,7 +1,7 @@
 #include <vector>
 #include "AnnPoints.hpp"
 #include "Neuron.hpp"
-#include "STANNSpatialSearch.hpp"
+#include "TreeNNSpatialSearch.hpp"
 
 
 namespace Elysia {
@@ -16,9 +16,9 @@ namespace Elysia {
 		AnnSpace();
 		int chooseChild(float x, float y);
 		bool isLeaf();
-		void partitionSpace(STANNSpatialSearch* stann);
-		void deletePoint(Neuron* neuron, STANNSpatialSearch* stann);
-		void addPoint(Neuron* neuron, STANNSpatialSearch* stann);
+		void partitionSpace(TreeNNSpatialSearch* stann);
+		void deletePoint(Neuron* neuron, TreeNNSpatialSearch* stann);
+		void addPoint(Neuron* neuron, TreeNNSpatialSearch* stann);
 		void setParent(AnnSpace* newParent){parent = newParent;}
 		Neuron* findNN(float x, float y, Neuron* exclude);
 		void mergeSpace();

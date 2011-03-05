@@ -44,7 +44,7 @@ namespace Elysia{
 		}
 	};
 
-	void AnnSpace::partitionSpace(STANNSpatialSearch* stann){
+	void AnnSpace::partitionSpace(TreeNNSpatialSearch* stann){
 		std::vector<float> XArray;
 		std::vector<float> YArray;
 		for(std::vector<Neuron*>::iterator i=neuronList.begin();i!=neuronList.end();++i){
@@ -96,7 +96,7 @@ namespace Elysia{
 		neuronList.clear();
 	}
 
-	void AnnSpace::deletePoint(Neuron* neuron, STANNSpatialSearch* stann){
+	void AnnSpace::deletePoint(Neuron* neuron, TreeNNSpatialSearch* stann){
 		if(this->isLeaf()){
 			if(neuronList.size() > stann->pointLowerThreshold+1){
 				std::vector<Neuron *>::iterator result = std::find(neuronList.begin(), neuronList.end(), neuron);
@@ -115,7 +115,7 @@ namespace Elysia{
 		}
 	}
 
-	void AnnSpace::addPoint(Neuron* neuron, STANNSpatialSearch* stann){
+	void AnnSpace::addPoint(Neuron* neuron, TreeNNSpatialSearch* stann){
 		if(this->isLeaf()){
 			neuronList.push_back(neuron);
 			if(stann->pointUpperThreshold > neuronList.size() + 1){

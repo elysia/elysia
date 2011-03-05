@@ -3,9 +3,9 @@ namespace Elysia {
 class Placeable;
 
 /** Find nearest neighbor from a scatter set of locations
- *  --"STANN" implementation of nearest neighbor
+ *  --"TreeNN" implementation of nearest neighbor
  */
-class BRAIN_CORE_EXPORT STANNSpatialSearch : public SpatialSearch { 
+class BRAIN_CORE_EXPORT TreeNNSpatialSearch : public SpatialSearch { 
     std::tr1::unordered_set<Placeable*> mPlaceables;
 private:
 public:

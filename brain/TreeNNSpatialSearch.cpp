@@ -1,7 +1,7 @@
 #include "Platform.hpp"
 
 #include "Placeable.hpp"
-#include "STANNSpatialSearch.hpp"
+#include "TreeNNSpatialSearch.hpp"
 
 #if 0
 ///placeholder class
@@ -20,7 +20,7 @@ namespace Elysia {
  * 
  *	Description:	Finds nearest neighbor from local copy of list
 **/
-Placeable* STANNSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Placeable* exclude){
+Placeable* TreeNNSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Placeable* exclude){
     std::tr1::unordered_set<Placeable*>::iterator i;
     float maxDistance;
     Placeable * maxDistanceItem=NULL;
@@ -40,7 +40,7 @@ Placeable* STANNSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, P
  * 
  *	Description:	Function to *add* neighbor/point to local copy of list
 **/
-void STANNSpatialSearch::addNeighbor(Placeable* neuron){
+void TreeNNSpatialSearch::addNeighbor(Placeable* neuron){
     mPlaceables.insert(neuron);
 }
 
@@ -49,7 +49,7 @@ void STANNSpatialSearch::addNeighbor(Placeable* neuron){
  * 
  *	Description:	Function to *remove* neighbor/point from local copy of list
 **/
-void STANNSpatialSearch::removeNeighbor(Placeable* neuron){
+void TreeNNSpatialSearch::removeNeighbor(Placeable* neuron){
     mPlaceables.erase(neuron);
 }
 
@@ -58,6 +58,6 @@ void STANNSpatialSearch::removeNeighbor(Placeable* neuron){
  * 
  *	Description:	Function to *update* neighbor/point to local copy of list
 **/
-void STANNSpatialSearch::moveNeighbor(Placeable*){
+void TreeNNSpatialSearch::moveNeighbor(Placeable*){
 }
 }
