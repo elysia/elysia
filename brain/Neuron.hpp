@@ -1,7 +1,9 @@
 #ifndef _ELYSIA_NEURON_HPP_
 #define _ELYSIA_NEURON_HPP_
+#include "Placeable.hpp"
 #include "CellComponent.hpp"
 #include "ActivityStats.hpp"
+
 #include <vector>
 
 namespace Elysia {
@@ -15,14 +17,10 @@ class Development;
 /**
  * The neuron class receives activity from the dendrite class and then passes activity onto the dendrite tips that connect to it
  */
-class BRAIN_CORE_EXPORT Neuron : public CellComponent, ActivityStats{
+class BRAIN_CORE_EXPORT Neuron : public Placeable, public CellComponent, ActivityStats{
     ProteinDensity *mProteinDensity;
     std::list<Neuron*>::iterator mWhere;
-    Brain*mBrain;
     friend class Brain;
-private:
-    ///Neuron location
-    Vector3f mNeuronLocation;
     /////WE NO LONGER USE LOBES AT LEAST FOR NOWLobe *parent_lobe;
     //Array of dendrites connections
     std::vector<Synapse* >mConnectedSynapses;
@@ -53,7 +51,7 @@ public:
     void fire();
     ///Simulates one millisecond of neural time
     void tick();
-    const Vector3f& getLocation()const {return mNeuronLocation;}
+
 	ProteinDensity& getProteinDensityStructure();
     std::string getName() const {return std::string();}
     void removeSynapse(Synapse*synapse);
@@ -65,7 +63,6 @@ public:
     Development*development(){
         return mDevelopment;
     }
-	Brain* getBrain() const {return mBrain;}
     std::vector<Synapse*>::iterator getSynapsesAtAxonTipBegin(){
         return mConnectedSynapses.begin();
     }

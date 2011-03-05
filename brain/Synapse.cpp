@@ -71,7 +71,7 @@ void Synapse::connect(){
     Brain *parentBrain = parentNeuron->getBrain();
     float age = parentBrain->getAge();
     Vector3f targetLocation = parentNeuron->getProteinDensityStructure().getRandomTargetPoint(age);
-    mRecipientNeuron = parentBrain->getSpatialSearch()->findNearestNeighbor(targetLocation, parentNeuron);
+    mRecipientNeuron = static_cast<Neuron*>(parentBrain->getSpatialSearch()->findNearestNeighbor(targetLocation, parentNeuron));
     if (mRecipientNeuron) {
       //Nearest neighbor target
       mConnectionStrength = 1.0f;

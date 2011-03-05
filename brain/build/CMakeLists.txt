@@ -330,6 +330,8 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/CellComponent.hpp  
   ${BRAIN_SOURCE_DIR}/MainThread.cpp
   ${BRAIN_SOURCE_DIR}/MainThread.hpp
+  ${BRAIN_SOURCE_DIR}/Placeable.cpp
+  ${BRAIN_SOURCE_DIR}/Placeable.hpp
   ${BRAIN_SOURCE_DIR}/Neuron.cpp
   ${BRAIN_SOURCE_DIR}/Neuron.hpp  
   ${BRAIN_SOURCE_DIR}/DevelopmentFactory.hpp  

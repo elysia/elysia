@@ -20,7 +20,7 @@ namespace Elysia {
  *	Description:	Deletes the protein density from memory and removes this neuron from the nearest-neighbor search
 **/
 Neuron::~Neuron() {
-    ProteinEnvironment::iterator iter = mBrain->getProteinEnvironment()->getIterator(mNeuronLocation);
+    ProteinEnvironment::iterator iter = mBrain->getProteinEnvironment()->getIterator(getLocation());
     //assert(iter!=mBrain->getProteinEnvironment()->end()); commented uot for test since we are not making genes in the standard way
     if (iter!=mBrain->getProteinEnvironment()->end()) {
         mBrain->decrementNumNeurons(iter);//decrement density count
@@ -31,7 +31,6 @@ Neuron::~Neuron() {
 	mBrain->inactivateNeuron(this);
 	mBrain->deleteNeuron(this);
     assert(mConnectedSynapses.size()==0);
-    mBrain->getSpatialSearch()->removeNeighbor(this);
     mBrain->notifyPluginsNeuronDestruction(this);
     delete mProteinDensity;
 	for(std::vector<Branch*>::iterator i=mChildBranches.begin(),ie=mChildBranches.end();
@@ -53,7 +52,7 @@ Neuron::~Neuron() {
  *					The branch density is synched based upon some random parameters and some base parameters, as well as a defined tree depth
  *					This neuron is added to the nearest neighbor spatial search
 **/
-Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene):  mNeuronLocation(location){
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene): Placeable(location) {
     
     mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
@@ -63,11 +62,11 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mRandomDepthDeterminer=rand()/(float)RAND_MAX;
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, BaseThreshold, TipThreshold, 0);
-    mBrain->getSpatialSearch()->addNeighbor(this);
+
 	mBaseBranchiness = BaseBranchiness;
     mTipBranchiness = TipBranchiness;
     mTreeDepth = TreeDepth;
-    ProteinEnvironment::iterator iter=brain->getProteinEnvironment()->getIterator(mNeuronLocation);
+    ProteinEnvironment::iterator iter=brain->getProteinEnvironment()->getIterator(getLocation());
     //assert(iter!=brain->getProteinEnvironment()->end());		//Commented out for test, since we are not making genes in the standard way during testing
     if (iter!=brain->getProteinEnvironment()->end()) {
         mBrain->incrementNumNeurons(iter);//increment density count
