@@ -119,7 +119,7 @@ std::string SharedLibrary::prefix() {
 }
 
 std::string SharedLibrary::postfix() {
-#if SIRIKATA_DEBUG
+#ifdef _DEBUG 
     return "_d";
 #else
     return "";
