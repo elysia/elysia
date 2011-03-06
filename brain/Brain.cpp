@@ -31,10 +31,11 @@ namespace Elysia {
  *					Also adds a new spatial search instance, sets the brain's age to 0 and
  *					initializes all requisite brain plugins
 **/
-Brain::Brain (ProteinEnvironment *proteinMap){
+Brain::Brain (ProteinEnvironment *proteinMap, SpatialSearch* spatialsearch){
     mProteinMap=proteinMap;
-    mSpatialSearch=new SimpleSpatialSearch;
-    mAge=0;
+    //mSpatialSearch=new SimpleSpatialSearch;
+    mSpatialSearch = spatialsearch;
+	mAge=0;
 	mDevelopmentCounter=0;
 	createInputRegion(INPUT_NEURONS);
     makeInitialNeurons();

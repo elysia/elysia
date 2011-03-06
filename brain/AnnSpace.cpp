@@ -110,7 +110,9 @@ namespace Elysia{
 			std::vector<Placeable*>::iterator result = std::find(placeableList.begin(), placeableList.end(), placeable);
 			placeableList.erase(result);
 			if(placeableList.size() < treenn->pointLowerThreshold){
-				parent -> mergeSpace(treenn);
+				if(parent != NULL){
+					parent -> mergeSpace(treenn);
+				}
 			}
 		}
 		else{

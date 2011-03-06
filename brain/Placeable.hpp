@@ -1,3 +1,5 @@
+#ifndef _PLACEABLE_HPP
+#define _PLACEABLE_HPP
 
 
 namespace Elysia {
@@ -18,3 +20,5 @@ private:
     ~Placeable();
 };
 }
+
+#endif

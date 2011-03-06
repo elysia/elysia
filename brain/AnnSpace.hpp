@@ -4,7 +4,7 @@
 #include "Placeable.hpp"
 
 namespace Elysia {
-	class AnnSpace{
+	class BRAIN_CORE_EXPORT AnnSpace{
 		enum WhichAxis {XAXIS, YAXIS};
 		WhichAxis whichAxis;
 		float partitionPoint;
@@ -17,7 +17,7 @@ namespace Elysia {
 		int chooseChild(float x, float y);
 		bool isLeaf();
 
-		void partitionSpace(TreeNNSpatialSearch* stann);
+		void partitionSpace(TreeNNSpatialSearch* treenn);
 		void deletePoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
 		void addPoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
 
