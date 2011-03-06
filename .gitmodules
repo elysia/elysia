@@ -7,3 +7,6 @@
 [submodule "externals/win32depends"]
 	path = externals/win32depends
 	url = git://github.com/elysia/elysiawin32depends.git
+[submodule "externals/sirikata"]
+	path = externals/sirikata
+	url = git://github.com/sirikata/sirikata.git

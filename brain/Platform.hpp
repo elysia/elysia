@@ -1,6 +1,6 @@
 #ifndef _BRAIN_CORE_PLATFORM_HPP_
 #define _BRAIN_CORE_PLATFORM_HPP_
-#include <sirikata/util/Platform.hpp>
+#include <sirikata/core/util/Platform.hpp>
 
 #ifndef BRAIN_CORE_EXPORT
 
