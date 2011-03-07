@@ -7,14 +7,14 @@
 #include "Synapse.hpp"
 #include "Base64.hpp"
 #include "Brain.hpp"
+#include "Placeable.hpp"
 #include "SimpleProteinEnvironment.hpp"
+#include "SimpleSpatialSearch.hpp"
+#include "TreeNNSpatialSearch.hpp"
 #include "Development.hpp"
 #include <time.h>
 
-namespace Elysia {
-
-
-
+namespace Elysia{
 Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy, float range){
 		float random = rand()/(float)RAND_MAX;
 		Genome::Gene gene;//FIXME set source and target regions to match the desired behavior
@@ -49,11 +49,11 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy
 void testDevelopment(){
 	ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
 	srand(time(NULL));
-	Brain *brain= new Brain(myProteinEnvironment);
+	Brain *brain= new Brain(myProteinEnvironment, new TreeNNSpatialSearch);
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 10;
+	int neuronNumber = 1000;
 
 
 	/* This region setup is for the standard test set */
@@ -127,9 +127,10 @@ void testResultHelper(const std::vector<EffectAndTypeAndDensity >&combinedResult
    }
 
 }
-
+}
 void testProteinEnvironment() {
    using namespace Elysia::Genome;
+   using namespace Elysia;
    Elysia::Genome::Genome twoOverlappingGenes;
    Elysia::Genome::Chromosome *father=twoOverlappingGenes.mutable_fathers();
    Elysia::Genome::Gene firstGene;
@@ -236,17 +237,61 @@ void testProteinEnvironment() {
    delete pe;
 }
 
-}
+
 
 int runtest(){
     //Elysia::testTwoConnectedNeurons();
-    Elysia::testProteinEnvironment();
+    testProteinEnvironment();
 	Elysia::testDevelopment();
     if (0) for (int i=0;i<30000;++i) {
-        Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
+		Elysia::Brain b(new Elysia::SimpleProteinEnvironment, new Elysia::SimpleSpatialSearch);
 //        usleep(10);        
     }
 	//getchar();
 	return 1;
 	
+}
+
+namespace Elysia{
+
+int NNTest(){
+	Elysia::Brain a(new Elysia::SimpleProteinEnvironment, new Elysia::SimpleSpatialSearch);
+	Elysia::Brain b(new Elysia::SimpleProteinEnvironment, new Elysia::TreeNNSpatialSearch);
+
+	const int maxNeurons = 10000;
+	float xList[maxNeurons];
+	float yList[maxNeurons];
+	Elysia::Placeable* placeableListA[maxNeurons];
+	Elysia::Placeable* placeableListB[maxNeurons];
+	for(int i=0; i<maxNeurons; i++){
+		float x = rand()/(float)RAND_MAX;
+		float y = rand()/(float)RAND_MAX;
+		placeableListA[i] = new Placeable(&a, Vector3f(x, y, 0));
+		placeableListB[i] = new Placeable(&b, Vector3f(x, y, 0));
+	}
+	int mismatch = 0;
+	float distanceA = 0.0f;
+	float distanceB = 0.0f;
+	for(int i=0; i<maxNeurons; i++){
+		float x = placeableListA[i]->getLocation().x;
+		float y = placeableListB[i]->getLocation().y;
+		Elysia::SpatialSearch* simple = a.getSpatialSearch();
+		Elysia::SpatialSearch* tree = b.getSpatialSearch();
+		Elysia::Placeable* first = simple->findNearestNeighbor(Vector3f(x, y, 0),  placeableListA[i]);
+		//float firstDistance = pow((first.getLocation().x - x)*(first.getLocation().x) + (first.getLocation.()y - y)*(first.getLocation().y - y), 0.5);
+		float firstDistance = (first->getLocation() - placeableListA[i]->getLocation()).length();
+		Elysia::Placeable* second = tree->findNearestNeighbor(Vector3f(x, y, 0), placeableListB[i]);
+		//float secondDistance = pow((second.getLocation().x - x)*(second.getLocation().x) + (second.getLocation.()y - y)*(second.getLocation().y - y), 0.5);
+		float secondDistance = (second->getLocation() - placeableListA[i]->getLocation()).length();
+		if(first->getLocation().x != second->getLocation().x || first->getLocation().y != second->getLocation().y){
+			mismatch++;
+		}
+		distanceA += firstDistance/maxNeurons;
+		distanceB += secondDistance/maxNeurons;
+	}
+	
+	return mismatch;
+}
+
+
 }
