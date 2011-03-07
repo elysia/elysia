@@ -17,7 +17,8 @@
 #
 
 # Look for the protocol buffers headers, first in the additional location and then in default system locations
-FIND_PATH(GLUT_INCLUDE_DIRS NAMES ${GLUT_ROOT}/include/GL/glut.h ${GLUT_ROOT}/include/glut.h DOC "Location of glut header files" NO_DEFAULT_PATH)
+#MESSAGE(STATUS "LOOKING FOR GLUT AT ${GLUT_ROOT}/include/GL/glut.h")
+FIND_PATH(GLUT_INCLUDE_DIRS NAMES GL/glut.h $ PATHS ${GLUT_ROOT}/include/ DOC "Location of glut header files" NO_DEFAULT_PATH)
 IF(NOT GLUT_INCLUDE_DIRS)
     FIND_PATH(GLUT_INCLUDE_DIRS NAMES GL/glut.h glut.h DOC "Location of glut header files")
 ENDIF()
