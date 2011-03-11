@@ -321,12 +321,23 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const Pro
 void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive){
     //Okay, we know that this gene is activated, and changes need to happen (make sure to check isGeneActive)
     //Use the "instructions" on the gene to update the densities of the protein ASSOCIATED WITH the target Gene within the GeneSoup
+    //This function always runs (loops go through every gene of every zone.
+        //If active -> grow
+        //If not-active -> decay
+    
+    std::map<ProteinType,float> promap;
+    std::vector< EffectAndTypeAndDensity >::const_iterator i,ie;
     
     //targetGeneSoup is a structure with:
         // 1. a vector >> std::vector< EffectAndTypeAndDensity > mSoup
         // 2. a gene >> Elysia::Genome::Gene mGenes (singular)
             //Gene has a repeated function external_proteins that needs to loop (of type Protein)
             //Protein type has a identifier called protein_type (of type uint64)
+    for (i=targetGeneSoup.mSoup.begin(),ie=targetGeneSoup.mSoup.end();i!=ie;++i){
+        for (int j=0;j<targetGeneSoup.mGenes.external_proteins_size();++j){
+            targetGeneSoup.mGenes.external_proteins(j).protein_type();
+        }
+    }
     
     //This protein_type ID needs to be matched with that inside mSoup (EffectAndTypeAndDensity)
         //EffectAndTypeAndDensity contains:
