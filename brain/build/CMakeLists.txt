@@ -369,7 +369,15 @@ SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 SET(BRAIN_PLUGIN_NAIVE_DIR ${BRAIN_PLUGIN_DIR}/naive)
 
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
-SET(BRAIN_PLUGIN_NAIVE_SOURCES ${BRAIN_PLUGIN_NAIVE_DIR}/naive_plugin.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.hpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.hpp) 
+SET(BRAIN_PLUGIN_NAIVE_SOURCES 
+	${BRAIN_PLUGIN_NAIVE_DIR}/naive_plugin.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.hpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.hpp
+	${BRAIN_PLUGIN_NAIVE_DIR}/RotatingDevelopment.hpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RotatingDevelopment.cpp 
+) 
 
 SET(VIS_PLUGIN_LIBS ${GLUT_LIBRARIES} brain-core)
 SET(NAIVE_PLUGIN_LIBS brain-core)
