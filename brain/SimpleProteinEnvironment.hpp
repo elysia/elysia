@@ -1,7 +1,7 @@
 #include "ProteinEnvironment.hpp"
 #include "genome.pb.h"
 
-#define STEPSIZE 0.001
+#define STEPSIZE 0.001  //Set how fast a protein should respond to a gene activation
 
 namespace Elysia {
 

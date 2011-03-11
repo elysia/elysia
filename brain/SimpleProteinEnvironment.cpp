@@ -339,6 +339,14 @@ void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSo
         promap[targetGeneSoup.mGenes.external_proteins(k).protein_type()]+=targetGeneSoup.mGenes.external_proteins(k).density();
     }
     
+    
+    //CRITICAL FUNCTIONALITY LOCATION (Chemical-Temporal Relationship)
+        //At this location, the protein driver function can be defined
+        //How a protein builds due to activation is defined here
+        //How it decays normally is also defined here
+        //The rate of decay is defined by the stepsize == delta per time cycle
+        //The energy budget limit of protein production should be here
+    
     //Loop through mSoup for this targetGeneSoup and determine if and how to drive the density
     for (i=targetGeneSoup.mSoup.begin(),ie=targetGeneSoup.mSoup.end();i!=ie;++i){
         if (isGeneActive) {
