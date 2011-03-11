@@ -83,6 +83,22 @@ void RotatingDevelopment::passDevelopmentSignal(Synapse*s,
 //ENDFIXME
 
 
+//Ok, the current dilemma is this. If we weaken with every timestep, we are going to weaken out "rare" events. If the training set exceeds
+//greatly the development evaluation threshold, we may not be able to learn at all. So we need a way to deal with this.
+//Possible solutions are:
+//--Enforcing a "maximum" size of any given training set
+//--Only weakening/detaching the weakest set of connections if no activity approaches the former best
+//--Simply keep the weaken rate per round low
+
+
+//THIS IS WHAT I AM GOING TO DO HERE FOR NOW...
+//--Scale the weaken rate to the best signal observed.
+//--------Weaken a lot if the signal in this round is close to the "best signal"
+//--------Do not weaken if the signal this round is far from the "best signal"
+//
+//One potential downside is that this can lead to some unstable equilibrium where multiple "close" models end up weakening each other
+//so this may need further refinement
+
 void RotatingDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenAmount=_STRENGTHEN_AMOUNT_;
 	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
@@ -103,8 +119,8 @@ void RotatingDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	if(s->recipient()){
 		if(developmentStage == 0){
     		if(mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
-	    		if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
-	    			s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
+	    		if(s->mFiringCounter > 0){										//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
+	    			s->mConnectionStrength += initialStrengthen;				//Strengthen weakly in beginning
 	    		}
 	    		else{
 	    			s->mConnectionStrength += initialWeaken;
@@ -113,6 +129,7 @@ void RotatingDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 					}
 	    		}
 			}
+			//Neuron is in late development stage, alter strategy to more quickly prune bad connections
 			else{
 	    		if(s->mFiringCounter > 0){
 	    			strengthenAmount = changeSize*(strengthenRange*mDevelopmentSignal - mBestDevelopmentSignal)/(mDevelopmentSignal+0.001f);

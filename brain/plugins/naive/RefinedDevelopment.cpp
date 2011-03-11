@@ -6,7 +6,7 @@ static Development*makeRefinedDevelopment() {
 }
 
 bool RefinedDevelopment::initRefinedDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,true);
+    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,false);
     return true;
 }
 bool RefinedDevelopment::deinitRefinedDevelopmentLibrary() {
@@ -34,7 +34,6 @@ void RefinedDevelopment::passDevelopmentSignal(CellComponent*component,
         //assume it's a neuron
         mDevelopmentSignal+=signal;
         if (mDevelopmentSignal>mBestDevelopmentSignal) {
-            //HAVING THIS BREAKS THE ALGORITHM BY SHUTTLING TO LATER DEVELOPMENT
 			mBestDevelopmentSignal=mDevelopmentSignal;//FIXME is this the best place to set mBestDevelopmentSignal
         }
     }else {
@@ -93,6 +92,7 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float maxWeaken = _MAX_WEAKEN_;					//Maximum amount to weaken in mid-development
 	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 	int fixationThreshold = _LATE_DEV_WINDOW_;      //After this threshold has been reached, the neuron will not continue to weaken connections
+
 
 
 	if(mBestDevelopmentSignal > fixationThreshold){

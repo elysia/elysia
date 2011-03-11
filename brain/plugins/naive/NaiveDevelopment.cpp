@@ -91,6 +91,8 @@ void NaiveDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float maxWeaken = _MAX_WEAKEN_;					//Maximum amount to weaken in mid-development
 	float strengthenRange = _STRENGTHEN_RANGE_;		//The multiplier to the level of signal that determines how much and whether to strengthen the synapse 
 
+
+
     if(s->recipient()){
 	    if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
 	    	s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning

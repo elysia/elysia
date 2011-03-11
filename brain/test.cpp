@@ -53,7 +53,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 1000;
+	int neuronNumber = 100;
 
 
 	/* This region setup is for the standard test set */
@@ -83,17 +83,37 @@ void testDevelopment(){
         //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<100; j++){
+	for(int j=0; j<1000; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			//if(j==0){n->activateComponent(*brain,100);}
 			n->tick();
 		//const Vector3f &location):  mNeuronLocation(location){));
 		}
+
+		/*  //THIS IS THE SIMPLE PATTERN
 		//This is the firing pattern of the input lobe. This is what the test brain will learn on
 		for(int k=0;k<50;k+=3){
 			brain->fireInputNeuron(k);
 			}
+		*/
+
+		//VARYING PATTERN 
+		
+		if(j%30 > 10 ){
+			for(int k=0; k<50; k+=3){
+				brain->fireInputNeuron(k);
+			}
+		}
+		else{
+			for(int k=50; k<100; k+= 5){
+				brain->fireInputNeuron(k);
+			}
+		}
+
+
+
+
 		printf("%i",j);
 		brain ->tick();
         for (int i=0;i<25;++i) {
