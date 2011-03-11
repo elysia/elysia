@@ -325,39 +325,48 @@ void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSo
         //If active -> grow
         //If not-active -> decay
     
+    int k;
     std::map<ProteinType,float> promap;
-    std::vector< EffectAndTypeAndDensity >::const_iterator i,ie;
+    std::vector< EffectAndTypeAndDensity >::iterator i,ie;
     
-    //targetGeneSoup is a structure with:
-        // 1. a vector >> std::vector< EffectAndTypeAndDensity > mSoup
-        // 2. a gene >> Elysia::Genome::Gene mGenes (singular)
-            //Gene has a repeated function external_proteins that needs to loop (of type Protein)
-            //Protein type has a identifier called protein_type (of type uint64)
-    for (i=targetGeneSoup.mSoup.begin(),ie=targetGeneSoup.mSoup.end();i!=ie;++i){
-        for (int j=0;j<targetGeneSoup.mGenes.external_proteins_size();++j){
-            targetGeneSoup.mGenes.external_proteins(j).protein_type();
-        }
+    //Build map of protein type and their terminal density values
+    for (k=0;k<targetGeneSoup.mGenes.external_proteins_size();++k){
+        //initialize the map
+        promap[targetGeneSoup.mGenes.external_proteins(k).protein_type()]=0;
+    }
+    for (k=0;k<targetGeneSoup.mGenes.external_proteins_size();++k){
+        //fill the map
+        promap[targetGeneSoup.mGenes.external_proteins(k).protein_type()]+=targetGeneSoup.mGenes.external_proteins(k).density();
     }
     
-    //This protein_type ID needs to be matched with that inside mSoup (EffectAndTypeAndDensity)
-        //EffectAndTypeAndDensity contains:
-            // ProteinType type (ProteinType is of type uint64)
-    
-    //If the gene is active (isGeneActive)
-        //The matching type value in mSoup needs to be driven towards the desired density in Gene [mGene.external_proteins(i).density()]
-        //drive should be done using a function relationship (exponential)
-    
-    
-    //std::map<ProteinType,float> map a protein_type to the desired target density -> use map to loop through mSoup
-    //Loop through mSoup
-        //This Gene IS active...
-        //Update proteins
-        //This Gene IS NOT active...
-        //Update proteins
-    
-    //for (int i=0;i<external_preotien_size();++i) blah(external_proteins(myindex))
+    //Loop through mSoup for this targetGeneSoup and determine if and how to drive the density
+    for (i=targetGeneSoup.mSoup.begin(),ie=targetGeneSoup.mSoup.end();i!=ie;++i){
+        if (isGeneActive) {
+            i->density=driveCurveLinear((i->density)/promap[i->type], STEPSIZE)*promap[i->type];
+        }else {
+            i->density=driveCurveLinear((i->density)/promap[i->type], -STEPSIZE)*promap[i->type];
+        }
+
+    }
+
 }
 
+/**
+ *	@param ProteinZone::float currentPosition, float stepSize
+ *	@returns float value of next position
+ *
+ *	Description:	Curve driver (Linear) given a current position and a desired step size
+ **/
+float SimpleProteinEnvironment::ProteinZone::driveCurveLinear(float currentPosition, float stepAmount){
+    float nextPosition;
+    
+    nextPosition = currentPosition + stepAmount;
+    
+    if (nextPosition<0) nextPosition=0; //Should never be below 0, so this is okay
+    if (nextPosition>1) nextPosition=1; //drastic drop is bad (need smoother drop back to 1)
+    
+    return nextPosition;
+}
 
 /**
  *	@param const BoundingBox3f3f &input - bounding box area to check

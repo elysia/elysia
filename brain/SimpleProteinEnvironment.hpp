@@ -1,5 +1,8 @@
 #include "ProteinEnvironment.hpp"
 #include "genome.pb.h"
+
+#define STEPSIZE 0.001
+
 namespace Elysia {
 
   
@@ -30,6 +33,7 @@ class BRAIN_CORE_EXPORT SimpleProteinEnvironment : public ProteinEnvironment{
     float getSpecificProteinDensity(const ProteinType &myProtein);
     bool isConditionTrue(const Genome::Condition &currentCondition);
     void driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive);
+      float driveCurveLinear(float currentPosition, float stepAmount);
   };
   std::vector<ProteinZone> mMainZoneList;
   //Need outter function to handle update looping
