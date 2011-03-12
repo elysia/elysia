@@ -321,8 +321,60 @@ float SimpleProteinEnvironment::ProteinZone::getSpecificProteinDensity(const Pro
 void SimpleProteinEnvironment::ProteinZone::driveGeneDensity(ProteinZone::GeneSoupStruct &targetGeneSoup, bool isGeneActive){
     //Okay, we know that this gene is activated, and changes need to happen (make sure to check isGeneActive)
     //Use the "instructions" on the gene to update the densities of the protein ASSOCIATED WITH the target Gene within the GeneSoup
+    //This function always runs (loops go through every gene of every zone.
+        //If active -> grow
+        //If not-active -> decay
+    
+    int k;
+    std::map<ProteinType,float> promap;
+    std::vector< EffectAndTypeAndDensity >::iterator i,ie;
+    
+    //Build map of protein type and their terminal density values
+    for (k=0;k<targetGeneSoup.mGenes.external_proteins_size();++k){
+        //initialize the map
+        promap[targetGeneSoup.mGenes.external_proteins(k).protein_type()]=0;
+    }
+    for (k=0;k<targetGeneSoup.mGenes.external_proteins_size();++k){
+        //fill the map
+        promap[targetGeneSoup.mGenes.external_proteins(k).protein_type()]+=targetGeneSoup.mGenes.external_proteins(k).density();
+    }
+    
+    
+    //CRITICAL FUNCTIONALITY LOCATION (Chemical-Temporal Relationship)
+        //At this location, the protein driver function can be defined
+        //How a protein builds due to activation is defined here
+        //How it decays normally is also defined here
+        //The rate of decay is defined by the stepsize == delta per time cycle
+        //The energy budget limit of protein production should be here
+    
+    //Loop through mSoup for this targetGeneSoup and determine if and how to drive the density
+    for (i=targetGeneSoup.mSoup.begin(),ie=targetGeneSoup.mSoup.end();i!=ie;++i){
+        if (isGeneActive) {
+            i->density=driveCurveLinear((i->density)/promap[i->type], STEPSIZE)*promap[i->type];
+        }else {
+            i->density=driveCurveLinear((i->density)/promap[i->type], -STEPSIZE)*promap[i->type];
+        }
+
+    }
+
 }
 
+/**
+ *	@param ProteinZone::float currentPosition, float stepSize
+ *	@returns float value of next position
+ *
+ *	Description:	Curve driver (Linear) given a current position and a desired step size
+ **/
+float SimpleProteinEnvironment::ProteinZone::driveCurveLinear(float currentPosition, float stepAmount){
+    float nextPosition;
+    
+    nextPosition = currentPosition + stepAmount;
+    
+    if (nextPosition<0) nextPosition=0; //Should never be below 0, so this is okay
+    if (nextPosition>1) nextPosition=1; //drastic drop is bad (need smoother drop back to 1)
+    
+    return nextPosition;
+}
 
 /**
  *	@param const BoundingBox3f3f &input - bounding box area to check
