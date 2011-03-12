@@ -1,20 +1,20 @@
-#include "RefinedDevelopment.hpp"
+#include "RotatingDevelopment.hpp"
 #include "DevelopmentFactory.hpp"
 namespace Elysia {
-static Development*makeRefinedDevelopment() {
-    return new RefinedDevelopment;
+static Development*makeRotatingDevelopment() {
+    return new RotatingDevelopment;
 }
 
-bool RefinedDevelopment::initRefinedDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRefinedDevelopment,false);
+bool RotatingDevelopment::initRotatingDevelopmentLibrary() {
+    DevelopmentFactory::getSingleton().registerConstructor ("Refined",&makeRotatingDevelopment,true);
     return true;
 }
-bool RefinedDevelopment::deinitRefinedDevelopmentLibrary() {
+bool RotatingDevelopment::deinitRotatingDevelopmentLibrary() {
     DevelopmentFactory::getSingleton().unregisterConstructor ("Refined");
     return true;
 }
 
-RefinedDevelopment::RefinedDevelopment() {
+RotatingDevelopment::RotatingDevelopment() {
     mDevelopmentSignal=0;
     mBestDevelopmentSignal=0;
 }
@@ -27,13 +27,14 @@ RefinedDevelopment::RefinedDevelopment() {
  *					Passes this signal argument, with possible added weight, to its parent
  *					component.
 **/
-void RefinedDevelopment::passDevelopmentSignal(CellComponent*component,
+void RotatingDevelopment::passDevelopmentSignal(CellComponent*component,
                                              float signal){
     CellComponent *parentComponent=mParent;
     if (component==parentComponent) {
         //assume it's a neuron
         mDevelopmentSignal+=signal;
         if (mDevelopmentSignal>mBestDevelopmentSignal) {
+            //HAVING THIS BREAKS THE ALGORITHM BY SHUTTLING TO LATER DEVELOPMENT
 			mBestDevelopmentSignal=mDevelopmentSignal;//FIXME is this the best place to set mBestDevelopmentSignal
         }
     }else {
@@ -50,7 +51,7 @@ void RefinedDevelopment::passDevelopmentSignal(CellComponent*component,
     }
 }
 ///Simply route call to private overload
-void RefinedDevelopment::passDevelopmentSignal(Synapse*s,
+void RotatingDevelopment::passDevelopmentSignal(Synapse*s,
                                              CellComponent*sParent,
                                              float signalWeight){
     //FIXME: do we want to muck with  s->mConnectionStrength? That might be sensical based on some return value of recursion
@@ -68,7 +69,7 @@ void RefinedDevelopment::passDevelopmentSignal(Synapse*s,
 
 
 
-//FIXME have RefinedDevelopment read the following from the genes file: perhaps have some default that's modified by the genes present or absent in the region?
+//FIXME have RotatingDevelopment read the following from the genes file: perhaps have some default that's modified by the genes present or absent in the region?
 #define _STRENGTHEN_AMOUNT_		0.0f
 #define _EARLY_DEV_WINDOW_		30	
 #define _INITIAL_STRENGTHEN_	0.04f
@@ -82,7 +83,23 @@ void RefinedDevelopment::passDevelopmentSignal(Synapse*s,
 //ENDFIXME
 
 
-void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
+//Ok, the current dilemma is this. If we weaken with every timestep, we are going to weaken out "rare" events. If the training set exceeds
+//greatly the development evaluation threshold, we may not be able to learn at all. So we need a way to deal with this.
+//Possible solutions are:
+//--Enforcing a "maximum" size of any given training set
+//--Only weakening/detaching the weakest set of connections if no activity approaches the former best
+//--Simply keep the weaken rate per round low
+
+
+//THIS IS WHAT I AM GOING TO DO HERE FOR NOW...
+//--Scale the weaken rate to the best signal observed.
+//--------Weaken a lot if the signal in this round is close to the "best signal"
+//--------Do not weaken if the signal this round is far from the "best signal"
+//
+//One potential downside is that this can lead to some unstable equilibrium where multiple "close" models end up weakening each other
+//so this may need further refinement
+
+void RotatingDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	float strengthenAmount=_STRENGTHEN_AMOUNT_;
 	int earlyDevelopmentWindow = _EARLY_DEV_WINDOW_;		//How many concurrent synapses firing is required to move to "mid-development"
 	float initialStrengthen = _INITIAL_STRENGTHEN_;			//How much to strengthen a firing synapse in early development
@@ -94,7 +111,6 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	int fixationThreshold = _LATE_DEV_WINDOW_;      //After this threshold has been reached, the neuron will not continue to weaken connections
 
 
-
 	if(mBestDevelopmentSignal > fixationThreshold){
 		s->setDevelopmentStage(1);
 	}
@@ -103,8 +119,8 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 	if(s->recipient()){
 		if(developmentStage == 0){
     		if(mBestDevelopmentSignal < earlyDevelopmentWindow){				//Neuron still in early state
-	    		if(s->mFiringCounter > 0){							//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
-	    			s->mConnectionStrength += initialStrengthen;					//Strengthen weakly in beginning
+	    		if(s->mFiringCounter > 0){										//If the synapse is active and not helping the neuron, weaken. If it is active and is helping, strengthen
+	    			s->mConnectionStrength += initialStrengthen;				//Strengthen weakly in beginning
 	    		}
 	    		else{
 	    			s->mConnectionStrength += initialWeaken;
@@ -113,6 +129,7 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
 					}
 	    		}
 			}
+			//Neuron is in late development stage, alter strategy to more quickly prune bad connections
 			else{
 	    		if(s->mFiringCounter > 0){
 	    			strengthenAmount = changeSize*(strengthenRange*mDevelopmentSignal - mBestDevelopmentSignal)/(mDevelopmentSignal+0.001f);
@@ -136,7 +153,7 @@ void RefinedDevelopment::developSynapse(Synapse *s, const ActivityStats&stats){
     }
     
 }
-void RefinedDevelopment::mature(){
+void RotatingDevelopment::mature(){
     mDevelopmentStage=1;
 }
 

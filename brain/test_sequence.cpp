@@ -9,6 +9,7 @@
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
 #include "Development.hpp"
+#include "SimpleSpatialSearch.hpp"
 #include <time.h>
 
 typedef std::vector<Elysia::EffectAndTypeAndDensity> CombinedResults;
@@ -18,7 +19,7 @@ namespace Elysia {
 void testTwoConnectedNeurons_seq() {
     ProteinEnvironment *myProteinEnvironment= new SimpleProteinEnvironment();
 
-	Brain *brain= new Brain(myProteinEnvironment);
+	Brain *brain= new Brain(myProteinEnvironment, new SimpleSpatialSearch);
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Dendritic_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
@@ -116,7 +117,7 @@ Neuron* placeTestSeqNeuron(Brain* brain, float locx, float locy, float locz, flo
 void testSeqDevelopment(int neuronNumber){
 
 	ProteinEnvironment *myProteinEnvironment = new SimpleProteinEnvironment();// generate new protein environment
-	Brain *brain= new Brain(myProteinEnvironment);	// new brain defined from this protein environment
+	Brain *brain= new Brain(myProteinEnvironment, new SimpleSpatialSearch);	// new brain defined from this protein environment
 	std::vector<Neuron *> createdList;				// a list of neurons created during the test
 	FILE *dendriteTree=NULL;						// output dendrite tree
 	Neuron *n;										// neurons created during the test sequence
@@ -294,7 +295,7 @@ int runtestsequence(){
     Elysia::testSeqProteinEnvironment();
 	Elysia::testSeqDevelopment(4);
     if (0) for (int i=0;i<30000;++i) {
-        Elysia::Brain b(new Elysia::SimpleProteinEnvironment);
+		Elysia::Brain b(new Elysia::SimpleProteinEnvironment, new Elysia::SimpleSpatialSearch);
 //        usleep(10);        
     }
 	//getchar();

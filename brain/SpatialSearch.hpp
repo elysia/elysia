@@ -1,3 +1,6 @@
+#ifndef _SPATIALSEARCH_HPP
+#define _SPATIALSEARCH_HPP
+
 namespace Elysia {
 class Placeable;
 
@@ -13,3 +16,5 @@ public:
 	virtual ~SpatialSearch(){}
 };
 }
+
+#endif

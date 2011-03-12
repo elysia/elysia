@@ -8,6 +8,7 @@
 #include "Base64.hpp"
 #include "Brain.hpp"
 #include "SimpleProteinEnvironment.hpp"
+#include "SimpleSpatialSearch.hpp"
 #include "SharedLibrary.hpp"
 #include "test.hpp"
 #include "MainThread.hpp"
@@ -78,6 +79,8 @@ int asyncMain(int argc, char**argv, bool loadvis) {
     if (argc>1) {
 		if(0 == strcmp(argv[1],"-test")){
 			int retval= runtest();
+			//int retval= Elysia::NNTest();
+			printf("%d",retval);
             if (destroy)
                 (*destroy)();
             destroyDevelopmentPlugins();
@@ -90,7 +93,7 @@ int asyncMain(int argc, char**argv, bool loadvis) {
             printf("Success loading saved file\n");
         }
     }
-    Elysia::Brain brain(&(new Elysia::SimpleProteinEnvironment)->initialize(genes));
+	Elysia::Brain brain(&(new Elysia::SimpleProteinEnvironment)->initialize(genes), new Elysia::SimpleSpatialSearch);
 	//std::vector<Branch *>BranchestoWipe;
     for (size_t i=0;i<1000;++i) {
         brain.tick();

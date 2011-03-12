@@ -71,15 +71,15 @@ namespace Elysia{
 		//bad to begin with. If someone wants to put k-means in here (or some other thing for calling partitions), cool.
 		sort(XArray.begin(), XArray.end());
 		sort(YArray.begin(), YArray.end());
-		float Xdist = XArray[int(XArray.size()/2) + 1] - XArray[int(XArray.size())];
-		float Ydist = XArray[int(YArray.size()/2) + 1] - YArray[int(YArray.size())];
+		float Xdist = XArray[int(XArray.size()/2) + 1] - XArray[int(XArray.size()/2)];
+		float Ydist = XArray[int(YArray.size()/2) + 1] - YArray[int(YArray.size()/2)];
 		
 		if(Xdist > Ydist){
-			
+			whichAxis = XAXIS;
 			std::sort(placeableList.begin(),placeableList.end(),ComparePlaceablebyX()); 
 			Placeable* midpoint = placeableList[int(placeableList.size()/2)];
-			float partition = (XArray[int(XArray.size()/2) + 1] + XArray[int(XArray.size())])/2;
-			
+			float partition = (XArray[int(XArray.size()/2) + 1] + XArray[int(XArray.size()/2)])/2;
+			partitionPoint = partition;
 			for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.begin()+placeableList.size()/2;++i){
 
 				child[0]->addPoint(*i, treenn);
@@ -89,12 +89,12 @@ namespace Elysia{
 			}
 		}
 		else{
-			
+			whichAxis = YAXIS;
 			std::sort(placeableList.begin(),placeableList.end(),ComparePlaceablebyY()); 
 			Placeable* midpoint = placeableList[int(placeableList.size()/2)];
 			
-			float partition = (YArray[int(YArray.size()/2) + 1] + YArray[int(YArray.size())])/2;
-			
+			float partition = (YArray[int(YArray.size()/2) + 1] + YArray[int(YArray.size()/2)])/2;
+			partitionPoint = partition;
 			for(std::vector<Placeable*>::iterator i=placeableList.begin();i!=placeableList.begin()+placeableList.size()/2;++i){
 				child[0]->addPoint(*i, treenn);
 			}
@@ -110,7 +110,9 @@ namespace Elysia{
 			std::vector<Placeable*>::iterator result = std::find(placeableList.begin(), placeableList.end(), placeable);
 			placeableList.erase(result);
 			if(placeableList.size() < treenn->pointLowerThreshold){
-				parent -> mergeSpace(treenn);
+				if(parent != NULL){
+					parent -> mergeSpace(treenn);
+				}
 			}
 		}
 		else{
@@ -123,8 +125,8 @@ namespace Elysia{
 	void AnnSpace::addPoint(Placeable* placeable, TreeNNSpatialSearch* treenn){
 		if(this->isLeaf()){
 			placeableList.push_back(placeable);
-			if(treenn->pointUpperThreshold > placeableList.size() + 1){
-				//PARTITION
+			if(placeableList.size() + 1 > treenn->pointUpperThreshold){
+				this->partitionSpace(treenn);
 			}
 		}
 		else{		

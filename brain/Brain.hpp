@@ -36,7 +36,7 @@ public:
      */
 
 	
-    Brain (ProteinEnvironment *proteinMap);
+    Brain (ProteinEnvironment *proteinMap, SpatialSearch* spatialsearch);
     SimTime mCurTime;
 	int mDevelopmentCounter;
     float getAge()const{return mAge;}

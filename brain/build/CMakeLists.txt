@@ -322,10 +322,6 @@ SET(NEAREST_NEIGHBOR_SOURCES
   ${BRAIN_SOURCE_DIR}/main.cpp
   ${BRAIN_SOURCE_DIR}/test.cpp
   ${BRAIN_SOURCE_DIR}/test.hpp
-  ${BRAIN_SOURCE_DIR}/AnnSpace.hpp
-  ${BRAIN_SOURCE_DIR}/AnnSpace.cpp
-  ${BRAIN_SOURCE_DIR}/AnnPoints.hpp
-  ${BRAIN_SOURCE_DIR}/AnnPoints.cpp
 )
 SET(BRAIN_CORE_LIB_SOURCES 
   ${BRAIN_SOURCE_DIR}/ActivityStats.hpp
@@ -363,6 +359,10 @@ SET(BRAIN_CORE_LIB_SOURCES
   ${BRAIN_SOURCE_DIR}/SimpleSpatialSearch.hpp
   ${BRAIN_SOURCE_DIR}/TreeNNSpatialSearch.cpp
   ${BRAIN_SOURCE_DIR}/TreeNNSpatialSearch.hpp
+  ${BRAIN_SOURCE_DIR}/AnnSpace.hpp
+  ${BRAIN_SOURCE_DIR}/AnnSpace.cpp
+  ${BRAIN_SOURCE_DIR}/AnnPoints.hpp
+  ${BRAIN_SOURCE_DIR}/AnnPoints.cpp
   ${BRAIN_SOURCE_DIR}/genome.pb.cc)
 
 #Andrew's brain directory
@@ -380,7 +380,15 @@ SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 SET(BRAIN_PLUGIN_NAIVE_DIR ${BRAIN_PLUGIN_DIR}/naive)
 
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
-SET(BRAIN_PLUGIN_NAIVE_SOURCES ${BRAIN_PLUGIN_NAIVE_DIR}/naive_plugin.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.hpp ${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.cpp ${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.hpp) 
+SET(BRAIN_PLUGIN_NAIVE_SOURCES 
+	${BRAIN_PLUGIN_NAIVE_DIR}/naive_plugin.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.hpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/NaiveDevelopment.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.cpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RefinedDevelopment.hpp
+	${BRAIN_PLUGIN_NAIVE_DIR}/RotatingDevelopment.hpp 
+	${BRAIN_PLUGIN_NAIVE_DIR}/RotatingDevelopment.cpp 
+) 
 
 SET(VIS_PLUGIN_LIBS ${GLUT_LIBRARIES} brain-core)
 SET(NAIVE_PLUGIN_LIBS brain-core)

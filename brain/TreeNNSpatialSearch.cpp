@@ -1,7 +1,6 @@
 #include "Platform.hpp"
-
 #include "Placeable.hpp"
-#include "TreeNNSpatialSearch.hpp"
+#include "AnnSpace.hpp"
 
 #if 0
 ///placeholder class
@@ -13,6 +12,16 @@ public:
 #endif
 
 namespace Elysia {
+
+	TreeNNSpatialSearch::TreeNNSpatialSearch(){
+		pointUpperThreshold = 100;
+		pointLowerThreshold = 2;
+		root = new AnnSpace;
+	}
+
+	TreeNNSpatialSearch::~TreeNNSpatialSearch(){
+		delete root;
+	}
 /**
  *	@param const Vector3f &queryPoint - point where to begin search
  *	@param Placeable *exclude - pointer to neuron which you don't want to return (i.e. itself)
@@ -21,18 +30,8 @@ namespace Elysia {
  *	Description:	Finds nearest neighbor from local copy of list
 **/
 Placeable* TreeNNSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Placeable* exclude){
-    std::tr1::unordered_set<Placeable*>::iterator i;
-    float maxDistance;
-    Placeable * maxDistanceItem=NULL;
-    for(i=mPlaceables.begin();i!=mPlaceables.end();++i) {
-       Placeable * current=*i;//find out what's "inside" i
-       float currentDistance=(current->getLocation()-queryPoint).length();
-       if ((maxDistanceItem==NULL || currentDistance<maxDistance) && current != exclude){
-            maxDistance=currentDistance;
-            maxDistanceItem=current;
-       }
-    }
-    return maxDistanceItem;
+    Placeable* target = root->findNN(queryPoint.x, queryPoint.y, exclude);
+	return target;
 }
 
 /**
@@ -40,8 +39,8 @@ Placeable* TreeNNSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, 
  * 
  *	Description:	Function to *add* neighbor/point to local copy of list
 **/
-void TreeNNSpatialSearch::addNeighbor(Placeable* neuron){
-    mPlaceables.insert(neuron);
+void TreeNNSpatialSearch::addNeighbor(Placeable* placeable){
+    root->addPoint(placeable, this);
 }
 
 /**
@@ -49,8 +48,8 @@ void TreeNNSpatialSearch::addNeighbor(Placeable* neuron){
  * 
  *	Description:	Function to *remove* neighbor/point from local copy of list
 **/
-void TreeNNSpatialSearch::removeNeighbor(Placeable* neuron){
-    mPlaceables.erase(neuron);
+void TreeNNSpatialSearch::removeNeighbor(Placeable* placeable){
+    root->deletePoint(placeable, this);
 }
 
 /**
@@ -58,6 +57,7 @@ void TreeNNSpatialSearch::removeNeighbor(Placeable* neuron){
  * 
  *	Description:	Function to *update* neighbor/point to local copy of list
 **/
-void TreeNNSpatialSearch::moveNeighbor(Placeable*){
+void TreeNNSpatialSearch::moveNeighbor(Placeable* placeable){
+	assert(false);
 }
 }
