@@ -14,7 +14,7 @@ public:
 namespace Elysia {
 
 	TreeNNSpatialSearch::TreeNNSpatialSearch(){
-		pointUpperThreshold = 100;
+		pointUpperThreshold = 10;
 		pointLowerThreshold = 2;
 		root = new AnnSpace;
 	}

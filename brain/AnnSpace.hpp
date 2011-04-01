@@ -2,6 +2,7 @@
 #include "AnnPoints.hpp"
 #include "TreeNNSpatialSearch.hpp"
 #include "Placeable.hpp"
+#include <cfloat>
 
 namespace Elysia {
 	class BRAIN_CORE_EXPORT AnnSpace{
@@ -20,7 +21,7 @@ namespace Elysia {
 		void partitionSpace(TreeNNSpatialSearch* treenn);
 		void deletePoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
 		void addPoint(Placeable* Placeable, TreeNNSpatialSearch* treenn);
-
+		void setPartition(float newPartition){partitionPoint = newPartition;}
 		void setParent(AnnSpace* newParent){parent = newParent;}
 		Placeable* findNN(float x, float y, Placeable* exclude);
 		void mergeSpace(TreeNNSpatialSearch* treenn);

@@ -83,7 +83,7 @@ void testDevelopment(){
         //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<1000; j++){
+	for(int j=0; j<2; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			//if(j==0){n->activateComponent(*brain,100);}
@@ -100,17 +100,18 @@ void testDevelopment(){
 
 		//VARYING PATTERN 
 		
-		if(j%30 > 10 ){
-			for(int k=0; k<50; k+=3){
+		if(j%100 > 0 && j%100 < 20){}
+		if(j%100 > 20 && j%100 < 30){
+			for(int k=0; k<50; k+=2){
 				brain->fireInputNeuron(k);
 			}
 		}
-		else{
-			for(int k=50; k<100; k+= 5){
+		if(j%100 > 40 && j%100 < 60){}
+		if(j%100 > 60 && j%70 < 100){
+			for(int k=50; k<100; k+= 2){
 				brain->fireInputNeuron(k);
 			}
 		}
-
 
 
 
