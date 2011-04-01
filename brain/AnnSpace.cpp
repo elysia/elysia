@@ -157,52 +157,69 @@ namespace Elysia{
 	}
 
 	void AnnSpace::mergeSpace(TreeNNSpatialSearch* treenn){
-		
-		//First find whether both children are leaves
-		if(child[0]->isLeaf() && child[1]->isLeaf()){
-			partitionPoint = 0.0f;
-			std::vector<Placeable*> newPlaceableList;
-			newPlaceableList = child[0]->getChildList();
-			for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
-				Placeable* current=*i;
-				this->placeableList.push_back(current);
-			}
-			newPlaceableList = child[1]->getChildList();
-			for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
-				Placeable* current=*i;
-				this->placeableList.push_back(current);
-			}
-			delete child[0];
-			delete child[1];
-			child[0] = NULL;
-			child[1] = NULL;
-		}
-
-		//If one child is not a leaf, 
-		else{
-			AnnSpace* departingChild;
-			AnnSpace* remainingChild;
-			float newPartition;
-			if(child[0]->isLeaf()){
-				newPartition = FLT_MAX;
-				departingChild = child[0];				
-				remainingChild = child[1];
+		if(child[0] != NULL && child[1] != NULL){
+			//First find whether both children are leaves
+			if(child[0]->isLeaf() && child[1]->isLeaf()){
+				partitionPoint = 0.0f;
+				std::vector<Placeable*> newPlaceableList;
+				newPlaceableList = child[0]->getChildList();
+				for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
+					Placeable* current=*i;
+					this->placeableList.push_back(current);
+				}
+				newPlaceableList = child[1]->getChildList();
+				for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
+					Placeable* current=*i;
+					this->placeableList.push_back(current);
+				}
+				delete child[0];
+				delete child[1];
 				child[0] = NULL;
-			}
-			else{
-				float newPartition = FLT_MIN;
-				departingChild = child[1];
-				remainingChild = child[0];
 				child[1] = NULL;
 			}
-			remainingChild->setPartition(newPartition);
-			std::vector<Placeable*> newPlaceableList;
-			newPlaceableList = departingChild->getChildList();
-			for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
-				Placeable* current=*i;
-				remainingChild->placeableList.push_back(current);
+		
+
+			//If one child is not a leaf, 
+			else{
+				AnnSpace* departingChild;
+				AnnSpace* remainingChild;
+				float newPartition;
+				if(child[0]->isLeaf()){
+					newPartition = FLT_MAX;
+					departingChild = child[0];				
+					remainingChild = child[1];
+					child[0] = NULL;
+				}
+				else{
+					float newPartition = FLT_MIN;
+					departingChild = child[1];
+					remainingChild = child[0];
+					child[1] = NULL;
+				}
+				remainingChild->setPartition(newPartition);
+				std::vector<Placeable*> newPlaceableList;
+				newPlaceableList = departingChild->getChildList();
+				for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
+					Placeable* current=*i;
+					remainingChild->placeableList.push_back(current);
+				}
+				delete departingChild;
 			}
-			delete departingChild;
+		}
+		else{
+			for(int i=0; i<2; i++){
+				if(child[i] != NULL){
+					std::vector<Placeable*> newPlaceableList;
+					newPlaceableList = child[i]->getChildList();
+					for(std::vector<Placeable*>::iterator j=newPlaceableList.begin();j!=newPlaceableList.end();++j) {
+						Placeable* current=*j;
+						this->placeableList.push_back(current);
+					}
+					delete child[i];
+					child[i] = NULL;
+				}
+			}
+			parent->mergeSpace(treenn);
 		}
 	}
 
