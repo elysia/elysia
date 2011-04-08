@@ -266,6 +266,11 @@ ENDIF()
 SET(FINAL_INCLUDE_DIRS ${BRAIN_SOURCE_DIR}
         ${Boost_INCLUDE_DIRS}
         ${Sirikata_INCLUDE_DIR}
+        ${Sirikata_OH_INCLUDE_DIR}
+        ${Sirikata_MESH_INCLUDE_DIR}
+        ${Sirikata_PROTOCOL_INCLUDE_DIR}
+        ${Sirikata_PBJ_INCLUDE_DIR}
+        ${Sirikata_PROXYOBJECT_INCLUDE_DIR}
         ${PROTOCOLBUFFERS_INCLUDE_DIRS}) 
 IF(GLUT_FOUND)
   SET(FINAL_INCLUDE_DIRS ${FINAL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
@@ -381,7 +386,7 @@ SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 
 SET(BRAIN_PLUGIN_NAIVE_DIR ${BRAIN_PLUGIN_DIR}/naive)
 
-SET(BRAIN_PLUGIN_VW_SOURCES ${BRAIN_PLUGIN_VW_DIR}/vw_plugin.cpp )
+SET(BRAIN_PLUGIN_VW_SOURCES ${BRAIN_PLUGIN_VW_DIR}/vw_plugin.cpp ${BRAIN_PLUGIN_VW_DIR}/BrainObjectScriptManager.cpp ${BRAIN_PLUGIN_VW_DIR}/BrainObjectScript.cpp )
 
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
 SET(BRAIN_PLUGIN_NAIVE_SOURCES 
@@ -467,7 +472,7 @@ ADD_DEPENDENCIES(brainsandbox brain-core)
 SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 
-SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis naive
+SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis brainvw naive
                       PROPERTIES
                       DEBUG_POSTFIX "_d" )
 SET(CMAKE_DEBUG_POSTFIX "_d")
