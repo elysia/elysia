@@ -60,4 +60,17 @@ void TreeNNSpatialSearch::removeNeighbor(Placeable* placeable){
 void TreeNNSpatialSearch::moveNeighbor(Placeable* placeable){
 	assert(false);
 }
+
+/**
+ *	@param AnnSpace* - pointer to the AnnSpace that will become the new root
+ * 
+ *	Description:	When a merge must occur near the base of the tree, the grandparent of the deleted
+ *                  node must be known. Since AnnSpaces adjacent to the root have no grandparents,
+ *                  instead the sibling of the delted AnnSpace is set to be the new root.
+ *                  
+**/
+void TreeNNSpatialSearch::reassignRoot(AnnSpace* newRoot){
+	root = newRoot;
+}
+
 }

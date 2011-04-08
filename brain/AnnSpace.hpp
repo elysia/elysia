@@ -26,5 +26,7 @@ namespace Elysia {
 		Placeable* findNN(float x, float y, Placeable* exclude);
 		void mergeSpace(TreeNNSpatialSearch* treenn);
 		std::vector<Placeable*> getChildList();
+		AnnSpace* findSibling(AnnSpace* offspring);
+		void resetChild(AnnSpace* departingChild, AnnSpace* newChild);
 	};
 }

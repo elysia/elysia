@@ -19,7 +19,9 @@ public:
     void moveNeighbor(Placeable*);
 	unsigned int pointUpperThreshold;			//How many points the space must contain before division
 	unsigned int pointLowerThreshold;			//A delete event must take the space to this number for merging
+	void reassignRoot(AnnSpace* newRoot);
 	AnnSpace* root;
+
 	
 };
 }

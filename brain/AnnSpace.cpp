@@ -89,7 +89,6 @@ namespace Elysia{
 
 		}
 		else{
-			float test = FLT_MAX;
 			whichAxis = YAXIS;
 			std::sort(placeableList.begin(),placeableList.end(),ComparePlaceablebyY()); 
 			Placeable* midpoint = placeableList[int(placeableList.size()/2)];
@@ -106,10 +105,8 @@ namespace Elysia{
 		if(this->isLeaf()){
 			std::vector<Placeable*>::iterator result = std::find(placeableList.begin(), placeableList.end(), placeable);
 			placeableList.erase(result);
-			if(placeableList.size() < treenn->pointLowerThreshold){
-				if(parent != NULL){
-					parent -> mergeSpace(treenn);
-				}
+			if(placeableList.size() < treenn->pointLowerThreshold && parent != NULL){
+				this -> mergeSpace(treenn);
 			}
 		}
 		else{
@@ -157,6 +154,45 @@ namespace Elysia{
 	}
 
 	void AnnSpace::mergeSpace(TreeNNSpatialSearch* treenn){
+
+		//Get the remaining points in this list
+		std::vector<Placeable*> newPlaceableList;
+		newPlaceableList = placeableList;
+
+		//if this is the case, we are adjacent to the root
+		if(parent->parent == NULL){
+			AnnSpace* sibling = parent->findSibling(this);
+			sibling->setParent(NULL);
+			treenn->reassignRoot(sibling);
+			for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
+				sibling->addPoint(*i, treenn);
+			}
+		}
+
+		else{
+			AnnSpace* sibling = parent->findSibling(this);
+			AnnSpace* grandParent = parent->parent;
+
+			//set sibling parent to grandparent
+			sibling->setParent(grandParent);
+
+			//set grandparent child to the sibling in place of the parent
+			grandParent->resetChild(parent, sibling);
+
+			//now go back and add the points that were remaining in the node that was deleted
+			for(std::vector<Placeable*>::iterator i=newPlaceableList.begin();i!=newPlaceableList.end();++i) {
+					grandParent->addPoint(*i, treenn);
+			}
+		}
+		delete this;
+	}
+
+
+
+
+
+
+		/*
 		if(child[0] != NULL && child[1] != NULL){
 			//First find whether both children are leaves
 			if(child[0]->isLeaf() && child[1]->isLeaf()){
@@ -177,8 +213,9 @@ namespace Elysia{
 				child[0] = NULL;
 				child[1] = NULL;
 			}
+		//in this case, you want to find the sib
 		
-
+/*
 			//If one child is not a leaf, 
 			else{
 				AnnSpace* departingChild;
@@ -205,6 +242,8 @@ namespace Elysia{
 				}
 				delete departingChild;
 			}
+			*/
+		/*
 		}
 		else{
 			for(int i=0; i<2; i++){
@@ -222,9 +261,32 @@ namespace Elysia{
 			parent->mergeSpace(treenn);
 		}
 	}
+	*/
 
 	std::vector<Placeable*> AnnSpace::getChildList(){
 		return placeableList;
 	}
+
+	//Given one of the two children, return the other child
+	AnnSpace* AnnSpace::findSibling(AnnSpace* offspring){
+		if(child[0] != offspring){
+			return child[0];
+		}
+		else{
+			return child[1];
+		}
+	}
+
+	void AnnSpace::resetChild(AnnSpace* departingChild, AnnSpace* newChild){
+		for(int i=0;i<2;i++){
+			if(child[i] == departingChild){
+				child[i] = newChild;
+			}
+		}
+	}
+		
+
+
+
 		
 }
