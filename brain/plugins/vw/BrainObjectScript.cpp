@@ -44,10 +44,10 @@ namespace Elysia {
 #define DEG2RAD 0.0174532925
 
 BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args)
- : mParent(ho),
-   mGraphics(NULL)
+ : mParent(ho)
 {
     mParent->addListener((SessionEventListener*)this);
+    std::cout<<"INITIALIZE A SINGLE BRAIN SCRIPT\n";
 /*
     // Setup input responses
     mInputResponses["suspend"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::suspendAction, this));
@@ -102,12 +102,8 @@ void BrainObjectScript::attachScript(const String& script_name)
 void BrainObjectScript::onConnected(SessionEventProviderPtr from, const SpaceObjectReference& name, int64 token) {
     mID = name;
     mSelfProxy = mParent->self(mID);
-
-    mGraphics = mParent->runSimulation(name, "ogregraphics");
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"setInputHandler") );
-    args.push_back( Invokable::asAny((Invokable*)this) );
-    mGraphics->invoke(args);
+    moveAction(Vector3f(0,0,1),10);
+    
 }
 
 void BrainObjectScript::onDisconnected(SessionEventProviderPtr from, const SpaceObjectReference& name) {
@@ -121,37 +117,6 @@ static String fillZeroPrefix(const String& prefill, int32 nwide) {
     return retval;
 }
 
-void BrainObjectScript::suspendAction() {
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"suspend") );
-    mGraphics->invoke(args);
-}
-
-void BrainObjectScript::resumeAction() {
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"resume") );
-    mGraphics->invoke(args);
-}
-
-void BrainObjectScript::toggleSuspendAction() {
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"toggleSuspend") );
-    mGraphics->invoke(args);
-}
-
-void BrainObjectScript::screenshotAction() {
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"screenshot") );
-    mGraphics->invoke(args);
-}
-
-void BrainObjectScript::quitAction() {
-    Invokable::Array args;
-    args.push_back( Invokable::asAny((String)"quit") );
-    mGraphics->invoke(args);
-}
-
-
 void BrainObjectScript::moveAction(Vector3f dir, float amount)
 {
     // Get the updated position
@@ -163,7 +128,7 @@ void BrainObjectScript::moveAction(Vector3f dir, float amount)
     TimedMotionVector3f newloc(now, MotionVector3f(Vector3f(loc.getPosition()), (orient * dir) * amount * WORLD_SCALE * .5) );
     mParent->requestLocationUpdate(mID.space(), mID.object(), newloc);
     // And update our local Proxy's information, assuming the move will be successful
-    mSelfProxy->setLocation(newloc, 0, true);
+    mSelfProxy->setLocation(newloc, 90000, true);
 }
 
 void BrainObjectScript::rotateAction(Vector3f about, float amount)

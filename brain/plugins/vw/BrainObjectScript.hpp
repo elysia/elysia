@@ -37,7 +37,7 @@
 #include <sirikata/oh/ObjectScriptManager.hpp>
 #include <sirikata/oh/HostedObject.hpp>
 #include <sirikata/proxyobject/SessionEventListener.hpp>
-#include <sirikata/proxyobject/Invokable.hpp>
+
 //#include "InputBinding.hpp"
 
 namespace Elysia {
@@ -76,7 +76,6 @@ private:
     Sirikata::SpaceObjectReference mID; // SimpleCamera only handles one presence
     Sirikata::ProxyObjectPtr mSelfProxy;
 
-    Sirikata::Invokable* mGraphics;
 
 //    Sirikata::InputBinding::InputResponseMap mInputResponses;
 //    Sirikata::InputBinding mInputBinding;

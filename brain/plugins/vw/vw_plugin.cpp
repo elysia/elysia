@@ -16,8 +16,9 @@ SIRIKATA_PLUGIN_EXPORT_C void init() {
                _1
                )
            );
+       std::cout<<"INITIALIZE BRAIN PLUGIN\n";
+
    }
-   std::cout<<"INITIALIZE BRAIN PLUGIN\n";
    core_plugin_refcount++;
    //Elysia::BrainPlugins::registerBrainPlugin("VW",&Elysia::makeVisualization);
 }
