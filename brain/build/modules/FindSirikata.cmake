@@ -69,8 +69,7 @@ ENDIF()
 FIND_PATH(Sirikata_PROTOCOL_INCLUDE_DIR NAMES Protocol_ObjectMessage.pbj.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include/sirikata ${SIRIKATA_CODE_ROOT}/build/cmake/generated
           DOC ${Sirikata_PROTOCOL_INCLUDE_DOC} NO_DEFAULT_PATH)
 IF(NOT Sirikata_PROTOCOL_INCLUDE_DIR)  # now look in system locations
-  FIND_PATH(Sirikata_PROTOCOL_INCLUDE_DIR NAMES Protocol_ObjectMessage.pbj.hpp
-            DOC ${Sirikata_PROTOCOL_INCLUDE_DOC})
+  SET(Sirikata_PROTOCOL_INCLUDE_DIR ${SIRIKATA_CODE_ROOT}/build/cmake/generated )
 ENDIF()
 
 FIND_PATH(Sirikata_PBJ_INCLUDE_DIR NAMES pbj.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include/sirikata ${SIRIKATA_CODE_ROOT}/externals/pbj
