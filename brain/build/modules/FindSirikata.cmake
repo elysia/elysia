@@ -40,6 +40,49 @@ IF(NOT Sirikata_INCLUDE_DIR)  # now look in system locations
             DOC ${Sirikata_INCLUDE_DOC})
 ENDIF()
 
+
+
+FIND_PATH(Sirikata_OH_INCLUDE_DIR NAMES sirikata/oh/Platform.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include ${SIRIKATA_CODE_ROOT}/liboh/include
+          DOC ${Sirikata_OH_INCLUDE_DOC} NO_DEFAULT_PATH)
+IF(NOT Sirikata_OH_INCLUDE_DIR)  # now look in system locations
+  FIND_PATH(Sirikata_OH_INCLUDE_DIR NAMES sirikata/oh/Platform.hpp
+            DOC ${Sirikata_OH_INCLUDE_DOC})
+ENDIF()
+
+
+
+FIND_PATH(Sirikata_PROXYOBJECT_INCLUDE_DIR NAMES sirikata/proxyobject/Platform.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include ${SIRIKATA_CODE_ROOT}/libproxyobject/include
+          DOC ${Sirikata_PROXYOBJECT_INCLUDE_DOC} NO_DEFAULT_PATH)
+IF(NOT Sirikata_PROXYOBJECT_INCLUDE_DIR)  # now look in system locations
+  FIND_PATH(Sirikata_PROXYOBJECT_INCLUDE_DIR NAMES sirikata/proxyobject/Platform.hpp
+            DOC ${Sirikata_PROXYOBJECT_INCLUDE_DOC})
+ENDIF()
+
+FIND_PATH(Sirikata_MESH_INCLUDE_DIR NAMES sirikata/mesh/Platform.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include ${SIRIKATA_CODE_ROOT}/libmesh/include
+          DOC ${Sirikata_MESH_INCLUDE_DOC} NO_DEFAULT_PATH)
+IF(NOT Sirikata_MESH_INCLUDE_DIR)  # now look in system locations
+  FIND_PATH(Sirikata_MESH_INCLUDE_DIR NAMES sirikata/mesh/Platform.hpp
+            DOC ${Sirikata_MESH_INCLUDE_DOC})
+ENDIF()
+
+
+FIND_PATH(Sirikata_PROTOCOL_INCLUDE_DIR NAMES Protocol_ObjectMessage.pbj.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include/sirikata ${SIRIKATA_CODE_ROOT}/build/cmake/generated
+          DOC ${Sirikata_PROTOCOL_INCLUDE_DOC} NO_DEFAULT_PATH)
+IF(NOT Sirikata_PROTOCOL_INCLUDE_DIR)  # now look in system locations
+  FIND_PATH(Sirikata_PROTOCOL_INCLUDE_DIR NAMES Protocol_ObjectMessage.pbj.hpp
+            DOC ${Sirikata_PROTOCOL_INCLUDE_DOC})
+ENDIF()
+
+FIND_PATH(Sirikata_PBJ_INCLUDE_DIR NAMES pbj.hpp PATHS ${SIRIKATA_INSTALL_ROOT} ${SIRIKATA_INSTALL_ROOT}/include/sirikata ${SIRIKATA_CODE_ROOT}/externals/pbj
+          DOC ${Sirikata_PBJ_INCLUDE_DOC} NO_DEFAULT_PATH)
+IF(NOT Sirikata_PBJ_INCLUDE_DIR)  # now look in system locations
+  FIND_PATH(Sirikata_PBJ_INCLUDE_DIR NAMES pbj.hpp
+            DOC ${Sirikata_PBJ_INCLUDE_DOC})
+ENDIF()
+
+
+
+
 SET(Sirikata_FOUND FALSE)
 SET(SirikataCore_FOUND FALSE)
 SET(SirikataOH_FOUND FALSE)
