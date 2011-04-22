@@ -266,6 +266,11 @@ ENDIF()
 SET(FINAL_INCLUDE_DIRS ${BRAIN_SOURCE_DIR}
         ${Boost_INCLUDE_DIRS}
         ${Sirikata_INCLUDE_DIR}
+        ${Sirikata_OH_INCLUDE_DIR}
+        ${Sirikata_MESH_INCLUDE_DIR}
+        ${Sirikata_PROTOCOL_INCLUDE_DIR}
+        ${Sirikata_PBJ_INCLUDE_DIR}
+        ${Sirikata_PROXYOBJECT_INCLUDE_DIR}
         ${PROTOCOLBUFFERS_INCLUDE_DIRS}) 
 IF(GLUT_FOUND)
   SET(FINAL_INCLUDE_DIRS ${FINAL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
@@ -375,9 +380,13 @@ SET(BRAINSANDBOX_SOURCES
 )
 SET(BRAIN_PLUGIN_DIR ${BRAIN_SOURCE_DIR}/plugins)
 
+SET(BRAIN_PLUGIN_VW_DIR ${BRAIN_PLUGIN_DIR}/vw)
+
 SET(BRAIN_PLUGIN_VIS_DIR ${BRAIN_PLUGIN_DIR}/vis)
 
 SET(BRAIN_PLUGIN_NAIVE_DIR ${BRAIN_PLUGIN_DIR}/naive)
+
+SET(BRAIN_PLUGIN_VW_SOURCES ${BRAIN_PLUGIN_VW_DIR}/vw_plugin.cpp ${BRAIN_PLUGIN_VW_DIR}/BrainObjectScriptManager.cpp ${BRAIN_PLUGIN_VW_DIR}/BrainObjectScript.cpp )
 
 SET(BRAIN_PLUGIN_VIS_SOURCES ${BRAIN_PLUGIN_VIS_DIR}/vis_plugin.cpp ${BRAIN_PLUGIN_VIS_DIR}/Visualization.cpp ${BRAIN_PLUGIN_VIS_DIR}/GraphicsSystem.cpp )
 SET(BRAIN_PLUGIN_NAIVE_SOURCES 
@@ -410,12 +419,17 @@ ADD_PLUGIN_TARGET(vis
                     LIBRARIES ${VIS_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
 
+ADD_PLUGIN_TARGET(brainvw
+                    SOURCES ${BRAIN_PLUGIN_VW_SOURCES}
+                    TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS} ${sirikata_core_LDFLAGS}"
+                    LIBRARIES ${VIS_PLUGIN_LIBS}
+                    TARGET_LIBRARIES brain-core sirikata-core sirikata-oh sirikata-proxyobject)
+
 ADD_PLUGIN_TARGET(naive
                     SOURCES ${BRAIN_PLUGIN_NAIVE_SOURCES}
                     TARGET_LDFLAGS "${elysia_LDFLAGS}"
                     LIBRARIES ${NAIVE_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
-
 
 ADD_LIBRARY(brain-core SHARED ${BRAIN_CORE_LIB_SOURCES})
 SET_TARGET_PROPERTIES(brain-core PROPERTIES COMPILE_DEFINITIONS BRAIN_CORE_BUILD)
@@ -426,6 +440,7 @@ SET(PROTOCOLBUFFERS_LIBRARIES ${PROTOCOLBUFFERS_LIBRARIES} ${DYLIB_LIBRARY})
 ENDIF()
 TARGET_LINK_LIBRARIES(brain-core
         ${BRAIN_CORE_LIB_LIBS}
+        
 #  cbr-core
         ${PROTOCOLBUFFERS_LIBRARIES}
         )
@@ -457,7 +472,7 @@ ADD_DEPENDENCIES(brainsandbox brain-core)
 SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 
-SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis naive
+SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis brainvw naive
                       PROPERTIES
                       DEBUG_POSTFIX "_d" )
 SET(CMAKE_DEBUG_POSTFIX "_d")
