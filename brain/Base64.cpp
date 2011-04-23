@@ -61,9 +61,9 @@ void toBase64(std::vector<unsigned char>&retval,
     unsigned int datalen=0;
     uint8 data[3];
     size_t curPlace=retval.size();
-    retval.resize(curPlace+conservativeBase64Size(refs[1]->size()+refs[2]->size()));
+    retval.resize(curPlace+conservativeBase64Size(refs[0]->size()+refs[1]->size()));
     size_t retvalSize=retval.size();
-    for (int i=0;i<3;++i) {
+    for (int i=0;i<2;++i) {
         const uint8*dat=(const uint8*)refs[i]->data();
         uint32 size=refs[i]->size();
         for (uint32 j=0;j<size;++j) {
