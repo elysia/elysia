@@ -1,5 +1,5 @@
-set DEBDEST=brain\build\sirikata\Debug
-set RELDEST=brain\build\sirikata\Release
+set DEBDEST=brain\build\sirikata\Debug\
+set RELDEST=brain\build\sirikata\Release\
 
 copy externals\sirikata\dependencies\boost_1_44_0\lib\*.dll %DEBDEST%
 copy externals\sirikata\dependencies\boost_1_44_0\lib\*.dll %RELDEST%
@@ -33,6 +33,9 @@ copy externals\sirikata\dependencies\ois-1.0\bin\*.dll %DEBDEST%
 copy externals\sirikata\dependencies\ois-1.0\bin\*.dll %RELDEST%
 copy externals\sirikata\dependencies\protobufs\bin\*.dll %DEBDEST%
 copy externals\sirikata\dependencies\protobufs\bin\*.dll %RELDEST%
+
+copy externals\sirikata\dependencies\installed-gsl\bin\*.dll %DEBDEST%
+copy externals\sirikata\dependencies\installed-gsl\bin\*.dll %RELDEST%
 
 mkdir %DEBDEST%\chrome
 mkdir %DEBDEST%\chrome\img

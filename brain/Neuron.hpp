@@ -41,12 +41,12 @@ class BRAIN_CORE_EXPORT Neuron : public Placeable, public CellComponent, Activit
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
-	int type;							//Input neuron = 0, otherwise = 1
+	int type;							//Input neuron = 0, mirror neuron = 1, standard neuron = 2
     Development*mDevelopment;
     virtual Neuron*getParentNeuron(){return this;}
     
 public:
-    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&spawningGene);
+    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&spawningGene,int neuronType, Neuron* mirrorTarget);
     ~Neuron();
     void fire();
     ///Simulates one millisecond of neural time

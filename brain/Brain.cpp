@@ -61,7 +61,7 @@ void Brain::syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::itera
         //FIXME: do we want to delete excess neurons
     }
     for (int n=mNumNeurons[index];n<numNeurons;++n) {
-        this->addNeuron(bounds, environmentIterator.retrieveGene(growEffect));
+        this->addNeuron(bounds, environmentIterator.retrieveGene(growEffect), 2, NULL);
     }
     if (mNumNeurons[index]!=numNeurons) {
         fprintf(stderr,"The index count isn't equal to the sync count:\nthis could happen if a neuron lies at the exact edge of a lobe,\nso don't panic, but verify that this is indeed the case\nand the wrong count got updated for that neuron");
@@ -81,13 +81,13 @@ void Brain::makeInitialNeurons() {
     }
 }
 
-Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene) {
+Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType, Neuron* mirrorTarget) {
     Vector3f v = generationArea.min();
     v.x+=generationArea.across().x*(rand()/(double)RAND_MAX);
     v.y+=generationArea.across().y*(rand()/(double)RAND_MAX);
 	v.z=0;	 //Fixing z to 0 for now.
     //v.z+=generationArea.across().z*(rand()/(double)RAND_MAX); 
-	Neuron *n = new Neuron(this, 2, 3, 4, 1, 1, v, gene);
+	Neuron *n = new Neuron(this, 2, 3, 4, 1, 1, v, gene, neuronType, mirrorTarget);
     mAllNeurons.insert(n);
     return n;
 }
@@ -240,7 +240,8 @@ Brain::~Brain() {
     }
 }
 
-Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
+Neuron* Brain::createInputNeuron(float x, float y, float z, float spread, int neuronType){
+	//neuronType = 0 for "pure input" neurons, neuronType = 1 for "mirror input" mirror neurons
 	Genome::Gene gene;
     Genome::TemporalBoundingBox *sourcebb=gene.add_bounds();
     Genome::TemporalBoundingBox *dendritebb=gene.add_bounds();
@@ -263,7 +264,7 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread){
 	v.y = y;
 	v.z = z;
 	Neuron *n;
-	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene));
+	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene, 0, NULL));
 	this->mDevelopingNeurons.insert(n);
 	return n;
 }
@@ -287,7 +288,7 @@ void Brain::createInputRegion(int neurons){
 	float y=miny;
 
 	for(int i=0;i<neurons;i++){
-		n = createInputNeuron(x,y,0,spread);
+		n = createInputNeuron(x,y,0,spread, NULL);
 		mInputNeurons.push_back(n);
 		x += spacing_x;
 		if(x >= maxx){

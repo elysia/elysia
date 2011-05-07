@@ -422,7 +422,7 @@ ADD_PLUGIN_TARGET(vis
 ADD_PLUGIN_TARGET(brainvw
                     SOURCES ${BRAIN_PLUGIN_VW_SOURCES}
                     TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS} ${sirikata_core_LDFLAGS}"
-                    LIBRARIES ${VIS_PLUGIN_LIBS}
+                    LIBRARIES ${VIS_PLUGIN_LIBS} brain-core sirikata-core sirikata-oh sirikata-proxyobject
                     TARGET_LIBRARIES brain-core sirikata-core sirikata-oh sirikata-proxyobject)
 
 ADD_PLUGIN_TARGET(naive

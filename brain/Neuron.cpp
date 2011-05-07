@@ -21,7 +21,7 @@ namespace Elysia {
 **/
 Neuron::~Neuron() {
     ProteinEnvironment::iterator iter = mBrain->getProteinEnvironment()->getIterator(getLocation());
-    //assert(iter!=mBrain->getProteinEnvironment()->end()); commented uot for test since we are not making genes in the standard way
+    //assert(iter!=mBrain->getProteinEnvironment()->end()); commented out for test since we are not making genes in the standard way
     if (iter!=mBrain->getProteinEnvironment()->end()) {
         mBrain->decrementNumNeurons(iter);//decrement density count
     }
@@ -52,7 +52,7 @@ Neuron::~Neuron() {
  *					The branch density is synched based upon some random parameters and some base parameters, as well as a defined tree depth
  *					This neuron is added to the nearest neighbor spatial search
 **/
-Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene): Placeable(brain,location) {
+Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene, int neuronType, Neuron* mirrorTarget): Placeable(brain,location) {
     
     mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
@@ -62,6 +62,8 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mRandomBranchDeterminer=rand()/(float)RAND_MAX;
     this->syncBranchDensity(mRandomBranchDeterminer, mRandomDepthDeterminer, BaseBranchiness, TipBranchiness, TreeDepth, BaseThreshold, TipThreshold, 0);
 
+//	this->syncMirrorConnection(mirrorTarget);
+	
 	mBaseBranchiness = BaseBranchiness;
     mTipBranchiness = TipBranchiness;
     mTreeDepth = TreeDepth;
@@ -73,19 +75,16 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
     mBaseThreshold = BaseThreshold;
     mTipThreshold = TipThreshold;
 
-	if(BaseBranchiness + TipBranchiness == 0){
-		type = 0;
-	}
-	else{type = 1;}
 	
+
 }
 
 /**
  *	Description:	Fires neuron into all synapses connected to it
 **/
 void Neuron::fire() {
-	if(type == 1){
-	printf("fire");
+	if(type == 2){
+		printf("fire");
 	}
     for (std::vector<Synapse*>::iterator i=mConnectedSynapses.begin(),ie=mConnectedSynapses.end();
          i!=ie;

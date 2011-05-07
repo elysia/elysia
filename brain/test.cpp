@@ -42,7 +42,7 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy
 		v.z = 0;
 		Neuron *n;
         BoundingBox3f3f bb(Vector3f(locx,locy,0),range);
-        n=brain->addNeuron(bb,gene);
+        n=brain->addNeuron(bb,gene, 2, NULL);
 		return n;
 	}
 
@@ -53,7 +53,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 100;
+	int neuronNumber = 10000;
 
 
 	/* This region setup is for the standard test set */
@@ -83,7 +83,7 @@ void testDevelopment(){
         //n->visualizeTree(dendriteTree, parent);
 		//const Vector3f &location):  mNeuronLocation(location){));
 	}
-	for(int j=0; j<2; j++){
+	for(int j=0; j<200; j++){
 		for(float i=0;i<2*neuronNumber;i++){
 			Neuron *n = createdList[i];
 			//if(j==0){n->activateComponent(*brain,100);}
