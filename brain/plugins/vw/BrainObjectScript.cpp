@@ -42,49 +42,53 @@ namespace Elysia {
 
 #define WORLD_SCALE 20  // Units for zoom/pan
 #define DEG2RAD 0.0174532925
-
+class Heartbeat: public SelfWeakPtr<Heartbeat> {
+    BrainObjectScript * mParent;
+    Duration mHeartRate;
+    std::tr1::function<void()> mCallParentHeartbeat;
+public:
+    Heartbeat(BrainObjectScript *parent, Duration heartRate):mParent(parent), mHeartRate(heartRate) {
+    }
+    void init () {
+        mCallParentHeartbeat= std::tr1::bind(&Heartbeat::callParentHeartbeat,getWeakPtr());
+        if (mParent)
+            mParent->context()->ioService->post(mHeartRate,mCallParentHeartbeat);
+    }
+    static void callParentHeartbeat(const std::tr1::weak_ptr<Heartbeat> &val) {
+        std::tr1::shared_ptr<Heartbeat> thus(val.lock());
+        if (thus&&thus->mParent) {
+            thus->mParent->heartbeat();
+            thus->mParent->context()->ioService->post(thus->mHeartRate,thus->mCallParentHeartbeat);
+        }
+    }
+    void destruct(){
+        mParent=NULL;
+    }
+};
 BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args)
  : mParent(ho)
 {
     mParent->addListener((SessionEventListener*)this);
+    std::tr1::shared_ptr<Heartbeat> tmp(Heartbeat::construct<Heartbeat,BrainObjectScript*,Duration>(this,Duration::seconds(.25)));
+    mHeartbeat=tmp;
+    mHeartbeat->init();
     std::cout<<"INITIALIZE A SINGLE BRAIN SCRIPT\n";
-/*
-    // Setup input responses
-    mInputResponses["suspend"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::suspendAction, this));
-    mInputResponses["resume"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::resumeAction, this));
-    mInputResponses["toggleSuspend"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::toggleSuspendAction, this));
-    mInputResponses["quit"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::quitAction, this));
-    mInputResponses["screenshot"] = new SimpleInputResponse(std::tr1::bind(&BrainObjectScript::screenshotAction, this));
-
-    mInputResponses["moveForward"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(0, 0, -1), _1), 1, 0);
-    mInputResponses["moveBackward"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(0, 0, 1), _1), 1, 0);
-    mInputResponses["moveLeft"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(-1, 0, 0), _1), 1, 0);
-    mInputResponses["moveRight"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(1, 0, 0), _1), 1, 0);
-    mInputResponses["moveDown"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(0, -1, 0), _1), 1, 0);
-    mInputResponses["moveUp"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::moveAction, this, Vector3f(0, 1, 0), _1), 1, 0);
-
-    mInputResponses["rotateXPos"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(1, 0, 0), _1), 1, 0);
-    mInputResponses["rotateXNeg"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(-1, 0, 0), _1), 1, 0);
-    mInputResponses["rotateYPos"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(0, 1, 0), _1), 1, 0);
-    mInputResponses["rotateYNeg"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(0, -1, 0), _1), 1, 0);
-    mInputResponses["rotateZPos"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(0, 0, 1), _1), 1, 0);
-    mInputResponses["rotateZNeg"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::rotateAction, this, Vector3f(0, 0, -1), _1), 1, 0);
-
-    mInputResponses["stableRotatePos"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::stableRotateAction, this, 1.f, _1), 1, 0);
-    mInputResponses["stableRotateNeg"] = new FloatToggleInputResponse(std::tr1::bind(&BrainObjectScript::stableRotateAction, this, -1.f, _1), 1, 0);
-
-
-    mInputBinding.addFromFile("keybinding.default", mInputResponses);
-*/
 }
 
+
+
+void BrainObjectScript::heartbeat(){
+    std::cout<<"BEAT\n";
+}
 BrainObjectScript::~BrainObjectScript()
 {
     mParent->removeListener((SessionEventListener*)this);
-/*
-    for (InputBinding::InputResponseMap::iterator iter = mInputResponses.begin(), iterend = mInputResponses.end(); iter != iterend; ++iter)
-        delete iter->second;
-*/
+    if (mHeartbeat) {
+        mHeartbeat->destruct();
+        std::tr1::weak_ptr<Heartbeat> lockTest(mHeartbeat);
+        mHeartbeat=std::tr1::shared_ptr<Heartbeat>();
+        //while(lockTest.lock());//if heartbeat() causes this to get deleted--then that loop could prove infinite
+    }
 }
 
 Context* BrainObjectScript::context() const {

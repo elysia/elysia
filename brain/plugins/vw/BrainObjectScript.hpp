@@ -41,7 +41,7 @@
 //#include "InputBinding.hpp"
 
 namespace Elysia {
-
+class Heartbeat;
 class BrainObjectScript :
         public Sirikata::ObjectScript,
         Sirikata::SessionEventListener
@@ -56,8 +56,10 @@ public:
     // SessionEventListener Interface
     virtual void onConnected(Sirikata::SessionEventProviderPtr from, const Sirikata::SpaceObjectReference& name, Sirikata::int64 token);
     virtual void onDisconnected(Sirikata::SessionEventProviderPtr from, const Sirikata::SpaceObjectReference& name);
-
+    virtual void heartbeat();
 private:
+    std::tr1::shared_ptr<Heartbeat> mHeartbeat;
+    friend class Heartbeat;
     Context* context() const;
 
     void suspendAction();
