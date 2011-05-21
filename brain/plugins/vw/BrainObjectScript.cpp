@@ -79,6 +79,15 @@ BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args)
 
 void BrainObjectScript::heartbeat(){
     std::cout<<"BEAT\n";
+    if (rand()%30==1) {
+        if (mSelfProxy) {
+            std::cout<<"SET MESH\n";
+            //String ground("meerkat:///jterrace/ground.DAE/original/0/ground.DAE");
+            String ground("meerkat:///palmfreak/duck.DAE/optimized/1/duck.DAE");
+            mParent->requestMeshUpdate(mID.space(),mID.object(),ground);
+            mSelfProxy->setMesh(Sirikata::Transfer::URI(ground),0);
+        }
+    }
 }
 BrainObjectScript::~BrainObjectScript()
 {
@@ -106,7 +115,7 @@ void BrainObjectScript::attachScript(const String& script_name)
 void BrainObjectScript::onConnected(SessionEventProviderPtr from, const SpaceObjectReference& name, int64 token) {
     mID = name;
     mSelfProxy = mParent->self(mID);
-    moveAction(Vector3f(0,0,1),10);
+//    moveAction(Vector3f(0,0,1),10);
     
 }
 
