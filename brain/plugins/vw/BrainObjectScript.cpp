@@ -79,7 +79,7 @@ BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args)
 
 void BrainObjectScript::heartbeat(){
     std::cout<<"BEAT\n";
-    if (rand()%30==1) {
+    if (rand()%2==1) {
         if (mSelfProxy) {
             std::cout<<"SET MESH\n";
             //String ground("meerkat:///jterrace/ground.DAE/original/0/ground.DAE");
