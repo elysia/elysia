@@ -61,7 +61,7 @@ void Brain::syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::itera
         //FIXME: do we want to delete excess neurons
     }
     for (int n=mNumNeurons[index];n<numNeurons;++n) {
-        this->addNeuron(bounds, environmentIterator.retrieveGene(growEffect), 2, NULL);
+        this->addNeuron(bounds, environmentIterator.retrieveGene(growEffect), 2);
     }
     if (mNumNeurons[index]!=numNeurons) {
         fprintf(stderr,"The index count isn't equal to the sync count:\nthis could happen if a neuron lies at the exact edge of a lobe,\nso don't panic, but verify that this is indeed the case\nand the wrong count got updated for that neuron");
@@ -81,13 +81,13 @@ void Brain::makeInitialNeurons() {
     }
 }
 
-Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType, Neuron* mirrorTarget) {
+Neuron * Brain::addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType) {
     Vector3f v = generationArea.min();
     v.x+=generationArea.across().x*(rand()/(double)RAND_MAX);
     v.y+=generationArea.across().y*(rand()/(double)RAND_MAX);
 	v.z=0;	 //Fixing z to 0 for now.
     //v.z+=generationArea.across().z*(rand()/(double)RAND_MAX); 
-	Neuron *n = new Neuron(this, 2, 3, 4, 1, 1, v, gene, neuronType, mirrorTarget);
+	Neuron *n = new Neuron(this, 2, 3, 4, 1, 1, v, gene, neuronType, 0, 100, 0, 100);
     mAllNeurons.insert(n);
     return n;
 }
@@ -264,7 +264,7 @@ Neuron* Brain::createInputNeuron(float x, float y, float z, float spread, int ne
 	v.y = y;
 	v.z = z;
 	Neuron *n;
-	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene, 0, NULL));
+	this->mAllNeurons.insert(n = new Neuron(this, 0, 0, 0, 1, 1, v,gene, 0, 0, 100, 0, 100));
 	this->mDevelopingNeurons.insert(n);
 	return n;
 }

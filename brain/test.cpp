@@ -42,7 +42,7 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy
 		v.z = 0;
 		Neuron *n;
         BoundingBox3f3f bb(Vector3f(locx,locy,0),range);
-        n=brain->addNeuron(bb,gene, 2, NULL);
+        n=brain->addNeuron(bb,gene, 2);
 		return n;
 	}
 
@@ -53,7 +53,7 @@ void testDevelopment(){
 	FILE *dendriteTree=NULL;
 	dendriteTree = fopen("Development_Tree.txt", "w");
 	std::vector<Neuron *> createdList;
-	int neuronNumber = 10000;
+	int neuronNumber = 100;
 
 
 	/* This region setup is for the standard test set */

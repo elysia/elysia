@@ -60,7 +60,7 @@ public:
 	void processNeuronMature(Neuron* n);
 	void deleteNeuron(Neuron* deletedNeuron);
 	void deleteSynapse(Synapse* deletedSynapse);
-    Neuron *addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType, Neuron* mirrorTarget);
+    Neuron *addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType);
     ~Brain();
     std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);
     std::list<Neuron *>::iterator activateNeuron(Neuron *activeNeuron);

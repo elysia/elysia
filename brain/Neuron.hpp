@@ -29,6 +29,7 @@ class BRAIN_CORE_EXPORT Neuron : public Placeable, public CellComponent, Activit
      * \param target is the DendriteTip that should be activated
      * \returns whether the signal successfully passed through the inter-neuron gap
      */
+	
     float mBaseBranchiness;
     float mTipBranchiness;
     float mTreeDepth;
@@ -41,16 +42,31 @@ class BRAIN_CORE_EXPORT Neuron : public Placeable, public CellComponent, Activit
     float mRandomDepthDeterminer;
     float mRandomBranchDeterminer;
 	float mNeuronSignalWeight;
+	
+
+
 	int type;							//Input neuron = 0, mirror neuron = 1, standard neuron = 2
     Development*mDevelopment;
     virtual Neuron*getParentNeuron(){return this;}
+
+	
+
     
 public:
-    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&spawningGene,int neuronType, Neuron* mirrorTarget);
+    Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, 
+		float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, 
+		const Elysia::Genome::Gene&spawningGene,int neuronType, 
+		float minFreqReceive, float maxFreqReceive, float minFreqOutput, float maxFreqOutput);
     ~Neuron();
     void fire();
     ///Simulates one millisecond of neural time
     void tick();
+
+	struct MinMax{float min; float max;};
+	MinMax mAbsoluteInputFrequencyBound;		//Dictates what frequencies of input a neuron will receive
+	MinMax mAbsoluteOutputFrequencyBound;		//Dictates what frequenceis a neuron is capable of outputting
+	MinMax mCurrentInputFrequencyBound;		//What frequencies can the neuron presently accept as input
+	float mCurrentOutputFrequency;			//What frequency will the neuron actually output
 
 	ProteinDensity& getProteinDensityStructure();
     std::string getName() const {return std::string();}
@@ -58,6 +74,8 @@ public:
     void attachSynapse(Synapse*synapse);
     void activateComponent(Brain&, float signal);
 	void fireNeuron(Synapse*target);
+	float getCurrentOutputFrequency(){return mCurrentOutputFrequency;}
+	MinMax getCurrentInputBound(){return mCurrentInputFrequencyBound;}
 	ActivityStats& getActivityStats(){ return *this; }
 	void visualizeTree(FILE *dendriteTree, size_t parent);
     Development*development(){

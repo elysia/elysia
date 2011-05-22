@@ -21,6 +21,7 @@ Synapse::Synapse(CellComponent * parent){
 	mParentBranch = parent;
 	mBrain=parent->getParentNeuron()->getBrain();
 	mRecipientNeuron = NULL;
+	mParentNeuron = mParentBranch->getParentNeuron();
 	mSignalWeight = SIGNAL_WEIGHT;	//This is the strength of the signal passed to activated branches. In the future, we may want to make it dynamic to allow certain synapses to have more force.
 	mFiringWindow = 10;			//How long a neuron will fire for. FIXME: This needs to be passed from the gene someday 
 	mFiringCounter = 0;
@@ -67,11 +68,12 @@ bool Synapse::detach(){
 **/
 void Synapse::connect(){
     if(mRecipientNeuron){this->detach();}
-    Neuron * parentNeuron = mParentBranch->getParentNeuron();
-    Brain *parentBrain = parentNeuron->getBrain();
+	//I have removed this line because I decided to give synapses their parent neuron in their class
+    //Neuron * parentNeuron = mParentBranch->getParentNeuron();
+    Brain *parentBrain = mParentNeuron->getBrain();
     float age = parentBrain->getAge();
-    Vector3f targetLocation = parentNeuron->getProteinDensityStructure().getRandomTargetPoint(age);
-    mRecipientNeuron = static_cast<Neuron*>(parentBrain->getSpatialSearch()->findNearestNeighbor(targetLocation, parentNeuron));
+    Vector3f targetLocation = mParentNeuron->getProteinDensityStructure().getRandomTargetPoint(age);
+    mRecipientNeuron = static_cast<Neuron*>(parentBrain->getSpatialSearch()->findNearestNeighbor(targetLocation, mParentNeuron));
     if (mRecipientNeuron) {
       //Nearest neighbor target
       mConnectionStrength = 1.0f;
@@ -121,8 +123,11 @@ bool pickrandomlocaton(Elysia::Genome::Gene gene, float age, Vector3f& retval){
 void Synapse::fireSynapse(){
 
 	if(mFiringCounter == 0){
-	  //assert(mWhere= mBrain->activeSynapseListSentinel()); //Wait, why is this here?
-	mWhere = mBrain->activateSynapse(this);
+		float receivedFrequency = mRecipientNeuron->getCurrentOutputFrequency();
+		Neuron::MinMax acceptedFrequencies = mParentNeuron->getCurrentInputBound();
+		if(receivedFrequency >= acceptedFrequencies.min && receivedFrequency <= acceptedFrequencies.max){
+			mWhere = mBrain->activateSynapse(this);
+		}
 	}
 	mFiringCounter = mFiringWindow;
     //Tick function determines when to fire the synapses from the neurons

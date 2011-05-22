@@ -16,6 +16,7 @@ class BRAIN_CORE_EXPORT Synapse{
 	std::list<Synapse*>::iterator mWhere;
     friend class Brain;
     Neuron *mRecipientNeuron;
+	Neuron *mParentNeuron;
 public:
 	~Synapse();
     float mSignalWeight;
