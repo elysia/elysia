@@ -20,7 +20,7 @@ protected:
 protected:
     //Array of child branches
     std::vector<Branch *>mChildBranches;
-
+	
 public:
     CellComponent();
     virtual ~CellComponent(){}

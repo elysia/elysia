@@ -60,7 +60,7 @@ public:
 	void processNeuronMature(Neuron* n);
 	void deleteNeuron(Neuron* deletedNeuron);
 	void deleteSynapse(Synapse* deletedSynapse);
-    Neuron *addNeuron(const BoundingBox3f3f &generationArea, const Genome::Gene &);
+    Neuron *addNeuron(const BoundingBox3f3f&generationArea, const Genome::Gene&gene, int neuronType);
     ~Brain();
     std::list<Synapse *>::iterator activateSynapse(Synapse *activeSynapse);
     std::list<Neuron *>::iterator activateNeuron(Neuron *activeNeuron);
@@ -68,7 +68,7 @@ public:
     void inactivateNeuron(Neuron *inactiveNeuron);
     std::list<Synapse *>::iterator activeSynapseListSentinel(){return mActiveSynapses.end();}
     std::list<Neuron *>::iterator activeNeuronListSentinel(){return mActiveNeurons.end();}
-    Neuron* createInputNeuron(float x, float y, float z, float spread);
+    Neuron* createInputNeuron(float x, float y, float z, float spread, int neuronType);
 	void createInputRegion(int neurons);
 	void fireInputNeuron(int neuronNumber);
 	ProteinEnvironment* getProteinEnvironment() {
