@@ -30,24 +30,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _SIRIKATA_BRAIN_OBJECT_SCRIPT_HPP_
-#define _SIRIKATA_BRAIN_OBJECT_SCRIPT_HPP_
+#ifndef _SIRIKATA_WORLD_OBJECT_SCRIPT_HPP_
+#define _SIRIKATA_WORLD_OBJECT_SCRIPT_HPP_
 
 #include <sirikata/oh/ObjectScript.hpp>
 #include <sirikata/oh/ObjectScriptManager.hpp>
 #include <sirikata/oh/HostedObject.hpp>
 #include <sirikata/proxyobject/SessionEventListener.hpp>
-#include "WorldObjectScript.hpp"
+
 //#include "InputBinding.hpp"
 
 namespace Elysia {
 class Heartbeat;
-class BrainObjectScript : public WorldObjectScript {
+class WorldObjectScript :
+        public Sirikata::ObjectScript,
+        Sirikata::SessionEventListener
+{
 public:
-    BrainObjectScript(HostedObjectPtr ho, const String& args);
-    virtual ~BrainObjectScript();
-    virtual void heartbeat();
-    virtual void handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload);
+    WorldObjectScript(HostedObjectPtr ho, const String& args);
+    virtual ~WorldObjectScript();
+
+    virtual void updateAddressable();
+    virtual void attachScript(const Sirikata::String&);
+
+    // SessionEventListener Interface
+    virtual void onConnected(Sirikata::SessionEventProviderPtr from, const Sirikata::SpaceObjectReference& name, Sirikata::int64 token);
+    virtual void onDisconnected(Sirikata::SessionEventProviderPtr from, const Sirikata::SpaceObjectReference& name);
+    virtual void heartbeat()=0;
+protected:
+    std::tr1::unordered_map< SpaceObjectReference ,ODP::Port*,SpaceObjectReference::Hasher >mMessagingPortMap;
+    std::tr1::shared_ptr<Heartbeat> mHeartbeat;
+    friend class Heartbeat;
+    Context* context() const;
+    void handleStaticCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload);
+    virtual void handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload)=0;
+    void suspendAction();
+    void resumeAction();
+    void toggleSuspendAction();
+    void quitAction();
+
+    void moveAction(Sirikata::Vector3f dir, float amount);
+    void rotateAction(Sirikata::Vector3f about, float amount);
+    void stableRotateAction(float dir, float amount);
+
+    void screenshotAction();
+
+
+    Sirikata::HostedObjectPtr mParent;
+    Sirikata::SpaceObjectReference mID; // SimpleCamera only handles one presence
+    Sirikata::ProxyObjectPtr mSelfProxy;
+
+
+//    Sirikata::InputBinding::InputResponseMap mInputResponses;
+//    Sirikata::InputBinding mInputBinding;
 };
 
 } // namespace Elysia

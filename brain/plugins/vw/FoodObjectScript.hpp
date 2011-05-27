@@ -1,5 +1,5 @@
 /*  Sirikata
- *  SimpleCameraObjectScript.cpp
+ *  SimpleCameraObjectScript.hpp
  *
  *  Copyright (c) 2010, Ewen Cheslack-Postava
  *  All rights reserved.
@@ -30,44 +30,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _SIRIKATA_FOOD_OBJECT_SCRIPT_HPP_
+#define _SIRIKATA_FOOD_OBJECT_SCRIPT_HPP_
 
-#include <sirikata/oh/Platform.hpp>
+#include <sirikata/oh/ObjectScript.hpp>
+#include <sirikata/oh/ObjectScriptManager.hpp>
+#include <sirikata/oh/HostedObject.hpp>
+#include <sirikata/proxyobject/SessionEventListener.hpp>
+#include "WorldObjectScript.hpp"
+//#include "InputBinding.hpp"
 
-#include <sirikata/core/util/KnownServices.hpp>
-
-
-#include "BrainObjectScript.hpp"
-using namespace Sirikata;
 namespace Elysia {
-
-#define WORLD_SCALE 20  // Units for zoom/pan
-#define DEG2RAD 0.0174532925
-BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args) : WorldObjectScript(ho,args) 
-{
-
-}
-
-
-
-void BrainObjectScript::heartbeat(){
-    std::cout<<"BEAT\n";
-    if (rand()%2==1) {
-        if (mSelfProxy) {
-            std::cout<<"SET MESH\n";
-            //String ground("meerkat:///jterrace/ground.DAE/original/0/ground.DAE");
-            String ground("meerkat:///palmfreak/duck.DAE/optimized/1/duck.DAE");
-            mParent->requestMeshUpdate(mID.space(),mID.object(),ground);
-            mSelfProxy->setMesh(Sirikata::Transfer::URI(ground),0);
-        }
-    }
-
-}
-BrainObjectScript::~BrainObjectScript()
-{
-}
-
-void BrainObjectScript::handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload){
-
-}
+class Heartbeat;
+class FoodObjectScript : public WorldObjectScript {
+public:
+    FoodObjectScript(HostedObjectPtr ho, const String& args);
+    virtual ~FoodObjectScript();
+    virtual void heartbeat();
+    virtual void handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload);
+};
 
 } // namespace Elysia
+
+#endif //_SIRIKATA_SIMPLECAMERA_OBJECT_SCRIPT_HPP_

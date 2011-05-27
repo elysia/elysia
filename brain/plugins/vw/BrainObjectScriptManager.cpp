@@ -34,6 +34,7 @@
 
 #include "BrainObjectScriptManager.hpp"
 #include "BrainObjectScript.hpp"
+#include "FoodObjectScript.hpp"
 using namespace Sirikata;
 namespace Elysia {
 
@@ -51,8 +52,14 @@ BrainObjectScriptManager::~BrainObjectScriptManager()
 
 ObjectScript* BrainObjectScriptManager::createObjectScript(HostedObjectPtr ho, const String& args)
 {
-    BrainObjectScript* new_script = new BrainObjectScript(ho, args);
-    return new_script;
+    if (args.find("food")==0) {
+        return new FoodObjectScript(ho, args);
+    }else {
+        if (args.find("creature")==0) {
+            SILOG(oh,error,"Unknown object type instantiated "<<args);
+        }
+        return new BrainObjectScript(ho,args);
+    }
 }
 
 void BrainObjectScriptManager::destroyObjectScript(ObjectScript*toDestroy){

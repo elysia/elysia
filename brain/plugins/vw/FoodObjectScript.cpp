@@ -36,20 +36,20 @@
 #include <sirikata/core/util/KnownServices.hpp>
 
 
-#include "BrainObjectScript.hpp"
+#include "FoodObjectScript.hpp"
 using namespace Sirikata;
 namespace Elysia {
 
 #define WORLD_SCALE 20  // Units for zoom/pan
 #define DEG2RAD 0.0174532925
-BrainObjectScript::BrainObjectScript(HostedObjectPtr ho, const String& args) : WorldObjectScript(ho,args) 
+FoodObjectScript::FoodObjectScript(HostedObjectPtr ho, const String& args) : WorldObjectScript(ho,args) 
 {
 
 }
 
 
 
-void BrainObjectScript::heartbeat(){
+void FoodObjectScript::heartbeat(){
     std::cout<<"BEAT\n";
     if (rand()%2==1) {
         if (mSelfProxy) {
@@ -62,11 +62,11 @@ void BrainObjectScript::heartbeat(){
     }
 
 }
-BrainObjectScript::~BrainObjectScript()
+FoodObjectScript::~FoodObjectScript()
 {
 }
 
-void BrainObjectScript::handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload){
+void FoodObjectScript::handleCommunication (const ODP::Endpoint& src, const ODP::Endpoint& dst, MemoryReference payload){
 
 }
 
