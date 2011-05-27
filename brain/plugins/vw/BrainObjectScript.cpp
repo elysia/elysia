@@ -115,7 +115,7 @@ void BrainObjectScript::attachScript(const String& script_name)
 void BrainObjectScript::onConnected(SessionEventProviderPtr from, const SpaceObjectReference& name, int64 token) {
     mID = name;
     mSelfProxy = mParent->self(mID);
-//    moveAction(Vector3f(0,0,1),10);
+    moveAction(Vector3f(0,0,1),10);
     
 }
 
