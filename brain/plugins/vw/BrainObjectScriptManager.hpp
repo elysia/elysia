@@ -45,7 +45,7 @@ public:
     BrainObjectScriptManager(const Sirikata::String& arguments);
     virtual ~BrainObjectScriptManager();
 
-    virtual Sirikata::ObjectScript* createObjectScript(Sirikata::HostedObjectPtr ho, const Sirikata::String& args);
+    virtual Sirikata::ObjectScript* createObjectScript(Sirikata::HostedObjectPtr ho, const Sirikata::String& args, const Sirikata::String&init_script);
     virtual void destroyObjectScript(Sirikata::ObjectScript* toDestroy);
 };
 

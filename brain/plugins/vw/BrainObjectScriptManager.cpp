@@ -50,12 +50,12 @@ BrainObjectScriptManager::~BrainObjectScriptManager()
 {
 }
 
-ObjectScript* BrainObjectScriptManager::createObjectScript(HostedObjectPtr ho, const String& args)
+ObjectScript* BrainObjectScriptManager::createObjectScript(HostedObjectPtr ho, const String& args, const String&init_script)
 {
-    if (args.find("food")==0) {
+    if (init_script=="food") {
         return new FoodObjectScript(ho, args);
     }else {
-        if (args.find("creature")==0) {
+        if (init_script=="creature") {
             SILOG(oh,error,"Unknown object type instantiated "<<args);
         }
         return new BrainObjectScript(ho,args);
