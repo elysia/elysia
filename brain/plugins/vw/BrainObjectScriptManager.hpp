@@ -40,9 +40,9 @@ namespace Elysia {
 
 class BrainObjectScriptManager : public Sirikata::ObjectScriptManager {
 public:
-    static Sirikata::ObjectScriptManager* createObjectScriptManager(const Sirikata::String& arguments);
+    static Sirikata::ObjectScriptManager* createObjectScriptManager(ObjectHostContext*,const Sirikata::String& arguments);
 
-    BrainObjectScriptManager(const Sirikata::String& arguments);
+    BrainObjectScriptManager(ObjectHostContext*,const Sirikata::String& arguments);
     virtual ~BrainObjectScriptManager();
 
     virtual Sirikata::ObjectScript* createObjectScript(Sirikata::HostedObjectPtr ho, const Sirikata::String& args, const Sirikata::String&init_script);

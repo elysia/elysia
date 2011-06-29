@@ -38,11 +38,11 @@
 using namespace Sirikata;
 namespace Elysia {
 
-ObjectScriptManager* BrainObjectScriptManager::createObjectScriptManager(const String& arguments) {
-    return new BrainObjectScriptManager(arguments);
+ObjectScriptManager* BrainObjectScriptManager::createObjectScriptManager(ObjectHostContext*ohc,const String& arguments) {
+    return new BrainObjectScriptManager(ohc,arguments);
 }
 
-BrainObjectScriptManager::BrainObjectScriptManager(const Sirikata::String& arguments)
+BrainObjectScriptManager::BrainObjectScriptManager(ObjectHostContext*,const Sirikata::String& arguments)
 {
 }
 

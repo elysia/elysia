@@ -8,12 +8,15 @@ static int core_plugin_refcount = 0;
 SIRIKATA_PLUGIN_EXPORT_C void init() {
    using namespace Sirikata;
    using std::tr1::placeholders::_1;
+   using std::tr1::placeholders::_2;
    if (core_plugin_refcount == 0) {
+	   
        ObjectScriptManagerFactory::getSingleton().registerConstructor(
            "vw",
            std::tr1::bind(
                &Elysia::BrainObjectScriptManager::createObjectScriptManager,
-               _1
+               _1,
+			   _2
                )
            );
        std::cout<<"INITIALIZE BRAIN PLUGIN\n";

@@ -29,6 +29,9 @@ copy externals\sirikata\dependencies\opencollada\Externals\expat\win32\bin\Relea
 copy externals\sirikata\dependencies\SDL-1.3.0\bin\*.dll %DEBDEST%
 copy externals\sirikata\dependencies\SDL-1.3.0\bin\*.dll %RELDEST%
 
+copy externals\sirikata\dependencies\installed-sqlite\lib\sqlite3_d.dll %DEBDEST%
+copy externals\sirikata\dependencies\installed-sqlite\lib\sqlite3.dll %RELDEST%
+
 copy externals\sirikata\dependencies\ois-1.0\bin\*.dll %DEBDEST%
 copy externals\sirikata\dependencies\ois-1.0\bin\*.dll %RELDEST%
 copy externals\sirikata\dependencies\protobufs\bin\*.dll %DEBDEST%
