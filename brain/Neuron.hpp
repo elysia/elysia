@@ -3,8 +3,7 @@
 #include "Placeable.hpp"
 #include "CellComponent.hpp"
 #include "ActivityStats.hpp"
-
-#include <vector>
+#include "NeuronTypes.hpp"
 
 namespace Elysia {
 namespace Genome {
@@ -55,7 +54,7 @@ class BRAIN_CORE_EXPORT Neuron : public Placeable, public CellComponent, Activit
 public:
     Neuron(Brain * brain, float BaseBranchiness, float TipBranchiness, 
 		float TreeDepth, float BaseThreshold, float TipThreshold, const Vector3f &location, 
-		const Elysia::Genome::Gene&spawningGene,int neuronType, 
+        const Elysia::Genome::Gene&spawningGene,NeuronTypes::InputType neuronType, 
 		float minFreqReceive, float maxFreqReceive, float minFreqOutput, float maxFreqOutput);
     ~Neuron();
     void fire();

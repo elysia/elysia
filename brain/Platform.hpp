@@ -1,10 +1,10 @@
 #ifndef _BRAIN_CORE_PLATFORM_HPP_
 #define _BRAIN_CORE_PLATFORM_HPP_
-#include <sirikata/core/util/Platform.hpp>
-
+#include <boost/cstdint.hpp>
+#include "../externals/sirikata/libcore/include/sirikata/core/util/Platform.hpp"
 #ifndef BRAIN_CORE_EXPORT
 
-# if SIRIKATA_PLATFORM == PLATFORM_WINDOWS
+# ifdef _WIN32
 #   if defined(STATIC_LINKED)
 #     define BRAIN_CORE_EXPORT
 #   else
@@ -26,14 +26,21 @@
 # endif
 #endif
 namespace Elysia {
-using namespace Sirikata;
+using Sirikata::String;
+using Sirikata::Vector3f;
+using Sirikata::Vector3d;
+using Sirikata::Vector4f;
+using Sirikata::Vector4d;
+using Sirikata::BoundingBox3f3f;
+using boost::int64_t;
+using boost::uint64_t;
 class SimTime {
-    Sirikata::int64 time;
+    boost::int64_t time;
 public:
     SimTime() {
         time=0;
     }
-    Sirikata::int64 getRawTime()const {
+    boost::int64_t getRawTime()const {
         return time;
     }
     bool operator !=(const SimTime&other) const{

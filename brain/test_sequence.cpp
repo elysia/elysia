@@ -52,7 +52,7 @@ void testTwoConnectedNeurons_seq() {
 		v.y = i;
 		v.z = 1;
 		Neuron *n;
-		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene, 2, 0, 100, 0, 100)); 
+		brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene, NeuronTypes::UNKNOWN_INPUT, 0, 100, 0, 100)); 
 		createdList.push_back(n);
 	} // for
 
@@ -110,7 +110,7 @@ Neuron* placeTestSeqNeuron(Brain* brain, float locx, float locy, float locz, flo
 	v.y = locy+range*random;
 	v.z = 1;
 	Neuron *n;
-	brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene, 2, 0, 100, 0, 100));
+	brain->mAllNeurons.insert(n = new Neuron(brain, 2, 3, 4, 2, 2, v,gene, NeuronTypes::UNKNOWN_INPUT, 0, 100, 0, 100));
 	return n;
 }
 

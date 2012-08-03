@@ -53,7 +53,7 @@ Neuron::~Neuron() {
  *					This neuron is added to the nearest neighbor spatial search
 **/
 Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float TreeDepth, float BaseThreshold, 
-			   float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene, int neuronType,
+			   float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene, NeuronTypes::InputType neuronType,
 			   float minFreqReceive, float maxFreqReceive, float minFreqOutput, float maxFreqOutput): Placeable(brain,location) {
     
     mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"

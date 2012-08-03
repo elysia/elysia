@@ -26,6 +26,10 @@
 #SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #cmake options
+if(COMMAND cmake_policy)
+   cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 SET(CMAKE_VERBOSE_MAKEFILE OFF)
@@ -143,7 +147,7 @@ IF(NOT BRAIN_DEPENDENCIES_ROOT)
   ENDIF()
 ENDIF()
 #add-ins
-ADD_SUBDIRECTORY(${BRAIN_TOP_LEVEL}/../externals/sirikata/build/cmake/ ${CMAKE_CURRENT_BINARY_DIR}/sirikata)
+#ADD_SUBDIRECTORY(${BRAIN_TOP_LEVEL}/../externals/sirikata/build/cmake/ ${CMAKE_CURRENT_BINARY_DIR}/sirikata)
 SET(BRAIN_VW_ROOT ${BRAIN_TOP_LEVEL}/../externals/sirikata/)
 SET(BRAIN_VW_DEPENDENCIES ${BRAIN_TOP_LEVEL}/../externals/sirikata/dependencies)
 
@@ -180,6 +184,8 @@ SET(SIRIKATA_CODE_ROOT)
 IF(EXISTS ${BRAIN_DEPENDENCIES_ROOT}/sirikata)
   SET(SIRIKATA_CODE_ROOT ${BRAIN_DEPENDENCIES_ROOT}/sirikata)
 ENDIF()
+SET(Sirikata_INCLUDE_DIR ${BRAIN_TOP_LEVEL}/../externals/sirikata/libcore/include)
+
 IF(EXISTS ${BRAIN_VW_ROOT})
   SET(SIRIKATA_CODE_ROOT ${BRAIN_VW_ROOT})
 ENDIF()
@@ -195,7 +201,7 @@ ENDIF()
 
 
 #dependency: sirikata
-FIND_PACKAGE(Sirikata)
+#FIND_PACKAGE(Sirikata)
 
 
 # add sirikata's cmake modules
@@ -418,12 +424,14 @@ ADD_PLUGIN_TARGET(vis
                     TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS}"
                     LIBRARIES ${VIS_PLUGIN_LIBS}
                     TARGET_LIBRARIES brain-core)
-
+IF(ADD_VW_PLUGIN)
 ADD_PLUGIN_TARGET(brainvw
                     SOURCES ${BRAIN_PLUGIN_VW_SOURCES}
                     TARGET_LDFLAGS "${elysia_LDFLAGS} ${vis_LDFLAGS} ${sirikata_core_LDFLAGS}"
                     LIBRARIES ${VIS_PLUGIN_LIBS} brain-core sirikata-core sirikata-oh sirikata-proxyobject
-                    TARGET_LIBRARIES brain-core sirikata-core sirikata-oh sirikata-proxyobject)
+                    TARGET_LIBRARIES brain-core sirikata-core sirikata-oh sirikata-proxyobject
+                      )
+ENDIF()
 
 ADD_PLUGIN_TARGET(naive
                     SOURCES ${BRAIN_PLUGIN_NAIVE_SOURCES}
@@ -472,7 +480,12 @@ ADD_DEPENDENCIES(brainsandbox brain-core)
 SET_TARGET_PROPERTIES(nearestneighbor PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 SET_TARGET_PROPERTIES(brainsandbox PROPERTIES LINK_FLAGS "${elysia_LDFLAGS}")
 
-SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis brainvw naive
+SET_TARGET_PROPERTIES(brainsandbox brain-core nearestneighbor vis naive
                       PROPERTIES
                       DEBUG_POSTFIX "_d" )
+IF(ADD_VW_PLUGIN)
+SET_TARGET_PROPERTIES(brainvw 
+                      PROPERTIES
+                      DEBUG_POSTFIX "_d" )
+ENDIF()
 SET(CMAKE_DEBUG_POSTFIX "_d")

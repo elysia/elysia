@@ -40,7 +40,7 @@ struct HINSTANCE__;
 #  define DL_HANDLE void*
 #endif
 
-namespace Sirikata {
+namespace Elysia {
 
 /** SharedLibrary represents a sharedally loadable module. This only handles
  *  loading, unloading, and symbol lookup.  This presumes nothing about the

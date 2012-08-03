@@ -42,7 +42,7 @@ Neuron* placeTestNeuron(Brain* brain, float locx, float locy, float sx, float sy
 		v.z = 0;
 		Neuron *n;
         BoundingBox3f3f bb(Vector3f(locx,locy,0),range);
-        n=brain->addNeuron(bb,gene, 2);
+        n=brain->addNeuron(bb,gene, NeuronTypes::UNKNOWN_INPUT);
 		return n;
 	}
 

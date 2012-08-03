@@ -215,7 +215,7 @@ namespace Elysia{
 			}
 		//in this case, you want to find the sib
 		
-/*
+        */ /*
 			//If one child is not a leaf, 
 			else{
 				AnnSpace* departingChild;

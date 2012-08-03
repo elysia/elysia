@@ -39,7 +39,7 @@
 #  include <dlfcn.h>
 #endif
 
-namespace Sirikata {
+namespace Elysia {
 
 SharedLibrary::SharedLibrary(const std::string& path)
  : mPath(path),
@@ -119,7 +119,7 @@ std::string SharedLibrary::prefix() {
 }
 
 std::string SharedLibrary::postfix() {
-#ifdef _DEBUG 
+#ifndef NDEBUG 
     return "_d";
 #else
     return "";
