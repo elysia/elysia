@@ -1,3 +1,6 @@
+#ifndef _ELYSIA_NEURON_TYPES_HPP_
+#define _ELYSIA_NEURON_TYPES_HPP_
+
 namespace Elysia {
   class NeuronTypes {
   public:
@@ -9,3 +12,4 @@ namespace Elysia {
   };
 
 }
+#endif
