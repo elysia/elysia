@@ -1,7 +1,8 @@
 #include "Platform.hpp"
 #include "Base64.hpp"
 namespace Base64 {
-using namespace Sirikata;
+typedef std::uint32_t uint32;
+typedef std::uint8_t uint8;
 static uint32 conservativeBase64Size(size_t x) {
     return (x+2)*4/3+6+x/64+(x%64?1:0);
 }

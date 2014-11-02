@@ -13,19 +13,19 @@
 #include "Brain.hpp"
 #include "Synapse.hpp"
 namespace Elysia {
-extern std::auto_ptr<boost::mutex >gRenderLock;
-extern boost::condition_variable gRenderCondition;
-extern boost::condition_variable gRenderCompleteCondition;
+extern std::auto_ptr<std::mutex >gRenderLock;
+extern std::condition_variable gRenderCondition;
+extern std::condition_variable gRenderCompleteCondition;
 
 extern std::vector<Visualization*> gToRender;
-std::tr1::weak_ptr<GraphicsSystem> Visualization::mGlobalGraphics;
+std::weak_ptr<GraphicsSystem> Visualization::mGlobalGraphics;
 BrainPlugin* makeVisualization(Brain*b) {
     BrainPlugin*v=new Visualization;
     v->initialize(b);
     return v;
 }
 Visualization::Visualization(){
-    boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
+    std::unique_lock<std::mutex> renderLock(*gRenderLock);
     if (std::find(gToRender.begin(),gToRender.end(),this)==gToRender.end()) {
         gToRender.push_back(this);
     }
@@ -36,19 +36,19 @@ Visualization::Visualization(){
 }
 void Visualization::update() {
     {
-        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);    
+        std::unique_lock<std::mutex> renderLock(*gRenderLock);    
         gRenderCondition.notify_one();
     }
 
     {
-        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);    
+        std::unique_lock<std::mutex> renderLock(*gRenderLock);    
         gRenderCompleteCondition.wait(renderLock);
     }
 }
 void Visualization::initialize( Brain*b) {
     mGraphics=mGlobalGraphics.lock();
     if (!mGraphics) {
-        std::tr1::shared_ptr<GraphicsSystem> tmp(new GraphicsSystem());
+        std::shared_ptr<GraphicsSystem> tmp(new GraphicsSystem());
         mGraphics = tmp;
         mGlobalGraphics=tmp;
     }
@@ -257,7 +257,7 @@ void Visualization::getSynapseStartEnd(Neuron * start, bool startIsSelected, Neu
   B+=enddelta;
 }
 float drawThreshold(Brain*brain,SimTime firedSimTime) {//0.0 = no change 1.0 = draw fully
-    Sirikata::int64 delta=(brain->mCurTime.getRawTime()-firedSimTime.getRawTime());
+    int64_t delta=(brain->mCurTime.getRawTime()-firedSimTime.getRawTime());
     if (delta<4)
         return (4-delta)/2.;
     return 0;
@@ -439,12 +439,12 @@ void Visualization::InputStateMachine::draw(Visualization*parent) {
     static bool xx=false;
     if (!xx) {
         xx=true;
-        mButtons.push_back(Button(0,20,20,35,"Add To Detail",std::tr1::bind(&Visualization::addSelectedToDetail,parent)));
-        mButtons.push_back(Button(0,40,20,55,"Subtract from Detail",std::tr1::bind(&Visualization::subtractSelectedFromDetail,parent)));
-        mButtons.push_back(Button(0,60,20,75,"Intersect with Detail",std::tr1::bind(&Visualization::intersectSelectedWithDetail,parent)));
-        mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::tr1::bind(&Visualization::clearDetail,parent)));
-        mButtons.push_back(Button(0,80,20,95,"Add All To Detail Display",std::tr1::bind(&Visualization::addAllToDetail,parent)));
-        mButtons.push_back(Button(0,100,15,115,"Select All",std::tr1::bind(&Visualization::selectAll,parent)));
+        mButtons.push_back(Button(0,20,20,35,"Add To Detail",std::bind(&Visualization::addSelectedToDetail,parent)));
+        mButtons.push_back(Button(0,40,20,55,"Subtract from Detail",std::bind(&Visualization::subtractSelectedFromDetail,parent)));
+        mButtons.push_back(Button(0,60,20,75,"Intersect with Detail",std::bind(&Visualization::intersectSelectedWithDetail,parent)));
+        mButtons.push_back(Button(0,0,10,15,"Clear Detail Display",std::bind(&Visualization::clearDetail,parent)));
+        mButtons.push_back(Button(0,80,20,95,"Add All To Detail Display",std::bind(&Visualization::addAllToDetail,parent)));
+        mButtons.push_back(Button(0,100,15,115,"Select All",std::bind(&Visualization::selectAll,parent)));
     }
     for (size_t i=0;i<mButtons.size();++i) {
         mButtons[i].draw(parent);
@@ -558,7 +558,7 @@ Visualization::Button::Button(float minX,
                               float maxX,
                               float maxY,
                               const std::string &text,
-                              const std::tr1::function<void()> &click,
+                              const std::function<void()> &click,
                               float scale):minX(minX),
                                                                       maxX(maxX),
                                                                       minY(minY),
@@ -722,14 +722,14 @@ void Visualization::draw() {
 }
 Visualization::~Visualization() {
     {
-        boost::unique_lock<boost::mutex> renderLock(*gRenderLock);
+        std::unique_lock<std::mutex> renderLock(*gRenderLock);
         std::vector<Visualization*>::iterator where=std::find(gToRender.begin(),gToRender.end(),this);
         if (where!=gToRender.end()) {
             gToRender.erase(where);
         }
         
     }
-    mGraphics=std::tr1::shared_ptr<GraphicsSystem>();
+    mGraphics=std::shared_ptr<GraphicsSystem>();
 
 }
 void Visualization::notifyNeuronDestruction(Neuron*n){

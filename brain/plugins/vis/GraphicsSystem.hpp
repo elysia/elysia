@@ -1,7 +1,7 @@
-#include <boost/thread.hpp>
+#include <thread>
 namespace Elysia {
 class GraphicsSystem {
-    std::tr1::shared_ptr<boost::thread> mRenderThread;
+    std::shared_ptr<std::thread> mRenderThread;
 public:
     int getWidth()const;
     int getHeight()const;

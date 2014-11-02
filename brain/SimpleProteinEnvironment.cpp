@@ -393,8 +393,7 @@ static bool okArea(const BoundingBox3f3f&input) {
  *
  *	Description:	What the hell does this do?
 **/
-template <class T> Sirikata::BoundingBox<T> intersect(const Sirikata::BoundingBox<T>&a, const Sirikata::BoundingBox<T>&b) {
-    using namespace Sirikata;
+template <class T> BoundingBox<T> intersect(const BoundingBox<T>&a, const BoundingBox<T>&b) {
    BoundingBox<T> retval(a.min().max(b.min()),a.max().min(b.max()));
    if (retval.diag().x<=0||retval.diag().y<=0) {
       return BoundingBox<T>(retval.min(),retval.min());//null bounding box at min

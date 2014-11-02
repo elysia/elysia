@@ -17,7 +17,7 @@ class BRAIN_CORE_EXPORT Brain {
     std::vector<BrainPlugin*> mPlugins;
     void makeInitialNeurons();
     ///maps the index into the protein environment iterator uid to a currently generated neuron count
-    std::tr1::unordered_map<unsigned int,int> mNumNeurons;
+    std::unordered_map<unsigned int,int> mNumNeurons;
     unsigned int mEnvironmentOffset;
     ProteinEnvironment::iterator mEnvironmentIteration;
     void syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::iterator environmentIterator);

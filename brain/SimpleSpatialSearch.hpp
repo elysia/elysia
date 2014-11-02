@@ -1,3 +1,5 @@
+#ifndef _SIMPLE_SPATIAL_SEARCH_HPP_
+#define _SIMPLE_SPATIAL_SEARCH_HPP_
 #include "SpatialSearch.hpp"
 namespace Elysia {
 class Placeable;
@@ -6,7 +8,7 @@ class Placeable;
  *  --"Simple" implementation of nearest neighbor
  */
 class BRAIN_CORE_EXPORT SimpleSpatialSearch : public SpatialSearch { 
-    std::tr1::unordered_set<Placeable*> mPlaceables;
+    std::unordered_set<Placeable*> mPlaceables;
 private:
 public:
     Placeable* findNearestNeighbor(const Vector3f &queryPoint, Placeable* exclude);
@@ -15,3 +17,4 @@ public:
     void moveNeighbor(Placeable*);
 };
 }
+#endif

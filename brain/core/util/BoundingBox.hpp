@@ -1,0 +1,192 @@
+/*  Elysia Utilities -- Math Library
+ *  BoundingBox.hpp
+ *
+ *  Copyright (c) 2009, Daniel Reiter Horn
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are
+ *  met:
+ *  * Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *  * Neither the name of Elysia nor the names of its contributors may
+ *    be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+#ifndef _ELYSIA_BOUNDING_BOX_HPP
+#define _ELYSIA_BOUNDING_BOX_HPP
+
+#define BBOX_CONTAINS_EPSILON 0.0005
+
+namespace Elysia {
+template <typename real> class BoundingBox {
+    Vector3<real> mMin;
+    Vector3f mAcross;
+public:
+    BoundingBox() {}
+    static BoundingBox<real> null() {
+        return BoundingBox<real>(Vector3<real>(0,0,0),0);
+    }
+
+    BoundingBox(const Vector3<real>&center, float radius){
+        mMin=center-Vector3<real>(radius,radius,radius);
+        mAcross=Vector3f(2.0f*radius,2.0f*radius,2.0f*radius);
+    }
+    template <typename flt> BoundingBox(const BoundingBox<flt>&input) {
+        mMin=Vector3<real>(input.min());
+        mAcross=input.across();
+    }
+    BoundingBox(const Vector3<real>&imin,const Vector3<real>&imax){
+        mMin=imin;
+        Vector3<real> tmp(imax-imin);
+        mAcross.x=(float)tmp.x;
+        mAcross.y=(float)tmp.y;
+        mAcross.z=(float)tmp.z;
+    }
+
+    const Vector3<real> &min()const{
+        return mMin;
+    }
+    const Vector3f& across() const {
+        return mAcross;
+    }
+    const Vector3f& diag() const {
+        return mAcross;
+    }
+    const Vector3f& extents() const {
+        return mAcross;
+    }
+    Vector3<real> max() const {
+        return mMin+Vector3<real>(mAcross);
+    }
+    Vector3<real> center() const {
+        return mMin+Vector3<real>(mAcross * 0.5f);
+    }
+    BoundingSphere<real> toBoundingSphere() const{
+        Vector3<real> center=this->center();
+        float maxlen=(this->max()-this->center()).lengthSquared();
+        float minlen=(this->min()-this->center()).lengthSquared();
+        float radius=std::sqrt(minlen<maxlen?maxlen:minlen);
+        return BoundingSphere<real>(center,radius);
+    }
+
+    BoundingBox<real> merge(const BoundingBox<real>&other) {
+        return BoundingBox<real>(min().min(other.min()),
+                           max().max(other.max()));
+    }
+    BoundingBox merge(const Vector3<real>&other) {
+        return BoundingBox(min().min(other),
+                           max().max(other));
+    }
+
+    BoundingBox& mergeIn(const BoundingBox<real>& other) {
+         Vector3<real> mmax = max().max(other.max());
+         Vector3<real> mmin= min().min(other.min());
+         mMin = mmin;
+         mAcross = Vector3f(mmax - mmin);
+         return *this;
+    }
+
+    BoundingBox& mergeIn(const Vector3<real>& other) {
+        Vector3<real> mmin=min().min(other);
+        Vector3<real> mmax = max().max(other);
+        mMin=mmin;
+        mAcross = Vector3f(mmax - mmin);
+        return *this;
+    }
+
+    /** Returns whether the point is within the bounding box, within the given epsilon. A
+     *  positive epsilon grows the bounding box, negative shrinks it.
+     *  \param point The point to test against the bounding box.
+     *  \param eps epsilon error, applied for all dimensions equally. Positive values increase
+     *             the size of the bounding box, negative values decrease it.
+     *  \returns true if the point falls within epsilon inside the bounding box, false otherwise
+     */
+    bool contains(const Vector3<real>& point, real eps = BBOX_CONTAINS_EPSILON) const {
+        Vector3<real> mmax = max();
+        Vector3<real> mmin = min();
+        for(int i = 0; i < Vector3<real>::size; i++) {
+            if ( (point[i] - mmin[i] < -eps) ||
+                (mmax[i] - point[i] < -eps) )
+                return false;
+        }
+        return true;
+    }
+
+
+    bool degenerate() const {
+        for(int i = 0; i < Vector3<real>::size; i++)
+            if (mAcross[i] <= 0) return true;
+        return false;
+    }
+
+    real volume() const {
+        if (degenerate()) return 0.0;
+        real vol = 1;
+        for(int i = 0; i < Vector3<real>::size; i++)
+            vol *= mAcross[i];
+        return vol;
+    }
+
+    Vector3<real> clamp(const Vector3<real>& v) const {
+        return v.max(min()).min(max());
+    }
+
+    bool intersects(const BoundingBox& bbox2) const {
+      BoundingBox bbox = BoundingBox(min().max(bbox2.min()),
+                                         max().min(bbox2.max()));
+
+      if (bbox.min().x < bbox.max().x &&
+          bbox.min().y < bbox.max().y &&
+          bbox.min().z < bbox.max().z)
+      {
+        return true;
+      }
+
+      return false;
+    }
+
+    bool operator==(const BoundingBox& rhs) const{
+        return (mMin == rhs.mMin && mAcross == rhs.mAcross);
+    }
+    bool operator!=(const BoundingBox& rhs) const{
+        return (mMin != rhs.mMin || mAcross != rhs.mAcross);
+    }
+
+};
+
+template<typename scalar>
+inline std::ostream& operator <<(std::ostream& os, const BoundingBox<scalar> &rhs) {
+  os << '<' << rhs.min() << ',' << rhs.max() << '>';
+  return os;
+}
+
+template<typename scalar>
+inline std::istream& operator >>(std::istream& is, BoundingBox<scalar> &rhs) {
+  // FIXME this should be more robust.  It currently relies on the exact format provided by operator <<
+  char dummy;
+  Vector3<scalar> minval, maxval;
+  is >> dummy >> minval >> dummy >> maxval >> dummy;
+  rhs = BoundingBox<scalar>(minval, maxval);
+  return is;
+}
+
+
+}
+#endif

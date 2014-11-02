@@ -6,12 +6,12 @@ static BrainPlugins gBrainPlugins;
 
 /**
  *	@param const std::string &name - name of the plugin
- *	@param const std::tr1::function<BrainPlugin*(Brain*)> &constructor - brain constructor
+ *	@param const std::function<BrainPlugin*(Brain*)> &constructor - brain constructor
  *
  *	Description:	Registers a (new) brain plugin
 **/
 void BrainPlugins::registerBrainPlugin(const std::string&name, 
-                                  const std::tr1::function<BrainPlugin*(Brain*)>&constructor){
+                                  const std::function<BrainPlugin*(Brain*)>&constructor){
     gBrainPlugins.mPlugins[name]=constructor;
 }
 
@@ -23,7 +23,7 @@ void BrainPlugins::registerBrainPlugin(const std::string&name,
 **/
 std::vector<BrainPlugin *>BrainPlugins::constructAll(Brain*b) {
     std::vector<BrainPlugin*> retval;
-    for (std::map<std::string,std::tr1::function<BrainPlugin*(Brain*)> >::iterator i=gBrainPlugins.mPlugins.begin(),ie=gBrainPlugins.mPlugins.end();i!=ie;++i) {
+    for (std::map<std::string,std::function<BrainPlugin*(Brain*)> >::iterator i=gBrainPlugins.mPlugins.begin(),ie=gBrainPlugins.mPlugins.end();i!=ie;++i) {
         retval.push_back(i->second(b));
     }
     return retval;
@@ -38,7 +38,7 @@ std::vector<BrainPlugin *>BrainPlugins::constructAll(Brain*b) {
 **/
 BrainPlugin *BrainPlugins::construct(const std::string &name, Brain *b) {
     std::vector<BrainPlugin*> retval;
-    std::map<std::string,std::tr1::function<BrainPlugin*(Brain*)> >::iterator i=gBrainPlugins.mPlugins.find(name);
+    std::map<std::string,std::function<BrainPlugin*(Brain*)> >::iterator i=gBrainPlugins.mPlugins.find(name);
     if (i!=gBrainPlugins.mPlugins.end()){
         return i->second(b);
     }

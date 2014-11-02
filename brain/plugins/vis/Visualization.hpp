@@ -14,8 +14,8 @@ class Visualization:public BrainPlugin  {
     void addSelectedToDetail();
     void subtractSelectedFromDetail();
     void intersectSelectedWithDetail();
-    std::tr1::shared_ptr<GraphicsSystem> mGraphics;
-    static std::tr1::weak_ptr<GraphicsSystem> mGlobalGraphics;
+    std::shared_ptr<GraphicsSystem> mGraphics;
+    static std::weak_ptr<GraphicsSystem> mGlobalGraphics;
     Brain * mBrain;
     float mNeuronSize;
     float mScale;
@@ -31,7 +31,7 @@ class Visualization:public BrainPlugin  {
     void drawDendrites(const Neuron* n, const CellComponent* dendrite, Vector3f startLocation, float scale, bool isDetailed, bool isSelected);
     void drawNeuron(Neuron*n);
     void doInput();
-    typedef std::tr1::unordered_set<Neuron*> SelectedNeuronMap;
+    typedef std::unordered_set<Neuron*> SelectedNeuronMap;
     SelectedNeuronMap mSelectedNeurons;
     SelectedNeuronMap mDetailedNeurons;
 
@@ -78,7 +78,7 @@ private:
         float maxY;
         float mScale;//how big the text is
         std::string mText;
-        std::tr1::function<void()> mClick;
+        std::function<void()> mClick;
         bool renderedOnce;
     public:
         /**
@@ -89,7 +89,7 @@ private:
                float maxX,
                float maxY,
                const std::string &text,
-               const std::tr1::function<void()> &click,
+               const std::function<void()> &click,
                float scale=.1);
         void draw(Visualization * vis);
         bool click(Visualization * vis, const Visualization::Event&evt)const;

@@ -37,7 +37,7 @@ bool loadFile(const char* fileName, Elysia::Genome::Genome &retval) {
 }
 void nilDestroy() {}
 Elysia::SharedLibrary gVis(Elysia::SharedLibrary::prefix()+"vis"+Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension());
-typedef std::map<std::string,std::tr1::shared_ptr<Elysia::SharedLibrary> > DevelopmentPluginMap;
+typedef std::map<std::string,std::shared_ptr<Elysia::SharedLibrary> > DevelopmentPluginMap;
 DevelopmentPluginMap gPlugins;
 bool loadedVis=false;
 
@@ -73,7 +73,7 @@ int asyncMain(int argc, char**argv, bool loadvis) {
     }
     
     Elysia::Vector3f test(0,1,2);
-    std::tr1::unordered_map<Elysia::String,Elysia::Vector3f> bleh;
+    std::unordered_map<Elysia::String,Elysia::Vector3f> bleh;
     bleh["ahoy"]=test;
     Elysia::Genome::Genome genes;
     if (argc>1) {
@@ -111,7 +111,7 @@ void asyncMainWrapper(int argc, char**argv, bool loadvis) {
     asyncMain(argc,argv,loadvis);
 }
 void loadDevelLib(const char*name){
-    std::tr1::shared_ptr<Elysia::SharedLibrary> item(new Elysia::SharedLibrary(
+    std::shared_ptr<Elysia::SharedLibrary> item(new Elysia::SharedLibrary(
                                                          Elysia::SharedLibrary::prefix()+name
                                                          +Elysia::SharedLibrary::postfix()+Elysia::SharedLibrary::extension()));
     gPlugins[name]=item;
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         gPlugins.erase(failedPlugins.back());
         failedPlugins.pop_back();
     }
-    std::tr1::shared_ptr<boost::thread> formerMain;
+    std::shared_ptr<std::thread> formerMain;
     if (
 #ifdef __APPLE__
 	loadvis
@@ -158,7 +158,7 @@ int main(int argc, char **argv) {
         )
 
     {
-        formerMain=Elysia::MainThread::giveUpMain(std::tr1::bind(asyncMainWrapper,argc,argv,true));
+        formerMain=Elysia::MainThread::giveUpMain(std::bind(asyncMainWrapper,argc,argv,true));
         
     }else return asyncMain(argc,argv,loadvis);
     return 0;

@@ -1,9 +1,9 @@
-#include <boost/thread.hpp>
+#include <thread>
 
 namespace Elysia {
 class BRAIN_CORE_EXPORT MainThread{public:
-    static std::tr1::shared_ptr<boost::thread> giveUpMain(const std::tr1::function<void()>&continuation);
-    static std::tr1::shared_ptr<boost::thread> wrestMainThread(const std::tr1::function<void()>&threadFunc);
+    static std::shared_ptr<std::thread> giveUpMain(const std::function<void()>&continuation);
+    static std::shared_ptr<std::thread> wrestMainThread(const std::function<void()>&threadFunc);
 };
 
 }

@@ -1,20 +1,20 @@
 #include "Platform.hpp"
 #include "MainThread.hpp"
 namespace Elysia {
-static boost::condition_variable gMainThreadCheckCondition;
-static std::auto_ptr<boost::mutex> gMainThreadLock(new boost::mutex);
+static std::condition_variable gMainThreadCheckCondition;
+static std::auto_ptr<std::mutex> gMainThreadLock(new std::mutex);
 static bool gActiveMain=false;
 static bool gActiveCallback=false;
-std::tr1::shared_ptr<boost::thread> gFormerlyMainThread;
-std::tr1::function<void()> gMainThreadFunc;
-std::tr1::shared_ptr<boost::thread> MainThread::giveUpMain(const std::tr1::function<void()>&continuation){
+std::shared_ptr<std::thread> gFormerlyMainThread;
+std::function<void()> gMainThreadFunc;
+std::shared_ptr<std::thread> MainThread::giveUpMain(const std::function<void()>&continuation){
     bool callme=true;
-    std::tr1::function<void()> mainThreadFunc;    
-    std::tr1::shared_ptr<boost::thread> y;
+    std::function<void()> mainThreadFunc;    
+    std::shared_ptr<std::thread> y;
     {
-        boost::unique_lock<boost::mutex> lok(*gMainThreadLock);
+        std::unique_lock<std::mutex> lok(*gMainThreadLock);
         gActiveMain=true;
-        std::tr1::shared_ptr<boost::thread> x(new boost::thread(continuation));
+        std::shared_ptr<std::thread> x(new std::thread(continuation));
         y=x;
         gFormerlyMainThread=x;
         gMainThreadCheckCondition.wait(lok);
@@ -26,8 +26,8 @@ std::tr1::shared_ptr<boost::thread> MainThread::giveUpMain(const std::tr1::funct
     mainThreadFunc();
     return y;
 }
-std::tr1::shared_ptr<boost::thread> MainThread::wrestMainThread(const std::tr1::function<void()>&threadFunc){
-    boost::unique_lock<boost::mutex> lok(*gMainThreadLock);
+std::shared_ptr<std::thread> MainThread::wrestMainThread(const std::function<void()>&threadFunc){
+    std::unique_lock<std::mutex> lok(*gMainThreadLock);
     if (gActiveMain) {
         gMainThreadFunc=threadFunc;
         gActiveCallback=true;
@@ -36,10 +36,10 @@ std::tr1::shared_ptr<boost::thread> MainThread::wrestMainThread(const std::tr1::
 #ifdef __APPLE__
         fprintf(stderr,"Warning: main thread not ceded to graphics\n");
 #endif
-        std::tr1::shared_ptr<boost::thread> x(new boost::thread(threadFunc));
+        std::shared_ptr<std::thread> x(new std::thread(threadFunc));
         return x;
     }
-    return std::tr1::shared_ptr<boost::thread>();
+    return std::shared_ptr<std::thread>();
 }
 
 

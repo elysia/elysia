@@ -8,7 +8,7 @@ namespace Elysia {
  *  --"TreeNN" implementation of nearest neighbor
  */
 class BRAIN_CORE_EXPORT TreeNNSpatialSearch : public SpatialSearch { 
-    std::tr1::unordered_set<Placeable*> mPlaceables;
+    std::unordered_set<Placeable*> mPlaceables;
 private:
 public:
 	TreeNNSpatialSearch();

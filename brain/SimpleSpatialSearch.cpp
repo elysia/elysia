@@ -21,7 +21,7 @@ namespace Elysia {
  *	Description:	Finds nearest neighbor from local copy of list
 **/
 Placeable* SimpleSpatialSearch::findNearestNeighbor(const Vector3f &queryPoint, Placeable* exclude){
-    std::tr1::unordered_set<Placeable*>::iterator i;
+    std::unordered_set<Placeable*>::iterator i;
     float maxDistance;
     Placeable * maxDistanceItem=NULL;
     for(i=mPlaceables.begin();i!=mPlaceables.end();++i) {
