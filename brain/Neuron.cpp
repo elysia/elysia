@@ -56,7 +56,7 @@ Neuron::Neuron(Brain* brain, float BaseBranchiness, float TipBranchiness, float 
 			   float TipThreshold, const Vector3f &location, const Elysia::Genome::Gene&gene, NeuronTypes::InputType neuronType,
 			   float minFreqReceive, float maxFreqReceive, float minFreqOutput, float maxFreqOutput): Placeable(brain,location) {
     
-    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("")();//FIXME have a mechanism for using the gene to select the string "naive"
+    mDevelopment = DevelopmentFactory::getSingleton().getConstructor("naive")();//FIXME have a mechanism for using the gene to select the string "naive"
     mDevelopment->setParent(this);
     mProteinDensity = new ProteinDensity(brain->getProteinEnvironment(),gene);
     mWhere=brain->activeNeuronListSentinel();

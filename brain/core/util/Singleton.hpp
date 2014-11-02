@@ -34,11 +34,8 @@
 #define _ELYSIA_SINGLETON_HPP_
 
 #include <core/util/Platform.hpp>
-#include <thread>
-#include <thread>
 
 namespace Elysia {
-ELYSIA_EXPORT extern std::mutex *sAutoSingletonInstanceMutex;
 template <class T> class AutoSingleton {
     static std::auto_ptr<T>& _instance() {
         static std::auto_ptr<T> sInstance(new T);

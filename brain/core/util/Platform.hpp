@@ -206,6 +206,9 @@
 #include <memory>
 #include <array>
 #include <functional>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <unordered_set>
 #include <unordered_map>
 

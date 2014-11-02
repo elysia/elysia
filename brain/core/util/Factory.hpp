@@ -94,8 +94,9 @@ public:
     bool registerConstructor(const String& name,
                              const Ftype &constructor,
                              bool isDefault=false) {
-        if (mConstructors.find(name)!=mConstructors.end())
+        if (mConstructors.find(name)!=mConstructors.end()) {
             return false;
+        }
         mConstructors[name]=constructor;
         if (isDefault) {
             mDefault=name;
@@ -130,8 +131,9 @@ public:
     // Gets a specific constructor and throws a
     // FactoryMissingConstructorException if it can't be found
     const Ftype& getConstructor(const String&name) const {
-        if (!hasConstructor(name))
+        if (!hasConstructor(name)) {
             throw FactoryMissingConstructorException(name);
+        }
         return getConstructorOrDefault(name);
     }
 

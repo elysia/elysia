@@ -6,7 +6,8 @@ static Development*makeNaiveDevelopment() {
 }
 
 bool NaiveDevelopment::initNaiveDevelopmentLibrary() {
-    DevelopmentFactory::getSingleton().registerConstructor ("naive",&makeNaiveDevelopment,false);
+    auto & tmp = DevelopmentFactory::getSingleton();
+    tmp.registerConstructor ("naive",&makeNaiveDevelopment,false);
     return true;
 }
 bool NaiveDevelopment::deinitNaiveDevelopmentLibrary() {
