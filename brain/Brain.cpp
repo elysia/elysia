@@ -20,8 +20,6 @@
 #define INPUT_AXON_SPREAD		0.0f	//The range of axon locations from input neurons
 #define DEVELOPMENT_TICKS		10		//How often development neurons are re-evaluated PRESENTLY UNUSED
 
-#include <boost/math/distributions/uniform.hpp>
-#include <boost/random.hpp>
 
 namespace Elysia {
 
@@ -49,10 +47,11 @@ void Brain::syncEnvironmentNeurons(unsigned int index, ProteinEnvironment::itera
     BoundingBox3f3f bounds = environmentIterator.getBoundingBox();
     float area = bounds.across().x*bounds.across().y;
     float expectedNumNeurons=neuronDensity*area;
-    boost::minstd_rand randGen(1+index);//needs to be >0
-    boost::uniform_real<> uni_dist(0.0f,1.0f);
-    boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
-    if (expectedNumNeurons-floor(expectedNumNeurons)<uniform()) {
+    //boost::minstd_rand randGen(1+index);//needs to be >0
+    //boost::uniform_real<> uni_dist(0.0f,1.0f);
+    //boost::variate_generator<boost::minstd_rand, boost::uniform_real<> > uniform(randGen,uni_dist);
+    float uniform01 = rand() / (double)RAND_MAX;
+    if (expectedNumNeurons-floor(expectedNumNeurons)<uniform01) {
         expectedNumNeurons=ceil(expectedNumNeurons);
     }else {
         expectedNumNeurons=floor(expectedNumNeurons);
