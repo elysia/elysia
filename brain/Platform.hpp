@@ -1,6 +1,6 @@
 #ifndef _BRAIN_CORE_PLATFORM_HPP_
 #define _BRAIN_CORE_PLATFORM_HPP_
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include "core/util/Platform.hpp"
 #ifndef BRAIN_CORE_EXPORT
 
@@ -35,12 +35,12 @@ namespace Elysia {
     using std::int64_t;
     using std::uint64_t;
 class SimTime {
-    boost::int64_t time;
+    std::int64_t time;
 public:
     SimTime() {
         time=0;
     }
-    boost::int64_t getRawTime()const {
+    std::int64_t getRawTime()const {
         return time;
     }
     bool operator !=(const SimTime&other) const{

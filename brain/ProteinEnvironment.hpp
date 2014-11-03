@@ -11,7 +11,7 @@ namespace Elysia { namespace Genome {
  */
  namespace Elysia {
 
- typedef boost::uint64_t ProteinType;
+ typedef std::uint64_t ProteinType;
  
  class EffectAndTypeAndDensity {
  public:
