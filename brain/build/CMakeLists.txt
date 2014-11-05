@@ -43,6 +43,7 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF()
 
 IF(NOT WIN32)
+ADD_DEFINITIONS("-std=c++11")
 SET(BRAIN_DEFAULT_COMPILE_FLAGS "-std=c++11 -Wall -Wno-unused-function -Wno-unused-variable -fvisibility=hidden")
 ENDIF()
 IF(WIN32)

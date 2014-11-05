@@ -1,6 +1,9 @@
 #include <Platform.hpp>
 #include "GraphicsSystem.hpp"
 #include "MainThread.hpp"
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #ifdef __APPLE__
 #include "glut.h"
 #else

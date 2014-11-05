@@ -1,1 +1,44 @@
-This project is an attempt to bring a biological approach to AI. Our goal is to generate a framework that encompasses all of the meaningful properties of neurons (brain cells) and place them in an architecture where they have the greatest possible freedom to associate and evolve. Where similar attempts in the past have simplified many aspects of the biology, we believe that a complete representation of the important biology is essential to success. 
+-----------
+|Overview |
+-----------
+
+This project is an attempt to bring a biological approach to AI.
+Our goal is to generate a framework that encompasses all of the
+meaningful properties of neurons (brain cells) and place them in
+an architecture where they have the greatest possible freedom to
+associate and evolve.
+Where similar attempts in the past have simplified many aspects
+of the biology, we believe that a complete representation of the
+important biology is essential to success.
+
+----------------
+| Build on OSX |
+----------------
+
+0) Download cmake from http://www.cmake.org/download/
+
+1) put CMake.app in /Applications
+
+2) git clone https://github.com/elysia/elysia.git
+
+3) cd elysia
+
+4) git submodule init; git submodule update --init --recursive
+
+5) cd externals/linuxdepends ; make protobuf
+
+6) cd ../../brain/build
+
+7) mkdir osx ; cd osx
+
+8) /Applications/CMake.app/Contents/bin/cmake .. -G Xcode
+
+9) open brain.xcodeproj
+
+10) Go to the Product Menu and select Build
+
+11) Go to the Product Menu and select Run (and authorize Xcode)
+
+and that loads a grid of cells without interconnections and
+runs it for some fixed number of cycles and then quits
+
