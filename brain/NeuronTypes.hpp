@@ -1,5 +1,5 @@
-#ifndef _NEURON_TYPES_HPP_
-#define _NEURON_TYPES_HPP_
+#ifndef _ELYSIA_NEURON_TYPES_HPP_
+#define _ELYSIA_NEURON_TYPES_HPP_
 
 namespace Elysia {
   class NeuronTypes {
@@ -13,4 +13,3 @@ namespace Elysia {
 
 }
 #endif
-
