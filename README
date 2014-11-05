@@ -39,6 +39,19 @@ important biology is essential to success.
 
 11) Go to the Product Menu and select Run (and authorize Xcode)
 
-and that loads a grid of cells without interconnections and
-runs it for some fixed number of cycles and then quits
+    and that loads a grid of cells without interconnections and
+    runs it for some fixed number of cycles and then quits
+
+
+12) To get commit access first fork it in the github interface then do
+
+    git remote rm origin
+    git remote add commonrepo https://github.com/elysia/elysia.git
+    git remote add danielrh git://github.com/danielrh/elysia.git
+    git remote add origin git@github.com:<yourusername>/elysia.git
+
+
+    this makes your origin the one in github and it allows you to pull
+    (read only) from danielrh and pull or push from the main elysia repo
+    depending on whether you have write access or not to that repo
 
